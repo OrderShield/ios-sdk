@@ -16,12 +16,21 @@ class SelfieVerificationViewController: UIViewController {
     private var photoOutput: AVCapturePhotoOutput?
     private var isCapturing = false
     
+    private var countdownTimer: Timer?
+    private var countdownValue = 3
+    
     private let titleLabel = UILabel()
     private let captureButton = UIButton(type: .system)
     private let previewImageView = UIImageView()
     private let retakeButton = UIButton(type: .system)
     private let submitButton = UIButton(type: .system)
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    
+    // Countdown overlay views
+    private let countdownOverlayView = UIView()
+    private let countdownCircleView = UIView()
+    private let countdownLabel = UILabel()
+    private let guideCircleView = UIView()
     
     init(sessionToken: String, onComplete: @escaping () -> Void, onError: ((Error) -> Void)? = nil) {
         self.sessionToken = sessionToken
@@ -44,23 +53,56 @@ class SelfieVerificationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         startCamera()
+        startCountdown()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopCamera()
+        stopCountdown()
     }
     
     private func setupUI() {
         view.backgroundColor = .white
         
         // Title
-        titleLabel.text = "Take a Selfie"
+        titleLabel.text = "Verification Protection"
         titleLabel.font = .systemFont(ofSize: 18, weight: .medium)
         titleLabel.textColor = .black
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
+        
+        // Countdown Overlay View (full screen overlay)
+        countdownOverlayView.backgroundColor = .clear
+        countdownOverlayView.isHidden = true
+        countdownOverlayView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(countdownOverlayView)
+        
+        // Green Guide Circle
+        guideCircleView.layer.borderWidth = 3
+        guideCircleView.layer.borderColor = UIColor.systemGreen.cgColor
+        guideCircleView.backgroundColor = .clear
+        guideCircleView.layer.cornerRadius = 120 // Will be updated in layout
+        guideCircleView.isHidden = true
+        guideCircleView.translatesAutoresizingMaskIntoConstraints = false
+        countdownOverlayView.addSubview(guideCircleView)
+        
+        // Countdown Circle (dark circular badge)
+        countdownCircleView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        countdownCircleView.layer.cornerRadius = 40
+        countdownCircleView.isHidden = true
+        countdownCircleView.translatesAutoresizingMaskIntoConstraints = false
+        countdownOverlayView.addSubview(countdownCircleView)
+        
+        // Countdown Label
+        countdownLabel.text = "3"
+        countdownLabel.font = .systemFont(ofSize: 48, weight: .bold)
+        countdownLabel.textColor = .white
+        countdownLabel.textAlignment = .center
+        countdownLabel.isHidden = true
+        countdownLabel.translatesAutoresizingMaskIntoConstraints = false
+        countdownCircleView.addSubview(countdownLabel)
         
         // Preview Image View (hidden initially)
         previewImageView.contentMode = .scaleAspectFill
@@ -69,7 +111,7 @@ class SelfieVerificationViewController: UIViewController {
         previewImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(previewImageView)
         
-        // Capture Button
+        // Capture Button (hidden initially, will be shown after retake)
         captureButton.setTitle("Capture", for: .normal)
         captureButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         captureButton.backgroundColor = UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 1.0) // RGB(100, 104, 254)
@@ -77,6 +119,7 @@ class SelfieVerificationViewController: UIViewController {
         captureButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
         captureButton.layer.cornerRadius = 12
         captureButton.addTarget(self, action: #selector(capturePhoto), for: .touchUpInside)
+        captureButton.isHidden = true // Hidden initially, auto-capture will be used
         captureButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(captureButton)
         
@@ -142,7 +185,29 @@ class SelfieVerificationViewController: UIViewController {
             arrowIcon.heightAnchor.constraint(equalToConstant: 20),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            // Countdown Overlay (full screen)
+            countdownOverlayView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            countdownOverlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            countdownOverlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            countdownOverlayView.bottomAnchor.constraint(equalTo: captureButton.topAnchor, constant: -20),
+            
+            // Green Guide Circle (centered)
+            guideCircleView.centerXAnchor.constraint(equalTo: countdownOverlayView.centerXAnchor),
+            guideCircleView.centerYAnchor.constraint(equalTo: countdownOverlayView.centerYAnchor),
+            guideCircleView.widthAnchor.constraint(equalToConstant: 240),
+            guideCircleView.heightAnchor.constraint(equalToConstant: 240),
+            
+            // Countdown Circle (centered)
+            countdownCircleView.centerXAnchor.constraint(equalTo: countdownOverlayView.centerXAnchor),
+            countdownCircleView.centerYAnchor.constraint(equalTo: countdownOverlayView.centerYAnchor),
+            countdownCircleView.widthAnchor.constraint(equalToConstant: 80),
+            countdownCircleView.heightAnchor.constraint(equalToConstant: 80),
+            
+            // Countdown Label (centered in circle)
+            countdownLabel.centerXAnchor.constraint(equalTo: countdownCircleView.centerXAnchor),
+            countdownLabel.centerYAnchor.constraint(equalTo: countdownCircleView.centerYAnchor)
         ])
     }
     
@@ -182,6 +247,9 @@ class SelfieVerificationViewController: UIViewController {
             width: view.bounds.width,
             height: captureTop - titleBottom
         )
+        
+        // Ensure guide circle is circular
+        guideCircleView.layer.cornerRadius = guideCircleView.bounds.width / 2
     }
     
     private func startCamera() {
@@ -194,6 +262,57 @@ class SelfieVerificationViewController: UIViewController {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.captureSession?.stopRunning()
         }
+    }
+    
+    private func startCountdown() {
+        // Only start countdown if we're not showing a preview
+        guard previewImageView.isHidden else { return }
+        
+        countdownValue = 3
+        countdownOverlayView.isHidden = false
+        guideCircleView.isHidden = false
+        countdownCircleView.isHidden = false
+        countdownLabel.isHidden = false
+        countdownLabel.text = "\(countdownValue)"
+        titleLabel.text = "Taking photo in \(countdownValue)..."
+        
+        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+            guard let self = self else {
+                timer.invalidate()
+                return
+            }
+            
+            self.countdownValue -= 1
+            
+            if self.countdownValue > 0 {
+                self.countdownLabel.text = "\(self.countdownValue)"
+                self.titleLabel.text = "Taking photo in \(self.countdownValue)..."
+            } else {
+                // Countdown finished, capture photo
+                timer.invalidate()
+                self.countdownTimer = nil
+                self.countdownLabel.text = "0"
+                self.titleLabel.text = "Taking photo..."
+                
+                // Hide countdown overlay and capture photo
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.countdownOverlayView.isHidden = true
+                    self.guideCircleView.isHidden = true
+                    self.countdownCircleView.isHidden = true
+                    self.countdownLabel.isHidden = true
+                    self.capturePhoto()
+                }
+            }
+        }
+    }
+    
+    private func stopCountdown() {
+        countdownTimer?.invalidate()
+        countdownTimer = nil
+        countdownOverlayView.isHidden = true
+        guideCircleView.isHidden = true
+        countdownCircleView.isHidden = true
+        countdownLabel.isHidden = true
     }
     
     @objc private func capturePhoto() {
@@ -209,8 +328,10 @@ class SelfieVerificationViewController: UIViewController {
         previewImageView.image = nil
         retakeButton.isHidden = true
         submitButton.isHidden = true
-        captureButton.isHidden = false
+        captureButton.isHidden = true
+        titleLabel.text = "Verification Protection"
         startCamera()
+        startCountdown()
     }
     
     @objc private func submitPhoto() {
@@ -393,6 +514,7 @@ extension SelfieVerificationViewController: AVCapturePhotoCaptureDelegate {
             self?.captureButton.isHidden = true
             self?.retakeButton.isHidden = false
             self?.submitButton.isHidden = false
+            self?.titleLabel.text = "Take a Selfie"
         }
     }
 }

@@ -35,7 +35,7 @@ class VerificationFlowCoordinator {
         self.requiredSteps = StorageService.shared.getRequiredSteps()
         Task { @MainActor in
             setupNavigationController()
-            showFirstStep()
+            // Don't show first step immediately - wait for user to click "Start Verification" button
         }
     }
     
@@ -84,7 +84,7 @@ class VerificationFlowCoordinator {
                     error: nil
                 )
                 setupNavigationController()
-                showFirstStep()
+                // Don't show first step immediately - wait for user to click "Start Verification" button
             }
         } catch {
             await MainActor.run {
@@ -109,15 +109,21 @@ class VerificationFlowCoordinator {
         // Only create navigation controller if it doesn't exist
         guard navigationController == nil else { return }
         
-        // Create an empty root view controller for the navigation stack
-        let rootVC = UIViewController()
-        rootVC.view.backgroundColor = .systemBackground
+        // Create start verification view controller as root
+        let startVC = StartVerificationViewController(onStart: { [weak self] in
+            self?.proceedToVerificationFlow()
+        })
         
-        let navController = UINavigationController(rootViewController: rootVC)
+        let navController = UINavigationController(rootViewController: startVC)
         navController.modalPresentationStyle = .fullScreen
         navController.setNavigationBarHidden(true, animated: false)
         navigationController = navController
         presentingViewController?.present(navController, animated: true)
+    }
+    
+    @MainActor
+    private func proceedToVerificationFlow() {
+        showFirstStep()
     }
     
     @MainActor
