@@ -4,12 +4,27 @@
 // swift-module-flags-ignorable:  -interface-compiler-version 6.1.2
 import AVFoundation
 import Darwin
+import DeveloperToolsSupport
 import Foundation
 import Swift
+import SwiftUI
 import UIKit
+import Vision
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
+@_hasMissingDesignatedInitializers @available(iOS 13.0, *)
+public class OrderShield {
+  public static let shared: OrderShieldSDK.OrderShield
+  weak public var delegate: (any OrderShieldSDK.OrderShieldDelegate)?
+  public func configure(apiKey: Swift.String)
+  @discardableResult
+  public func initialize() async -> Swift.Bool
+  public func startVerification(presentingViewController: UIKit.UIViewController)
+  @discardableResult
+  public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
+  @objc deinit
+}
 @available(iOS 13.0, *)
 public protocol OrderShieldDelegate : AnyObject {
   func orderShieldDidRegisterDevice(success: Swift.Bool, error: (any Swift.Error)?)
@@ -79,16 +94,4 @@ public struct TermsCheckbox : Swift.Codable {
   public init(id: Swift.String, checkboxText: Swift.String, isRequired: Swift.Bool, displayOrder: Swift.Int)
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
-}
-@_hasMissingDesignatedInitializers @available(iOS 13.0, *)
-public class OrderShield {
-  public static let shared: OrderShieldSDK.OrderShield
-  weak public var delegate: (any OrderShieldSDK.OrderShieldDelegate)?
-  public func configure(apiKey: Swift.String)
-  @discardableResult
-  public func initialize() async -> Swift.Bool
-  public func startVerification(presentingViewController: UIKit.UIViewController)
-  @discardableResult
-  public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
-  @objc deinit
 }

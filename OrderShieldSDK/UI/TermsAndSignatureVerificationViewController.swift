@@ -30,17 +30,21 @@ class TermsAndSignatureVerificationViewController: UIViewController {
     private let contentView = UIView()
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
+    
+    // Key Points Section
+    private let keyPointsLabel = UILabel()
+    private let keyPointsContainer = UIView()
+    private let keyPointsStack = UIStackView()
+    
+    // Checkboxes Section
+    private let checkboxesTitleLabel = UILabel()
     private let checkboxesStack = UIStackView()
-    private let signatureLabel = UILabel()
-    private let signatureView = SignatureView()
-    private let clearSignatureButton = UIButton(type: .system)
     private let completeButton = UIButton(type: .system)
     private let loadingIndicator = UIActivityIndicatorView(style: .medium)
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
     
-    // Store references to signature UI elements for hiding/showing
-    private var signatureInstructionLabel: UILabel?
-    private var signatureContainer: UIView?
+    // Signature Sheet (Modal)
+    private var signatureSheetViewController: SignatureSheetViewController?
     
     init(sessionToken: String, onComplete: @escaping () -> Void, onError: ((Error) -> Void)? = nil, delegate: OrderShieldDelegate? = nil) {
         self.sessionToken = sessionToken
@@ -71,32 +75,69 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentView)
         
-        // Title - Update based on enabled sections
-        if isTermsEnabled && isSignatureEnabled {
-            titleLabel.text = "Terms & Signature"
-            descriptionLabel.text = "Please review and accept our terms, then provide your signature."
-        } else if isTermsEnabled {
-            titleLabel.text = "Terms & Conditions"
-            descriptionLabel.text = "Please review and accept our terms."
-        } else if isSignatureEnabled {
-            titleLabel.text = "Signature"
-            descriptionLabel.text = "Please provide your signature."
-        } else {
-            titleLabel.text = "Verification"
-            descriptionLabel.text = "Complete verification."
-        }
-        
+        // Title
+        titleLabel.text = "Terms of Service Agreement"
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         titleLabel.textColor = .black
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
         
-        descriptionLabel.font = .systemFont(ofSize: 16)
+        // Subtitle
+        descriptionLabel.text = "Require users to accept terms and conditions"
+        descriptionLabel.font = .systemFont(ofSize: 14)
         descriptionLabel.textColor = .systemGray
+        descriptionLabel.textAlignment = .center
         descriptionLabel.numberOfLines = 0
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(descriptionLabel)
+        
+        // Key Points Section
+        keyPointsLabel.text = "Key points"
+        keyPointsLabel.font = .systemFont(ofSize: 16, weight: .bold)
+        keyPointsLabel.textColor = .black
+        keyPointsLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(keyPointsLabel)
+        
+        // Key Points Container (grey box)
+        keyPointsContainer.backgroundColor = UIColor.systemGray6
+        keyPointsContainer.layer.cornerRadius = 8
+        keyPointsContainer.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(keyPointsContainer)
+        
+        // Key Points Stack
+        keyPointsStack.axis = .vertical
+        keyPointsStack.spacing = 12
+        keyPointsStack.distribution = .fill
+        keyPointsStack.alignment = .leading
+        keyPointsStack.translatesAutoresizingMaskIntoConstraints = false
+        keyPointsContainer.addSubview(keyPointsStack)
+        
+        // Add key points items
+        let keyPoints = [
+            "Your verification photo is used to confirm you authorized this trial.",
+            "Disputing a valid transaction is fraud and may be prosecuted.",
+            "Need help? Contact support@bigbraintech.ai.",
+            "Purchases and renewals will appear as Parallel Live on your bank statement."
+        ]
+        
+        for point in keyPoints {
+            let pointLabel = UILabel()
+            pointLabel.text = "• \(point)"
+            pointLabel.font = .systemFont(ofSize: 14)
+            pointLabel.textColor = .black
+            pointLabel.numberOfLines = 0
+            pointLabel.translatesAutoresizingMaskIntoConstraints = false
+            keyPointsStack.addArrangedSubview(pointLabel)
+        }
+        
+        // Checkboxes Title
+        checkboxesTitleLabel.text = "Tap to accept the following check boxes"
+        checkboxesTitleLabel.font = .systemFont(ofSize: 16, weight: .bold)
+        checkboxesTitleLabel.textColor = .black
+        checkboxesTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        checkboxesTitleLabel.isHidden = !isTermsEnabled
+        contentView.addSubview(checkboxesTitleLabel)
         
         // Checkboxes Stack
         checkboxesStack.axis = .vertical
@@ -110,56 +151,10 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         loadingIndicator.isHidden = !isTermsEnabled
         contentView.addSubview(loadingIndicator)
         
-        // Signature Label
-        signatureLabel.text = "Signature *"
-        signatureLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        signatureLabel.textColor = .black
-        signatureLabel.translatesAutoresizingMaskIntoConstraints = false
-        signatureLabel.isHidden = !isSignatureEnabled
-        contentView.addSubview(signatureLabel)
-        
-        // Signature Instructions
-        let signatureInstructionLabel = UILabel()
-        signatureInstructionLabel.text = "Please sign with your finger or mouse to confirm your agreement."
-        signatureInstructionLabel.font = .systemFont(ofSize: 14)
-        signatureInstructionLabel.textColor = .systemGray
-        signatureInstructionLabel.numberOfLines = 0
-        signatureInstructionLabel.translatesAutoresizingMaskIntoConstraints = false
-        signatureInstructionLabel.isHidden = !isSignatureEnabled
-        self.signatureInstructionLabel = signatureInstructionLabel
-        contentView.addSubview(signatureInstructionLabel)
-        
-        // Signature View Container
-        let signatureContainer = UIView()
-        signatureContainer.backgroundColor = .white
-        signatureContainer.layer.borderWidth = 1
-        signatureContainer.layer.borderColor = UIColor.systemGray3.cgColor
-        signatureContainer.layer.cornerRadius = 8
-        signatureContainer.translatesAutoresizingMaskIntoConstraints = false
-        signatureContainer.isHidden = !isSignatureEnabled
-        self.signatureContainer = signatureContainer
-        contentView.addSubview(signatureContainer)
-        
-        signatureView.backgroundColor = .white
-        signatureView.isUserInteractionEnabled = true // Ensure signature view can receive touches
-        signatureView.translatesAutoresizingMaskIntoConstraints = false
-        signatureContainer.addSubview(signatureView)
-        
-        // Clear Signature Button (X button in top right)
-        clearSignatureButton.setTitle("✕", for: .normal)
-        clearSignatureButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        clearSignatureButton.setTitleColor(.systemRed, for: .normal)
-        clearSignatureButton.backgroundColor = .white
-        clearSignatureButton.layer.cornerRadius = 15
-        clearSignatureButton.addTarget(self, action: #selector(clearSignatureTapped), for: .touchUpInside)
-        clearSignatureButton.isHidden = true
-        clearSignatureButton.translatesAutoresizingMaskIntoConstraints = false
-        signatureContainer.addSubview(clearSignatureButton)
-        
         // Complete Button
-        completeButton.setTitle("Complete", for: .normal)
+        completeButton.setTitle("Accept and Sign", for: .normal)
         completeButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        completeButton.backgroundColor = UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 0.5) // RGB(100, 104, 254) disabled
+        completeButton.backgroundColor = .black
         completeButton.setTitleColor(.white, for: .normal)
         completeButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
         completeButton.layer.cornerRadius = 12
@@ -193,55 +188,38 @@ class TermsAndSignatureVerificationViewController: UIViewController {
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -20),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            loadingIndicator.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            // Key Points Section
+            keyPointsLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 24),
+            keyPointsLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            keyPointsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            keyPointsContainer.topAnchor.constraint(equalTo: keyPointsLabel.bottomAnchor, constant: 12),
+            keyPointsContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            keyPointsContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            keyPointsStack.topAnchor.constraint(equalTo: keyPointsContainer.topAnchor, constant: 16),
+            keyPointsStack.leadingAnchor.constraint(equalTo: keyPointsContainer.leadingAnchor, constant: 16),
+            keyPointsStack.trailingAnchor.constraint(equalTo: keyPointsContainer.trailingAnchor, constant: -16),
+            keyPointsStack.bottomAnchor.constraint(equalTo: keyPointsContainer.bottomAnchor, constant: -16),
+            
+            // Checkboxes Title
+            checkboxesTitleLabel.topAnchor.constraint(equalTo: keyPointsContainer.bottomAnchor, constant: 24),
+            checkboxesTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            checkboxesTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            loadingIndicator.topAnchor.constraint(equalTo: checkboxesTitleLabel.bottomAnchor, constant: 20),
             loadingIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            checkboxesStack.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            checkboxesStack.topAnchor.constraint(equalTo: checkboxesTitleLabel.bottomAnchor, constant: 16),
             checkboxesStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             checkboxesStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-        ])
-        
-        // Set signature label constraint based on whether terms is enabled
-        if isTermsEnabled {
-            NSLayoutConstraint.activate([
-                signatureLabel.topAnchor.constraint(equalTo: checkboxesStack.bottomAnchor, constant: 32),
-            ])
-        } else {
-            NSLayoutConstraint.activate([
-                signatureLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
-            ])
-        }
-        
-        NSLayoutConstraint.activate([
-            signatureLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            signatureLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            signatureInstructionLabel.topAnchor.constraint(equalTo: signatureLabel.bottomAnchor, constant: 8),
-            signatureInstructionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            signatureInstructionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            signatureContainer.topAnchor.constraint(equalTo: signatureInstructionLabel.bottomAnchor, constant: 12),
-            signatureContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            signatureContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            signatureContainer.heightAnchor.constraint(equalToConstant: 200),
-            
-            signatureView.topAnchor.constraint(equalTo: signatureContainer.topAnchor),
-            signatureView.leadingAnchor.constraint(equalTo: signatureContainer.leadingAnchor),
-            signatureView.trailingAnchor.constraint(equalTo: signatureContainer.trailingAnchor),
-            signatureView.bottomAnchor.constraint(equalTo: signatureContainer.bottomAnchor),
-            
-            clearSignatureButton.topAnchor.constraint(equalTo: signatureContainer.topAnchor, constant: 8),
-            clearSignatureButton.trailingAnchor.constraint(equalTo: signatureContainer.trailingAnchor, constant: -8),
-            clearSignatureButton.widthAnchor.constraint(equalToConstant: 30),
-            clearSignatureButton.heightAnchor.constraint(equalToConstant: 30),
             
             completeButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             completeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -258,23 +236,14 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         ])
         
         // Set bottom spacing for contentView based on last visible element
-        if isSignatureEnabled {
-            NSLayoutConstraint.activate([
-                signatureContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
-            ])
-        } else if isTermsEnabled {
+        if isTermsEnabled {
             NSLayoutConstraint.activate([
                 checkboxesStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
             ])
         } else {
             NSLayoutConstraint.activate([
-                descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+                keyPointsContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
             ])
-        }
-        
-        signatureView.onSignatureChanged = { [weak self] hasSignature in
-            self?.clearSignatureButton.isHidden = !hasSignature
-            self?.updateCompleteButton()
         }
     }
     
@@ -407,39 +376,54 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         updateCompleteButton()
     }
     
-    @objc private func clearSignatureTapped() {
-        signatureView.clear()
-    }
-    
     private func updateCompleteButton() {
         var canComplete = true
         
-        // Check if all required checkboxes are checked (only if terms is enabled)
+        // Check if ALL checkboxes are checked (only if terms is enabled)
         if isTermsEnabled {
-            let requiredCheckboxes = checkboxes.filter { $0.isRequired }
-            if !requiredCheckboxes.isEmpty {
-                // If there are required checkboxes, all must be checked
-                let allRequiredChecked = requiredCheckboxes.allSatisfy { checkboxStates[$0.id] == true }
-                canComplete = canComplete && allRequiredChecked
-            } else if !checkboxes.isEmpty {
-                // If there are no required checkboxes but there are optional ones, at least one must be checked
-                let atLeastOneChecked = checkboxStates.values.contains(true)
-                canComplete = canComplete && atLeastOneChecked
+            if !checkboxes.isEmpty {
+                // All checkboxes must be checked, regardless of whether they're required or optional
+                let allCheckboxesChecked = checkboxes.allSatisfy { checkboxStates[$0.id] == true }
+                canComplete = canComplete && allCheckboxesChecked
             }
             // If no checkboxes at all, terms requirement is satisfied
         }
         
-        // Check if signature is present (only if signature is enabled)
-        if isSignatureEnabled {
-            let hasSignature = signatureView.getSignatureImage() != nil
-            canComplete = canComplete && hasSignature
-        }
+        // Note: Signature check is removed - button enables when all checkboxes are selected
+        // Signature will be collected in the modal sheet
         
         completeButton.isEnabled = canComplete
-        completeButton.backgroundColor = canComplete ? UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 1.0) : UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 0.5)
+        completeButton.backgroundColor = canComplete ? .black : .black.withAlphaComponent(0.5)
     }
     
     @objc private func completeTapped() {
+        // Show signature sheet modal
+        showSignatureSheet()
+    }
+    
+    private func showSignatureSheet() {
+        let signatureSheet = SignatureSheetViewController()
+        // Use overFullScreen to have complete control and prevent any dragging
+        signatureSheet.modalPresentationStyle = .overFullScreen
+        signatureSheet.modalTransitionStyle = .coverVertical
+        
+        // No need for sheet presentation controller with overFullScreen
+        // The view controller will handle its own layout
+        
+        // Handle signature acceptance
+        signatureSheet.onAccept = { [weak self] signatureImage in
+            self?.handleSignatureAccepted(signatureImage: signatureImage)
+        }
+        
+        signatureSheet.onCancel = { [weak self] in
+            // Just dismiss the sheet, do nothing else
+        }
+        
+        self.signatureSheetViewController = signatureSheet
+        present(signatureSheet, animated: true)
+    }
+    
+    private func handleSignatureAccepted(signatureImage: UIImage?) {
         guard let customerId = customerId else {
             showError("Customer ID not found")
             return
@@ -484,12 +468,12 @@ class TermsAndSignatureVerificationViewController: UIViewController {
                 
                 // Submit signature (only if signature is enabled)
                 if isSignatureEnabled {
-                    guard let signatureImage = signatureView.getSignatureImage(),
+                    guard let signatureImage = signatureImage,
                           let imageData = signatureImage.pngData() else {
                         await MainActor.run {
                             activityIndicator.stopAnimating()
                             completeButton.isEnabled = true
-                            completeButton.setTitle("Continue", for: .normal)
+                            completeButton.setTitle("Accept and Sign", for: .normal)
                             showError("Please provide a signature")
                         }
                         return
@@ -518,7 +502,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
                 await MainActor.run {
                     activityIndicator.stopAnimating()
                     completeButton.isEnabled = true
-                    completeButton.setTitle("Complete", for: .normal)
+                    completeButton.setTitle("Accept and Sign", for: .normal)
                     showError("Failed to submit: \(error.localizedDescription)")
                     // Notify delegate about failure
                     self.delegate?.orderShieldDidSubmitTermsAndSignature(success: false, acceptedCheckboxIds: nil, error: error)
@@ -538,5 +522,210 @@ class TermsAndSignatureVerificationViewController: UIViewController {
 // MARK: - Associated Keys
 private struct AssociatedKeys {
     static var checkboxId = "checkboxId"
+}
+
+// MARK: - Signature Sheet View Controller
+@available(iOS 13.0, *)
+class SignatureSheetViewController: UIViewController {
+    var onAccept: ((UIImage?) -> Void)?
+    var onCancel: (() -> Void)?
+    
+    private let backgroundOverlay = UIView()
+    private let sheetContainer = UIView()
+    private let titleLabel = UILabel()
+    private let instructionLabel = UILabel()
+    private let signHereLabel = UILabel()
+    private let signatureView = SignatureView()
+    private let signatureContainer = UIView()
+    private let clearButton = UIButton(type: .system)
+    private let acceptButton = UIButton(type: .system)
+    private let cancelButton = UIButton(type: .system)
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupPresentationController()
+    }
+    
+    private func setupPresentationController() {
+        // No need for presentation controller delegate with overFullScreen
+    }
+    
+    
+    private func setupUI() {
+        view.backgroundColor = .clear
+        
+        // Background Overlay (semi-transparent)
+        backgroundOverlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        backgroundOverlay.translatesAutoresizingMaskIntoConstraints = false
+        // Add tap gesture to dismiss when tapping outside
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+        backgroundOverlay.addGestureRecognizer(tapGesture)
+        view.addSubview(backgroundOverlay)
+        
+        // Sheet Container (white rounded container at bottom)
+        sheetContainer.backgroundColor = .white
+        sheetContainer.layer.cornerRadius = 20
+        sheetContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        sheetContainer.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(sheetContainer)
+        
+        // Title
+        titleLabel.text = "Digital Signature Required"
+        titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
+        titleLabel.textColor = .black
+        titleLabel.textAlignment = .center
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        sheetContainer.addSubview(titleLabel)
+        
+        // Instructions
+        instructionLabel.text = "Please sign in the box below to complete your verification."
+        instructionLabel.font = .systemFont(ofSize: 14)
+        instructionLabel.textColor = .systemGray
+        instructionLabel.textAlignment = .center
+        instructionLabel.numberOfLines = 0
+        instructionLabel.translatesAutoresizingMaskIntoConstraints = false
+        sheetContainer.addSubview(instructionLabel)
+        
+        // Sign Here Label
+        signHereLabel.text = "Sign here"
+        signHereLabel.font = .systemFont(ofSize: 12)
+        signHereLabel.textColor = .systemGray
+        signHereLabel.translatesAutoresizingMaskIntoConstraints = false
+        sheetContainer.addSubview(signHereLabel)
+        
+        // Signature Container
+        signatureContainer.backgroundColor = .white
+        signatureContainer.layer.borderWidth = 1
+        signatureContainer.layer.borderColor = UIColor.systemGray3.cgColor
+        signatureContainer.layer.cornerRadius = 8
+        signatureContainer.translatesAutoresizingMaskIntoConstraints = false
+        sheetContainer.addSubview(signatureContainer)
+        
+        // Signature View
+        signatureView.backgroundColor = .white
+        signatureView.isUserInteractionEnabled = true
+        signatureView.translatesAutoresizingMaskIntoConstraints = false
+        signatureContainer.addSubview(signatureView)
+        
+        // Clear Button
+        clearButton.setTitle("Clear", for: .normal)
+        clearButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        clearButton.setTitleColor(UIColor.systemBlue, for: .normal)
+        clearButton.backgroundColor = .white
+        clearButton.layer.borderWidth = 1
+        clearButton.layer.borderColor = UIColor.systemBlue.cgColor
+        clearButton.layer.cornerRadius = 8
+        clearButton.addTarget(self, action: #selector(clearTapped), for: .touchUpInside)
+        clearButton.translatesAutoresizingMaskIntoConstraints = false
+        sheetContainer.addSubview(clearButton)
+        
+        // Accept Button
+        acceptButton.setTitle("Accept", for: .normal)
+        acceptButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        acceptButton.backgroundColor = .black
+        acceptButton.setTitleColor(.white, for: .normal)
+        acceptButton.layer.cornerRadius = 8
+        acceptButton.isEnabled = false
+        acceptButton.addTarget(self, action: #selector(acceptTapped), for: .touchUpInside)
+        acceptButton.translatesAutoresizingMaskIntoConstraints = false
+        sheetContainer.addSubview(acceptButton)
+        
+        // Cancel Button
+        cancelButton.setTitle("Cancel", for: .normal)
+        cancelButton.titleLabel?.font = .systemFont(ofSize: 16)
+        cancelButton.setTitleColor(.systemBlue, for: .normal)
+        cancelButton.backgroundColor = .clear
+        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        sheetContainer.addSubview(cancelButton)
+        
+        NSLayoutConstraint.activate([
+            // Background Overlay - fills entire screen
+            backgroundOverlay.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backgroundOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // Sheet Container - fixed at bottom, approximately 60% of screen height
+            sheetContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            sheetContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            sheetContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            sheetContainer.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.6),
+            
+            // Title
+            titleLabel.topAnchor.constraint(equalTo: sheetContainer.topAnchor, constant: 24),
+            titleLabel.leadingAnchor.constraint(equalTo: sheetContainer.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: sheetContainer.trailingAnchor, constant: -20),
+            
+            // Instructions
+            instructionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            instructionLabel.leadingAnchor.constraint(equalTo: sheetContainer.leadingAnchor, constant: 20),
+            instructionLabel.trailingAnchor.constraint(equalTo: sheetContainer.trailingAnchor, constant: -20),
+            
+            // Sign Here Label
+            signHereLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: 20),
+            signHereLabel.leadingAnchor.constraint(equalTo: sheetContainer.leadingAnchor, constant: 20),
+            
+            // Signature Container
+            signatureContainer.topAnchor.constraint(equalTo: signHereLabel.bottomAnchor, constant: 8),
+            signatureContainer.leadingAnchor.constraint(equalTo: sheetContainer.leadingAnchor, constant: 20),
+            signatureContainer.trailingAnchor.constraint(equalTo: sheetContainer.trailingAnchor, constant: -20),
+            signatureContainer.heightAnchor.constraint(equalToConstant: 200),
+            
+            // Signature View
+            signatureView.topAnchor.constraint(equalTo: signatureContainer.topAnchor),
+            signatureView.leadingAnchor.constraint(equalTo: signatureContainer.leadingAnchor),
+            signatureView.trailingAnchor.constraint(equalTo: signatureContainer.trailingAnchor),
+            signatureView.bottomAnchor.constraint(equalTo: signatureContainer.bottomAnchor),
+            
+            // Clear Button
+            clearButton.topAnchor.constraint(equalTo: signatureContainer.bottomAnchor, constant: 24),
+            clearButton.leadingAnchor.constraint(equalTo: sheetContainer.leadingAnchor, constant: 20),
+            clearButton.widthAnchor.constraint(equalToConstant: 100),
+            clearButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            // Accept Button
+            acceptButton.topAnchor.constraint(equalTo: signatureContainer.bottomAnchor, constant: 24),
+            acceptButton.trailingAnchor.constraint(equalTo: sheetContainer.trailingAnchor, constant: -20),
+            acceptButton.leadingAnchor.constraint(equalTo: clearButton.trailingAnchor, constant: 12),
+            acceptButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            // Cancel Button
+            cancelButton.topAnchor.constraint(equalTo: acceptButton.bottomAnchor, constant: 16),
+            cancelButton.centerXAnchor.constraint(equalTo: sheetContainer.centerXAnchor),
+            cancelButton.bottomAnchor.constraint(lessThanOrEqualTo: sheetContainer.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+        ])
+        
+        // Monitor signature changes
+        signatureView.onSignatureChanged = { [weak self] hasSignature in
+            self?.acceptButton.isEnabled = hasSignature
+            self?.acceptButton.backgroundColor = hasSignature ? .black : .black.withAlphaComponent(0.5)
+        }
+    }
+    
+    @objc private func clearTapped() {
+        signatureView.clear()
+    }
+    
+    @objc private func acceptTapped() {
+        let signatureImage = signatureView.getSignatureImage()
+        dismiss(animated: true) {
+            self.onAccept?(signatureImage)
+        }
+    }
+    
+    @objc private func cancelTapped() {
+        dismiss(animated: true) {
+            self.onCancel?()
+        }
+    }
+    
+    @objc private func backgroundTapped() {
+        // Dismiss when tapping the background overlay
+        dismiss(animated: true) {
+            self.onCancel?()
+        }
+    }
 }
 

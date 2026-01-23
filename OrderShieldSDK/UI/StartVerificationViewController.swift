@@ -7,11 +7,8 @@ class StartVerificationViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
-    // Logo Section
-    private let logoContainerView = UIView()
-    private let shieldIcon = UILabel()
-    private let logoTitleLabel = UILabel()
-    private let logoSubtitleLabel = UILabel()
+    // Header
+    private let headerView = OrderShieldHeaderView()
     
     // Main Content
     private let titleLabel = UILabel()
@@ -39,11 +36,7 @@ class StartVerificationViewController: UIViewController {
     private let lightingTipLabel = UILabel()
     
     // Footer
-    private let separatorLine = UIView()
-    private let footerContainerView = UIView()
-    private let footerShieldIcon = UILabel()
-    private let footerTextLabel = UILabel()
-    private let footerSubtextLabel = UILabel()
+    private let footerView = OrderShieldFooterView()
     
     init(onStart: @escaping () -> Void) {
         self.onStart = onStart
@@ -72,39 +65,15 @@ class StartVerificationViewController: UIViewController {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentView)
         
-        // Logo Container
-        logoContainerView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(logoContainerView)
-        
-        // Shield Icon (blue outline)
-        shieldIcon.text = "🛡️"
-        shieldIcon.font = .systemFont(ofSize: 32)
-        shieldIcon.textColor = UIColor(red: 0.0, green: 0.48, blue: 1.0, alpha: 1.0) // Blue color
-        shieldIcon.textAlignment = .center
-        shieldIcon.translatesAutoresizingMaskIntoConstraints = false
-        logoContainerView.addSubview(shieldIcon)
-        
-        // Logo Title
-        logoTitleLabel.text = "OrderShield"
-        logoTitleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        logoTitleLabel.textColor = .black
-        logoTitleLabel.textAlignment = .center
-        logoTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        logoContainerView.addSubview(logoTitleLabel)
-        
-        // Logo Subtitle
-        logoSubtitleLabel.text = "Verification Protection"
-        logoSubtitleLabel.font = .systemFont(ofSize: 14)
-        logoSubtitleLabel.textColor = .systemGray
-        logoSubtitleLabel.textAlignment = .center
-        logoSubtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        logoContainerView.addSubview(logoSubtitleLabel)
+        // Header View
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(headerView)
         
         // Main Title
         titleLabel.text = "Quick identity verification"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = .black
-        titleLabel.textAlignment = .left
+        titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 0
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
@@ -112,7 +81,7 @@ class StartVerificationViewController: UIViewController {
         // Paragraph 1
         paragraph1Label.text = "To start your trial, we'll complete a fast verification using a selfie."
         paragraph1Label.font = .systemFont(ofSize: 16)
-        paragraph1Label.textColor = .black
+        paragraph1Label.textColor = .systemGray
         paragraph1Label.textAlignment = .left
         paragraph1Label.numberOfLines = 0
         paragraph1Label.translatesAutoresizingMaskIntoConstraints = false
@@ -121,7 +90,7 @@ class StartVerificationViewController: UIViewController {
         // Paragraph 2
         paragraph2Label.text = "This simply confirms it's you and helps keep accounts secure."
         paragraph2Label.font = .systemFont(ofSize: 16)
-        paragraph2Label.textColor = .black
+        paragraph2Label.textColor = .systemGray
         paragraph2Label.textAlignment = .left
         paragraph2Label.numberOfLines = 0
         paragraph2Label.translatesAutoresizingMaskIntoConstraints = false
@@ -184,7 +153,7 @@ class StartVerificationViewController: UIViewController {
         feature3Label.translatesAutoresizingMaskIntoConstraints = false
         feature3View.addSubview(feature3Label)
         
-        // Spacer View to push button to bottom
+        // Spacer View to push button down
         buttonSpacerView.translatesAutoresizingMaskIntoConstraints = false
         buttonSpacerView.setContentHuggingPriority(.defaultLow, for: .vertical)
         contentView.addSubview(buttonSpacerView)
@@ -225,37 +194,9 @@ class StartVerificationViewController: UIViewController {
         lightingTipLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(lightingTipLabel)
         
-        // Separator Line
-        separatorLine.backgroundColor = .systemGray4
-        separatorLine.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(separatorLine)
-        
-        // Footer Container
-        footerContainerView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(footerContainerView)
-        
-        // Footer Shield Icon
-        footerShieldIcon.text = "🛡️"
-        footerShieldIcon.font = .systemFont(ofSize: 16)
-        footerShieldIcon.textColor = UIColor(red: 0.0, green: 0.48, blue: 1.0, alpha: 1.0) // Blue
-        footerShieldIcon.translatesAutoresizingMaskIntoConstraints = false
-        footerContainerView.addSubview(footerShieldIcon)
-        
-        // Footer Text
-        footerTextLabel.text = "Secured By OrderShield"
-        footerTextLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        footerTextLabel.textColor = UIColor(red: 0.0, green: 0.48, blue: 1.0, alpha: 1.0) // Blue
-        footerTextLabel.translatesAutoresizingMaskIntoConstraints = false
-        footerContainerView.addSubview(footerTextLabel)
-        
-        // Footer Subtext
-        footerSubtextLabel.text = "Trusted verification for millions of users"
-        footerSubtextLabel.font = .systemFont(ofSize: 12)
-        footerSubtextLabel.textColor = .systemGray
-        footerSubtextLabel.textAlignment = .center
-        footerSubtextLabel.numberOfLines = 0
-        footerSubtextLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(footerSubtextLabel)
+        // Footer View
+        footerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(footerView)
         
         NSLayoutConstraint.activate([
             // Scroll View
@@ -271,27 +212,13 @@ class StartVerificationViewController: UIViewController {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            // Logo Container
-            logoContainerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
-            logoContainerView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            logoContainerView.widthAnchor.constraint(lessThanOrEqualToConstant: 300),
-            
-            shieldIcon.topAnchor.constraint(equalTo: logoContainerView.topAnchor),
-            shieldIcon.centerXAnchor.constraint(equalTo: logoContainerView.centerXAnchor),
-            
-            logoTitleLabel.topAnchor.constraint(equalTo: shieldIcon.bottomAnchor, constant: 8),
-            logoTitleLabel.centerXAnchor.constraint(equalTo: logoContainerView.centerXAnchor),
-            logoTitleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: logoContainerView.leadingAnchor),
-            logoTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: logoContainerView.trailingAnchor),
-            
-            logoSubtitleLabel.topAnchor.constraint(equalTo: logoTitleLabel.bottomAnchor, constant: 4),
-            logoSubtitleLabel.centerXAnchor.constraint(equalTo: logoContainerView.centerXAnchor),
-            logoSubtitleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: logoContainerView.leadingAnchor),
-            logoSubtitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: logoContainerView.trailingAnchor),
-            logoSubtitleLabel.bottomAnchor.constraint(equalTo: logoContainerView.bottomAnchor),
+            // Header View
+            headerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
+            headerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
             // Main Title
-            titleLabel.topAnchor.constraint(equalTo: logoContainerView.bottomAnchor, constant: 40),
+            titleLabel.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
@@ -309,6 +236,12 @@ class StartVerificationViewController: UIViewController {
             featuresStackView.topAnchor.constraint(equalTo: paragraph2Label.bottomAnchor, constant: 24),
             featuresStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             featuresStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            // Spacer View (creates space between features and button)
+            buttonSpacerView.topAnchor.constraint(equalTo: featuresStackView.bottomAnchor, constant: 40),
+            buttonSpacerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            buttonSpacerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            buttonSpacerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100),
             
             // Feature 1
             feature1ImageView.leadingAnchor.constraint(equalTo: feature1View.leadingAnchor),
@@ -343,17 +276,16 @@ class StartVerificationViewController: UIViewController {
             feature3Label.topAnchor.constraint(equalTo: feature3View.topAnchor),
             feature3Label.bottomAnchor.constraint(equalTo: feature3View.bottomAnchor),
             
-            // Spacer View (pushes button to bottom)
-            buttonSpacerView.topAnchor.constraint(equalTo: featuresStackView.bottomAnchor, constant: 32),
-            buttonSpacerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            buttonSpacerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            buttonSpacerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
-            
             // Start Button (positioned after spacer)
             startButton.topAnchor.constraint(equalTo: buttonSpacerView.bottomAnchor),
             startButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             startButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             startButton.heightAnchor.constraint(equalToConstant: 56),
+            
+            // Lighting Tip (below button)
+            lightingTipLabel.topAnchor.constraint(equalTo: startButton.bottomAnchor, constant: 12),
+            lightingTipLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            lightingTipLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
             // Button Content Stack View (centered in button)
             buttonContentStackView.centerXAnchor.constraint(equalTo: startButton.centerXAnchor),
@@ -362,35 +294,11 @@ class StartVerificationViewController: UIViewController {
             cameraImageView.widthAnchor.constraint(equalToConstant: 20),
             cameraImageView.heightAnchor.constraint(equalToConstant: 20),
             
-            // Lighting Tip (above button)
-            lightingTipLabel.bottomAnchor.constraint(equalTo: startButton.topAnchor, constant: -12),
-            lightingTipLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            lightingTipLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            // Separator Line (positioned after button)
-            separatorLine.topAnchor.constraint(equalTo: startButton.bottomAnchor, constant: 32),
-            separatorLine.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            separatorLine.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            separatorLine.heightAnchor.constraint(equalToConstant: 1),
-            
-            // Footer Container
-            footerContainerView.topAnchor.constraint(equalTo: separatorLine.bottomAnchor, constant: 16),
-            footerContainerView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            
-            footerShieldIcon.leadingAnchor.constraint(equalTo: footerContainerView.leadingAnchor),
-            footerShieldIcon.centerYAnchor.constraint(equalTo: footerContainerView.centerYAnchor),
-            
-            footerTextLabel.leadingAnchor.constraint(equalTo: footerShieldIcon.trailingAnchor, constant: 6),
-            footerTextLabel.trailingAnchor.constraint(equalTo: footerContainerView.trailingAnchor),
-            footerTextLabel.centerYAnchor.constraint(equalTo: footerContainerView.centerYAnchor),
-            footerTextLabel.topAnchor.constraint(equalTo: footerContainerView.topAnchor),
-            footerTextLabel.bottomAnchor.constraint(equalTo: footerContainerView.bottomAnchor),
-            
-            // Footer Subtext
-            footerSubtextLabel.topAnchor.constraint(equalTo: footerContainerView.bottomAnchor, constant: 8),
-            footerSubtextLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            footerSubtextLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            footerSubtextLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
+            // Footer View (positioned after lighting tip)
+            footerView.topAnchor.constraint(equalTo: lightingTipLabel.bottomAnchor, constant: 40),
+            footerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            footerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            footerView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -20)
         ])
     }
     

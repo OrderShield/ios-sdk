@@ -26,18 +26,35 @@ class PhoneVerificationViewController: UIViewController {
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()
+    
+    // Header and Footer
+    private let headerView = OrderShieldHeaderView()
+    private let footerView = OrderShieldFooterView()
+    
+    // Title
     private let titleLabel = UILabel()
-    private let instructionLabel = UILabel()
+    private let subtitleLabel = UILabel()
+    
+    // Phone Input
+    private let phoneLabel = UILabel()
+    private let phoneContainerView = UIView()
     private let countryCodeButton = UIButton(type: .system)
     private let phoneTextField = UITextField()
+    
+    // Code Input
+    private let codeLabel = UILabel()
+    private let codeContainerView = UIView()
     private let codeTextField = UITextField()
+    
     private let continueButton = UIButton(type: .system)
-    private let phoneIconView = UIView()
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
     private let countryPickerView = UIPickerView()
     private let pickerToolbar = UIToolbar()
     private var pickerContainerView: UIView?
     private var pickerBottomConstraint: NSLayoutConstraint?
+    
+    private var continueButtonTopConstraint: NSLayoutConstraint?
+    private let footerSpacerView = UIView()
     
     init(sessionToken: String, onComplete: @escaping () -> Void, onError: ((Error) -> Void)? = nil) {
         self.sessionToken = sessionToken
@@ -70,78 +87,57 @@ class PhoneVerificationViewController: UIViewController {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentView)
         
+        // Header View
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(headerView)
+        
         // Title
-        titleLabel.text = "Verification Protection"
-        titleLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        titleLabel.text = "SMS Verification"
+        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         titleLabel.textColor = .black
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
         
-        // Icon
-        phoneIconView.backgroundColor = .systemGray5
-        phoneIconView.layer.cornerRadius = 50
-        phoneIconView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(phoneIconView)
+        // Subtitle
+        subtitleLabel.text = "Verify user phone number via SMS"
+        subtitleLabel.font = .systemFont(ofSize: 14)
+        subtitleLabel.textColor = .systemGray
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(subtitleLabel)
         
-        let iconLabel = UILabel()
-        iconLabel.text = "📞"
-        iconLabel.font = .systemFont(ofSize: 40)
-        iconLabel.textAlignment = .center
-        iconLabel.translatesAutoresizingMaskIntoConstraints = false
-        phoneIconView.addSubview(iconLabel)
-        
-        NSLayoutConstraint.activate([
-            iconLabel.centerXAnchor.constraint(equalTo: phoneIconView.centerXAnchor),
-            iconLabel.centerYAnchor.constraint(equalTo: phoneIconView.centerYAnchor)
-        ])
-        
-        // Main Title
-        let mainTitleLabel = UILabel()
-        mainTitleLabel.text = "Phone Number Verification"
-        mainTitleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        mainTitleLabel.textColor = .black
-        mainTitleLabel.textAlignment = .center
-        mainTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(mainTitleLabel)
-        
-        // Instructions
-        instructionLabel.text = "Please enter your phone number to verify your identity.\nThis helps us ensure account security and prevent fraud."
-        instructionLabel.font = .systemFont(ofSize: 14)
-        instructionLabel.textColor = .systemGray
-        instructionLabel.numberOfLines = 0
-        instructionLabel.textAlignment = .left
-        instructionLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(instructionLabel)
-        
-        // Phone Number Label
-        let phoneLabel = UILabel()
-        phoneLabel.text = "Phone Number"
-        phoneLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        phoneLabel.textColor = .black
+        // Phone Label (above input, not floating)
+        phoneLabel.text = "Phone Number*"
+        phoneLabel.font = .systemFont(ofSize: 12)
+        phoneLabel.textColor = .systemGray
         phoneLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(phoneLabel)
         
-        // Phone Input Container
-        let phoneContainer = UIView()
-        phoneContainer.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(phoneContainer)
+        // Phone Container
+        phoneContainerView.translatesAutoresizingMaskIntoConstraints = false
+        phoneContainerView.layer.borderWidth = 1.0
+        phoneContainerView.layer.borderColor = UIColor.black.cgColor
+        phoneContainerView.layer.cornerRadius = 8
+        phoneContainerView.backgroundColor = .white
+        contentView.addSubview(phoneContainerView)
         
         // Country Code Button
-        countryCodeButton.backgroundColor = .systemGray6
+        countryCodeButton.backgroundColor = .clear
         countryCodeButton.layer.cornerRadius = 8
         countryCodeButton.titleLabel?.font = .systemFont(ofSize: 16)
         countryCodeButton.setTitleColor(.black, for: .normal)
         countryCodeButton.contentHorizontalAlignment = .left
-        countryCodeButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 30)
+        countryCodeButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 30)
         countryCodeButton.addTarget(self, action: #selector(countryCodeButtonTapped), for: .touchUpInside)
         countryCodeButton.translatesAutoresizingMaskIntoConstraints = false
         updateCountryButton()
-        phoneContainer.addSubview(countryCodeButton)
+        phoneContainerView.addSubview(countryCodeButton)
         
         // Add chevron icon to country button
         let chevronImageView = UIImageView(image: UIImage(systemName: "chevron.down"))
-        chevronImageView.tintColor = .systemGray
+        chevronImageView.tintColor = .black
         chevronImageView.contentMode = .scaleAspectFit
         chevronImageView.translatesAutoresizingMaskIntoConstraints = false
         countryCodeButton.addSubview(chevronImageView)
@@ -153,14 +149,17 @@ class PhoneVerificationViewController: UIViewController {
             chevronImageView.heightAnchor.constraint(equalToConstant: 12)
         ])
         
-        // Phone Number
-        phoneTextField.placeholder = "Enter your phone number"
-        phoneTextField.borderStyle = .roundedRect
+        // Phone Text Field
+        phoneTextField.placeholder = "Enter phone number"
+        phoneTextField.borderStyle = .none
         phoneTextField.keyboardType = .phonePad
-        phoneTextField.backgroundColor = .systemGray6
+        phoneTextField.autocapitalizationType = .none
+        phoneTextField.autocorrectionType = .no
+        phoneTextField.backgroundColor = .clear
         phoneTextField.font = .systemFont(ofSize: 16)
+        phoneTextField.returnKeyType = .done
         phoneTextField.translatesAutoresizingMaskIntoConstraints = false
-        phoneContainer.addSubview(phoneTextField)
+        phoneContainerView.addSubview(phoneTextField)
         
         // Add Done button toolbar for phone text field
         let phoneToolbar = UIToolbar()
@@ -170,15 +169,32 @@ class PhoneVerificationViewController: UIViewController {
         phoneToolbar.setItems([phoneFlexSpace, phoneDoneButton], animated: false)
         phoneTextField.inputAccessoryView = phoneToolbar
         
-        // Code Text Field (hidden initially)
-        codeTextField.placeholder = "Enter verification code"
-        codeTextField.borderStyle = .roundedRect
+        // Code Label (above input, not floating, hidden initially)
+        codeLabel.text = "Verification Code*"
+        codeLabel.font = .systemFont(ofSize: 12)
+        codeLabel.textColor = .systemGray
+        codeLabel.isHidden = true
+        codeLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(codeLabel)
+        
+        // Code Container (hidden initially)
+        codeContainerView.translatesAutoresizingMaskIntoConstraints = false
+        codeContainerView.layer.borderWidth = 1.0
+        codeContainerView.layer.borderColor = UIColor.black.cgColor
+        codeContainerView.layer.cornerRadius = 8
+        codeContainerView.backgroundColor = .white
+        codeContainerView.isHidden = true
+        contentView.addSubview(codeContainerView)
+        
+        // Code Text Field
+        codeTextField.placeholder = "Enter code"
+        codeTextField.borderStyle = .none
         codeTextField.keyboardType = .numberPad
-        codeTextField.backgroundColor = .systemGray6
+        codeTextField.backgroundColor = .clear
         codeTextField.font = .systemFont(ofSize: 16)
-        codeTextField.isHidden = true
+        codeTextField.isSecureTextEntry = true
         codeTextField.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(codeTextField)
+        codeContainerView.addSubview(codeTextField)
         
         // Add Done button toolbar for code text field
         let codeToolbar = UIToolbar()
@@ -188,17 +204,27 @@ class PhoneVerificationViewController: UIViewController {
         codeToolbar.setItems([codeFlexSpace, codeDoneButton], animated: false)
         codeTextField.inputAccessoryView = codeToolbar
         
-        // Continue Button
+        // Continue Button (black) - inside scroll view
         continueButton.setTitle("Continue", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.backgroundColor = UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 0.5) // RGB(100, 104, 254) disabled
+        continueButton.backgroundColor = .black
         continueButton.setTitleColor(.white, for: .normal)
         continueButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
         continueButton.layer.cornerRadius = 12
         continueButton.isEnabled = false
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
         continueButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(continueButton)
+        contentView.addSubview(continueButton)
+        
+        // Footer Spacer (pushes footer to bottom)
+        footerSpacerView.translatesAutoresizingMaskIntoConstraints = false
+        footerSpacerView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        footerSpacerView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        contentView.addSubview(footerSpacerView)
+        
+        // Footer View
+        footerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(footerView)
         
         // Arrow Icon on Button
         let arrowIcon = UIImageView(image: UIImage(systemName: "arrow.right"))
@@ -206,15 +232,6 @@ class PhoneVerificationViewController: UIViewController {
         arrowIcon.contentMode = .scaleAspectFit
         arrowIcon.translatesAutoresizingMaskIntoConstraints = false
         continueButton.addSubview(arrowIcon)
-        
-        // Disclaimer
-        let disclaimerLabel = UILabel()
-        disclaimerLabel.text = "We'll use this number for verification purposes only"
-        disclaimerLabel.font = .systemFont(ofSize: 12)
-        disclaimerLabel.textColor = .systemGray
-        disclaimerLabel.textAlignment = .center
-        disclaimerLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(disclaimerLabel)
         
         // Activity Indicator
         activityIndicator.hidesWhenStopped = true
@@ -226,65 +243,83 @@ class PhoneVerificationViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -20),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             // Content View
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            // Header View
+            headerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
+            headerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            
+            // Title
+            titleLabel.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            phoneIconView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
-            phoneIconView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            phoneIconView.widthAnchor.constraint(equalToConstant: 100),
-            phoneIconView.heightAnchor.constraint(equalToConstant: 100),
+            // Subtitle
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            mainTitleLabel.topAnchor.constraint(equalTo: phoneIconView.bottomAnchor, constant: 24),
-            mainTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            mainTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            instructionLabel.topAnchor.constraint(equalTo: mainTitleLabel.bottomAnchor, constant: 16),
-            instructionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            instructionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            phoneLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: 24),
+            // Phone Label (above input)
+            phoneLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 24),
             phoneLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            phoneLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            phoneContainer.topAnchor.constraint(equalTo: phoneLabel.bottomAnchor, constant: 8),
-            phoneContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            phoneContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            phoneContainer.heightAnchor.constraint(equalToConstant: 50),
+            // Phone Container
+            phoneContainerView.topAnchor.constraint(equalTo: phoneLabel.bottomAnchor, constant: 8),
+            phoneContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            phoneContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            phoneContainerView.heightAnchor.constraint(equalToConstant: 56),
             
-            countryCodeButton.leadingAnchor.constraint(equalTo: phoneContainer.leadingAnchor),
-            countryCodeButton.centerYAnchor.constraint(equalTo: phoneContainer.centerYAnchor),
+            // Country Code Button
+            countryCodeButton.leadingAnchor.constraint(equalTo: phoneContainerView.leadingAnchor),
+            countryCodeButton.centerYAnchor.constraint(equalTo: phoneContainerView.centerYAnchor, constant: 4),
             countryCodeButton.widthAnchor.constraint(equalToConstant: 100),
-            countryCodeButton.heightAnchor.constraint(equalToConstant: 50),
+            countryCodeButton.heightAnchor.constraint(equalToConstant: 40),
             
-            phoneTextField.leadingAnchor.constraint(equalTo: countryCodeButton.trailingAnchor, constant: 8),
-            phoneTextField.trailingAnchor.constraint(equalTo: phoneContainer.trailingAnchor),
-            phoneTextField.centerYAnchor.constraint(equalTo: phoneContainer.centerYAnchor),
-            phoneTextField.heightAnchor.constraint(equalToConstant: 50),
+            // Phone Text Field
+            phoneTextField.topAnchor.constraint(equalTo: phoneContainerView.topAnchor, constant: 8),
+            phoneTextField.leadingAnchor.constraint(equalTo: countryCodeButton.trailingAnchor, constant: 12),
+            phoneTextField.trailingAnchor.constraint(equalTo: phoneContainerView.trailingAnchor, constant: -16),
+            phoneTextField.bottomAnchor.constraint(equalTo: phoneContainerView.bottomAnchor, constant: -8),
             
-            codeTextField.topAnchor.constraint(equalTo: phoneContainer.bottomAnchor, constant: 16),
-            codeTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            codeTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            codeTextField.heightAnchor.constraint(equalToConstant: 50),
+            // Code Label (above input)
+            codeLabel.topAnchor.constraint(equalTo: phoneContainerView.bottomAnchor, constant: 24),
+            codeLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
-            disclaimerLabel.topAnchor.constraint(equalTo: codeTextField.bottomAnchor, constant: 32),
-            disclaimerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            disclaimerLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            disclaimerLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            // Code Container
+            codeContainerView.topAnchor.constraint(equalTo: codeLabel.bottomAnchor, constant: 8),
+            codeContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            codeContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            codeContainerView.heightAnchor.constraint(equalToConstant: 56),
             
-            // Continue Button (fixed at bottom, outside scroll view)
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            // Code Text Field
+            codeTextField.topAnchor.constraint(equalTo: codeContainerView.topAnchor, constant: 8),
+            codeTextField.leadingAnchor.constraint(equalTo: codeContainerView.leadingAnchor, constant: 16),
+            codeTextField.trailingAnchor.constraint(equalTo: codeContainerView.trailingAnchor, constant: -16),
+            codeTextField.bottomAnchor.constraint(equalTo: codeContainerView.bottomAnchor, constant: -8),
+            
+            // Continue Button (after inputs - initially after phone, will update when code is shown)
+            continueButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            continueButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 56),
+            
+            // Footer Spacer (pushes footer to bottom - expands to fill space)
+            footerSpacerView.topAnchor.constraint(equalTo: continueButton.bottomAnchor, constant: 40),
+            footerSpacerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            footerSpacerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            footerSpacerView.bottomAnchor.constraint(equalTo: footerView.topAnchor),
+            
+            // Footer View (at bottom of content view)
+            footerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            footerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            footerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
             
             arrowIcon.trailingAnchor.constraint(equalTo: continueButton.trailingAnchor, constant: -20),
             arrowIcon.centerYAnchor.constraint(equalTo: continueButton.centerYAnchor),
@@ -302,8 +337,21 @@ class PhoneVerificationViewController: UIViewController {
         phoneTextField.delegate = self
         codeTextField.delegate = self
         
+        // Set initial button position (after phone field)
+        continueButtonTopConstraint = continueButton.topAnchor.constraint(equalTo: phoneContainerView.bottomAnchor, constant: 32)
+        continueButtonTopConstraint?.isActive = true
+        
         // Setup country picker
         setupCountryPicker()
+        
+        // Add tap gesture to dismiss keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func setupCountryPicker() {
@@ -448,11 +496,11 @@ class PhoneVerificationViewController: UIViewController {
         if isCodeSent {
             let hasCode = !(codeTextField.text?.isEmpty ?? true)
             continueButton.isEnabled = hasCode
-            continueButton.backgroundColor = hasCode ? UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 1.0) : UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 0.5)
+            continueButton.backgroundColor = hasCode ? .black : .black.withAlphaComponent(0.5)
         } else {
             let hasPhone = !(phoneTextField.text?.isEmpty ?? true)
             continueButton.isEnabled = hasPhone
-            continueButton.backgroundColor = hasPhone ? UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 1.0) : UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 0.5)
+            continueButton.backgroundColor = hasPhone ? .black : .black.withAlphaComponent(0.5)
         }
     }
     
@@ -503,11 +551,21 @@ class PhoneVerificationViewController: UIViewController {
                     
                     // Otherwise, show OTP input field
                     isCodeSent = true
-                    codeTextField.isHidden = false
+                    codeLabel.isHidden = false
+                    codeContainerView.isHidden = false
                     phoneTextField.isEnabled = false
                     countryCodeButton.isEnabled = false
                     continueButton.setTitle("Verify", for: .normal)
                     continueButton.isEnabled = false
+                    
+                    // Update button position to be below code field
+                    continueButtonTopConstraint?.isActive = false
+                    continueButtonTopConstraint = continueButton.topAnchor.constraint(equalTo: codeContainerView.bottomAnchor, constant: 32)
+                    continueButtonTopConstraint?.isActive = true
+                    
+                    UIView.animate(withDuration: 0.3) {
+                        self.view.layoutIfNeeded()
+                    }
                     view.endEditing(true)
                 }
             } catch {
@@ -515,7 +573,9 @@ class PhoneVerificationViewController: UIViewController {
                     activityIndicator.stopAnimating()
                     continueButton.isEnabled = true
                     continueButton.setTitle("Continue", for: .normal)
-                    showError("Failed to send code: \(error.localizedDescription)")
+                    // Show the actual error message from API
+                    let errorMessage = error.localizedDescription
+                    showError(errorMessage)
                     onError?(error)
                 }
             }
@@ -558,7 +618,9 @@ class PhoneVerificationViewController: UIViewController {
                     activityIndicator.stopAnimating()
                     continueButton.isEnabled = true
                     continueButton.setTitle("Verify", for: .normal)
-                    showError("Invalid verification code. Please try again.")
+                    // Show the actual error message from API
+                    let errorMessage = error.localizedDescription
+                    showError(errorMessage)
                     onError?(error)
                 }
             }

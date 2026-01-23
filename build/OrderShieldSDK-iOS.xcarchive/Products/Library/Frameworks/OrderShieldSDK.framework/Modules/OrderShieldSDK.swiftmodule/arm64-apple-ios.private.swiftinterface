@@ -4,9 +4,12 @@
 // swift-module-flags-ignorable:  -interface-compiler-version 6.1.2
 import AVFoundation
 import Darwin
+import DeveloperToolsSupport
 import Foundation
 import Swift
+import SwiftUI
 import UIKit
+import Vision
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims

@@ -4,17 +4,21 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Assets.car</key>
+		<data>
+		Gtu5Qkhx29UhUtzYUquCmu2tSwo=
+		</data>
 		<key>Info.plist</key>
 		<data>
 		qDYiNU/8/Qy0Ef+v3Bzor2qyi2I=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		DeG/A2JDpTdH5kh4ncAPg2wM10c=
+		mnFM5682fdU6AP4tb0S54qyfMqY=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		hL5feCUrMaAfBMsbwgZZQtUE+Gk=
+		dmoqnMyuhXIa/baWYntby9aKt/0=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -22,19 +26,19 @@
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		hL5feCUrMaAfBMsbwgZZQtUE+Gk=
+		dmoqnMyuhXIa/baWYntby9aKt/0=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		SDjC9AS9+B9d5j7SD3RViS/QYV8=
+		bLHycONxFk36pVrGMQit8mxEo0w=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		DeG/A2JDpTdH5kh4ncAPg2wM10c=
+		mnFM5682fdU6AP4tb0S54qyfMqY=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		wvFwPS6U9HH4XINEpnRe383ouyA=
+		E5pKuYEYh0gpRkKmBcAqoSn4Vyo=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -42,27 +46,34 @@
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		wvFwPS6U9HH4XINEpnRe383ouyA=
+		E5pKuYEYh0gpRkKmBcAqoSn4Vyo=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		j/jbzLY93xdEvCNxm2O66ACiCkw=
+		mlTTmfuBCLOOzkN58GiPmk3pkuw=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Assets.car</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hpUva5aL7/TClHdXBJwKlxR1YxpDtwpy7lmTMMyZ8+s=
+			</data>
+		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			v6BF/I2GI4U8mBA+CeOu+9diB4kqHxCRVNq4sHLZF2Y=
+			xQKJHC7xIOEMssl/Y8eopcjW0OB/ERboBIOq9YVRkR0=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			PMrjs7JtJx9Mm9URLGAOIwZBjs5HDsgPMg9UqCYkiX4=
+			drSVUjWgNJSzmCSP5L95fb2fSmwSb3dq/eA9syWGr4Q=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
@@ -76,28 +87,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PMrjs7JtJx9Mm9URLGAOIwZBjs5HDsgPMg9UqCYkiX4=
+			drSVUjWgNJSzmCSP5L95fb2fSmwSb3dq/eA9syWGr4Q=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			cTEGX3fJNMaW70PsmNQLo311rKDkJrrt2+UTtPKRrAU=
+			L/vuQVLHGKrefNLgLUl7SDRIi1H8ZVoq4o6kfNWuGpw=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			v6BF/I2GI4U8mBA+CeOu+9diB4kqHxCRVNq4sHLZF2Y=
+			xQKJHC7xIOEMssl/Y8eopcjW0OB/ERboBIOq9YVRkR0=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			lOVpSsXrOhHLPLd7VRTelT6pkDGh3OTh9HcVOW4IMwI=
+			kBWZI4O/eqnzYCDlLcRnXt5jJDG+oubitQf7y0rIx7o=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
@@ -111,14 +122,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			lOVpSsXrOhHLPLd7VRTelT6pkDGh3OTh9HcVOW4IMwI=
+			kBWZI4O/eqnzYCDlLcRnXt5jJDG+oubitQf7y0rIx7o=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			FRcp54wTHAczUIXGqjvdhTQVqjlAdcHvyGe0sU+lHpA=
+			IdvKIYdM6FVdpODnGs+kfNM6CMt4ILvE4nL/0smzg4w=
 			</data>
 		</dict>
 	</dict>

@@ -14,26 +14,33 @@ class UserInfoVerificationViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
-    private let userInfoSection = UIView()
-    private let userInfoIcon = UILabel()
-    private let userInfoTitleLabel = UILabel()
-    private let userInfoSubtitleLabel = UILabel()
+    // Header and Footer
+    private let headerView = OrderShieldHeaderView()
+    private let footerView = OrderShieldFooterView()
     
+    // Title
+    private let titleLabel = UILabel()
+    private let subtitleLabel = UILabel()
+    
+    // Text Input Fields
     private let firstNameLabel = UILabel()
+    private let firstNameContainerView = UIView()
     private let firstNameTextField = UITextField()
+    
     private let lastNameLabel = UILabel()
+    private let lastNameContainerView = UIView()
     private let lastNameTextField = UITextField()
+    
     private let dateOfBirthLabel = UILabel()
+    private let dateOfBirthContainerView = UIView()
     private let dateOfBirthTextField = UITextField()
     private let datePicker = UIDatePicker()
-    
-    private let privacyProtectedView = UIView()
-    private let privacyIcon = UILabel()
-    private let privacyTitleLabel = UILabel()
-    private let privacySubtitleLabel = UILabel()
+    private let calendarIcon = UIImageView()
     
     private let continueButton = UIButton(type: .system)
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    
+    private let footerSpacerView = UIView()
     
     private var currentStep: Int = 1
     private var totalSteps: Int = 2
@@ -59,113 +66,118 @@ class UserInfoVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white // Match other screens
+        view.backgroundColor = .white
         
         // Scroll View
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.showsVerticalScrollIndicator = true // Enable scroll indicator
-        scrollView.keyboardDismissMode = .interactive // Allow dismissing keyboard by scrolling
+        scrollView.showsVerticalScrollIndicator = true
+        scrollView.keyboardDismissMode = .interactive
         view.addSubview(scrollView)
         
         contentView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentView)
         
-        // White Card Container
-        let cardView = UIView()
-        cardView.backgroundColor = .white
-        cardView.layer.cornerRadius = 12
-        cardView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(cardView)
+        // Header View
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(headerView)
         
-        // User Information Section
-        userInfoSection.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(userInfoSection)
+        // Title
+        titleLabel.text = "User Information Verification"
+        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        titleLabel.textColor = .black
+        titleLabel.textAlignment = .center
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(titleLabel)
         
-        // User Info Icon
-        userInfoIcon.text = "👤"
-        userInfoIcon.font = .systemFont(ofSize: 24)
-        userInfoIcon.translatesAutoresizingMaskIntoConstraints = false
-        userInfoSection.addSubview(userInfoIcon)
+        // Subtitle
+        subtitleLabel.text = "Please provide your personal information"
+        subtitleLabel.font = .systemFont(ofSize: 14)
+        subtitleLabel.textColor = .systemGray
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(subtitleLabel)
         
-        // User Info Title
-        userInfoTitleLabel.text = "User Information"
-        userInfoTitleLabel.font = .systemFont(ofSize: 18, weight: .bold)
-        userInfoTitleLabel.textColor = .black
-        userInfoTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        userInfoSection.addSubview(userInfoTitleLabel)
-        
-        // User Info Subtitle
-        userInfoSubtitleLabel.text = "Please provide your personal information"
-        userInfoSubtitleLabel.font = .systemFont(ofSize: 14)
-        userInfoSubtitleLabel.textColor = .systemGray
-        userInfoSubtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        userInfoSection.addSubview(userInfoSubtitleLabel)
-        
-        // First Name Label
+        // First Name Label (above input, not floating)
         firstNameLabel.text = "First Name*"
-        firstNameLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        firstNameLabel.textColor = .black
+        firstNameLabel.font = .systemFont(ofSize: 12)
+        firstNameLabel.textColor = .systemGray
         firstNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(firstNameLabel)
+        contentView.addSubview(firstNameLabel)
+        
+        // First Name Container
+        firstNameContainerView.translatesAutoresizingMaskIntoConstraints = false
+        firstNameContainerView.layer.borderWidth = 1.0
+        firstNameContainerView.layer.borderColor = UIColor.black.cgColor
+        firstNameContainerView.layer.cornerRadius = 8
+        firstNameContainerView.backgroundColor = .white
+        contentView.addSubview(firstNameContainerView)
         
         // First Name Text Field
         firstNameTextField.placeholder = "Enter First Name"
-        firstNameTextField.borderStyle = .roundedRect
-        firstNameTextField.backgroundColor = .white
-        firstNameTextField.layer.borderWidth = 1
-        firstNameTextField.layer.borderColor = UIColor.systemGray4.cgColor
-        firstNameTextField.layer.cornerRadius = 8
-        firstNameTextField.font = .systemFont(ofSize: 16)
+        firstNameTextField.borderStyle = .none
         firstNameTextField.autocapitalizationType = .words
         firstNameTextField.autocorrectionType = .no
+        firstNameTextField.backgroundColor = .clear
+        firstNameTextField.font = .systemFont(ofSize: 16)
         firstNameTextField.returnKeyType = .next
         firstNameTextField.delegate = self
         firstNameTextField.translatesAutoresizingMaskIntoConstraints = false
         firstNameTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
-        cardView.addSubview(firstNameTextField)
+        firstNameContainerView.addSubview(firstNameTextField)
         
-        // Last Name Label
+        // Last Name Label (above input, not floating)
         lastNameLabel.text = "Last Name*"
-        lastNameLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        lastNameLabel.textColor = .black
+        lastNameLabel.font = .systemFont(ofSize: 12)
+        lastNameLabel.textColor = .systemGray
         lastNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(lastNameLabel)
+        contentView.addSubview(lastNameLabel)
+        
+        // Last Name Container
+        lastNameContainerView.translatesAutoresizingMaskIntoConstraints = false
+        lastNameContainerView.layer.borderWidth = 1.0
+        lastNameContainerView.layer.borderColor = UIColor.black.cgColor
+        lastNameContainerView.layer.cornerRadius = 8
+        lastNameContainerView.backgroundColor = .white
+        contentView.addSubview(lastNameContainerView)
         
         // Last Name Text Field
         lastNameTextField.placeholder = "Enter Last Name"
-        lastNameTextField.borderStyle = .roundedRect
-        lastNameTextField.backgroundColor = .white
-        lastNameTextField.layer.borderWidth = 1
-        lastNameTextField.layer.borderColor = UIColor.systemGray4.cgColor
-        lastNameTextField.layer.cornerRadius = 8
-        lastNameTextField.font = .systemFont(ofSize: 16)
+        lastNameTextField.borderStyle = .none
         lastNameTextField.autocapitalizationType = .words
         lastNameTextField.autocorrectionType = .no
+        lastNameTextField.backgroundColor = .clear
+        lastNameTextField.font = .systemFont(ofSize: 16)
         lastNameTextField.returnKeyType = .next
         lastNameTextField.delegate = self
         lastNameTextField.translatesAutoresizingMaskIntoConstraints = false
         lastNameTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
-        cardView.addSubview(lastNameTextField)
+        lastNameContainerView.addSubview(lastNameTextField)
         
-        // Date of Birth Label
+        // Date of Birth Label (above input, not floating)
         dateOfBirthLabel.text = "Date of Birth*"
-        dateOfBirthLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        dateOfBirthLabel.textColor = .black
+        dateOfBirthLabel.font = .systemFont(ofSize: 12)
+        dateOfBirthLabel.textColor = .systemGray
         dateOfBirthLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(dateOfBirthLabel)
+        contentView.addSubview(dateOfBirthLabel)
+        
+        // Date of Birth Container
+        dateOfBirthContainerView.translatesAutoresizingMaskIntoConstraints = false
+        dateOfBirthContainerView.layer.borderWidth = 1.0
+        dateOfBirthContainerView.layer.borderColor = UIColor.black.cgColor
+        dateOfBirthContainerView.layer.cornerRadius = 8
+        dateOfBirthContainerView.backgroundColor = .white
+        contentView.addSubview(dateOfBirthContainerView)
         
         // Date of Birth Text Field
         dateOfBirthTextField.placeholder = "mm/dd/yyyy"
-        dateOfBirthTextField.borderStyle = .roundedRect
-        dateOfBirthTextField.backgroundColor = .white
-        dateOfBirthTextField.layer.borderWidth = 1
-        dateOfBirthTextField.layer.borderColor = UIColor.systemGray4.cgColor
-        dateOfBirthTextField.layer.cornerRadius = 8
+        dateOfBirthTextField.borderStyle = .none
+        dateOfBirthTextField.backgroundColor = .clear
         dateOfBirthTextField.font = .systemFont(ofSize: 16)
         dateOfBirthTextField.delegate = self
         dateOfBirthTextField.translatesAutoresizingMaskIntoConstraints = false
         dateOfBirthTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
-        cardView.addSubview(dateOfBirthTextField)
+        dateOfBirthContainerView.addSubview(dateOfBirthTextField)
         
         // Date Picker
         datePicker.datePickerMode = .date
@@ -183,47 +195,33 @@ class UserInfoVerificationViewController: UIViewController {
         dateOfBirthTextField.inputAccessoryView = toolbar
         
         // Calendar Icon
-        let calendarIcon = UIImageView(image: UIImage(systemName: "calendar"))
-        calendarIcon.tintColor = .systemGray
+        calendarIcon.image = UIImage(systemName: "calendar")
+        calendarIcon.tintColor = .black
         calendarIcon.contentMode = .scaleAspectFit
         calendarIcon.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(calendarIcon)
+        dateOfBirthContainerView.addSubview(calendarIcon)
         
-        // Privacy Protected View
-        privacyProtectedView.backgroundColor = UIColor(red: 0.9, green: 0.85, blue: 1.0, alpha: 1.0) // Light purple
-        privacyProtectedView.layer.cornerRadius = 8
-        privacyProtectedView.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(privacyProtectedView)
-        
-        privacyIcon.text = "🛡️"
-        privacyIcon.font = .systemFont(ofSize: 20)
-        privacyIcon.translatesAutoresizingMaskIntoConstraints = false
-        privacyProtectedView.addSubview(privacyIcon)
-        
-        privacyTitleLabel.text = "Privacy protected"
-        privacyTitleLabel.font = .systemFont(ofSize: 14, weight: .bold)
-        privacyTitleLabel.textColor = .black
-        privacyTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        privacyProtectedView.addSubview(privacyTitleLabel)
-        
-        privacySubtitleLabel.text = "Your information is securely stored and encrypted."
-        privacySubtitleLabel.font = .systemFont(ofSize: 12)
-        privacySubtitleLabel.textColor = .systemGray
-        privacySubtitleLabel.numberOfLines = 0
-        privacySubtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        privacyProtectedView.addSubview(privacySubtitleLabel)
-        
-        // Continue Button
+        // Continue Button (black) - inside scroll view
         continueButton.setTitle("Continue", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.backgroundColor = UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 0.5) // RGB(100, 104, 254) disabled
+        continueButton.backgroundColor = .black
         continueButton.setTitleColor(.white, for: .normal)
         continueButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
         continueButton.layer.cornerRadius = 12
         continueButton.isEnabled = false
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
         continueButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(continueButton)
+        contentView.addSubview(continueButton)
+        
+        // Footer Spacer (pushes footer to bottom)
+        footerSpacerView.translatesAutoresizingMaskIntoConstraints = false
+        footerSpacerView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        footerSpacerView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        contentView.addSubview(footerSpacerView)
+        
+        // Footer View
+        footerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(footerView)
         
         // Arrow Icon on Button
         let arrowIcon = UIImageView(image: UIImage(systemName: "arrow.right"))
@@ -239,102 +237,103 @@ class UserInfoVerificationViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             // Scroll View
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -20),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             // Content View
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            // Card View
-            cardView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            // Header View
+            headerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
+            headerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
-            // User Info Section
-            userInfoSection.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 24),
-            userInfoSection.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            userInfoSection.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
+            // Title
+            titleLabel.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 40),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            userInfoIcon.leadingAnchor.constraint(equalTo: userInfoSection.leadingAnchor),
-            userInfoIcon.topAnchor.constraint(equalTo: userInfoSection.topAnchor),
+            // Subtitle
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            userInfoTitleLabel.leadingAnchor.constraint(equalTo: userInfoIcon.trailingAnchor, constant: 12),
-            userInfoTitleLabel.centerYAnchor.constraint(equalTo: userInfoIcon.centerYAnchor),
-            userInfoTitleLabel.trailingAnchor.constraint(equalTo: userInfoSection.trailingAnchor),
+            // First Name Label (above input)
+            firstNameLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 24),
+            firstNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
-            userInfoSubtitleLabel.topAnchor.constraint(equalTo: userInfoTitleLabel.bottomAnchor, constant: 4),
-            userInfoSubtitleLabel.leadingAnchor.constraint(equalTo: userInfoTitleLabel.leadingAnchor),
-            userInfoSubtitleLabel.trailingAnchor.constraint(equalTo: userInfoSection.trailingAnchor),
-            userInfoSubtitleLabel.bottomAnchor.constraint(equalTo: userInfoSection.bottomAnchor),
+            // First Name Container
+            firstNameContainerView.topAnchor.constraint(equalTo: firstNameLabel.bottomAnchor, constant: 8),
+            firstNameContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            firstNameContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            firstNameContainerView.heightAnchor.constraint(equalToConstant: 56),
             
-            // First Name
-            firstNameLabel.topAnchor.constraint(equalTo: userInfoSection.bottomAnchor, constant: 24),
-            firstNameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            firstNameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
+            // First Name Text Field
+            firstNameTextField.topAnchor.constraint(equalTo: firstNameContainerView.topAnchor, constant: 8),
+            firstNameTextField.leadingAnchor.constraint(equalTo: firstNameContainerView.leadingAnchor, constant: 16),
+            firstNameTextField.trailingAnchor.constraint(equalTo: firstNameContainerView.trailingAnchor, constant: -16),
+            firstNameTextField.bottomAnchor.constraint(equalTo: firstNameContainerView.bottomAnchor, constant: -8),
             
-            firstNameTextField.topAnchor.constraint(equalTo: firstNameLabel.bottomAnchor, constant: 8),
-            firstNameTextField.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            firstNameTextField.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
-            firstNameTextField.heightAnchor.constraint(equalToConstant: 50),
+            // Last Name Label (above input)
+            lastNameLabel.topAnchor.constraint(equalTo: firstNameContainerView.bottomAnchor, constant: 24),
+            lastNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
-            // Last Name
-            lastNameLabel.topAnchor.constraint(equalTo: firstNameTextField.bottomAnchor, constant: 16),
-            lastNameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            lastNameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
+            // Last Name Container
+            lastNameContainerView.topAnchor.constraint(equalTo: lastNameLabel.bottomAnchor, constant: 8),
+            lastNameContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            lastNameContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            lastNameContainerView.heightAnchor.constraint(equalToConstant: 56),
             
-            lastNameTextField.topAnchor.constraint(equalTo: lastNameLabel.bottomAnchor, constant: 8),
-            lastNameTextField.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            lastNameTextField.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
-            lastNameTextField.heightAnchor.constraint(equalToConstant: 50),
+            // Last Name Text Field
+            lastNameTextField.topAnchor.constraint(equalTo: lastNameContainerView.topAnchor, constant: 8),
+            lastNameTextField.leadingAnchor.constraint(equalTo: lastNameContainerView.leadingAnchor, constant: 16),
+            lastNameTextField.trailingAnchor.constraint(equalTo: lastNameContainerView.trailingAnchor, constant: -16),
+            lastNameTextField.bottomAnchor.constraint(equalTo: lastNameContainerView.bottomAnchor, constant: -8),
             
-            // Date of Birth
-            dateOfBirthLabel.topAnchor.constraint(equalTo: lastNameTextField.bottomAnchor, constant: 16),
-            dateOfBirthLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            dateOfBirthLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
+            // Date of Birth Label (above input)
+            dateOfBirthLabel.topAnchor.constraint(equalTo: lastNameContainerView.bottomAnchor, constant: 24),
+            dateOfBirthLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
-            dateOfBirthTextField.topAnchor.constraint(equalTo: dateOfBirthLabel.bottomAnchor, constant: 8),
-            dateOfBirthTextField.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            dateOfBirthTextField.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
-            dateOfBirthTextField.heightAnchor.constraint(equalToConstant: 50),
+            // Date of Birth Container
+            dateOfBirthContainerView.topAnchor.constraint(equalTo: dateOfBirthLabel.bottomAnchor, constant: 8),
+            dateOfBirthContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            dateOfBirthContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            dateOfBirthContainerView.heightAnchor.constraint(equalToConstant: 56),
             
-            calendarIcon.trailingAnchor.constraint(equalTo: dateOfBirthTextField.trailingAnchor, constant: -12),
-            calendarIcon.centerYAnchor.constraint(equalTo: dateOfBirthTextField.centerYAnchor),
+            // Date of Birth Text Field
+            dateOfBirthTextField.topAnchor.constraint(equalTo: dateOfBirthContainerView.topAnchor, constant: 8),
+            dateOfBirthTextField.leadingAnchor.constraint(equalTo: dateOfBirthContainerView.leadingAnchor, constant: 16),
+            dateOfBirthTextField.trailingAnchor.constraint(equalTo: calendarIcon.leadingAnchor, constant: -12),
+            dateOfBirthTextField.bottomAnchor.constraint(equalTo: dateOfBirthContainerView.bottomAnchor, constant: -8),
+            
+            // Calendar Icon
+            calendarIcon.trailingAnchor.constraint(equalTo: dateOfBirthContainerView.trailingAnchor, constant: -16),
+            calendarIcon.centerYAnchor.constraint(equalTo: dateOfBirthContainerView.centerYAnchor),
             calendarIcon.widthAnchor.constraint(equalToConstant: 20),
             calendarIcon.heightAnchor.constraint(equalToConstant: 20),
             
-            // Privacy Protected View
-            privacyProtectedView.topAnchor.constraint(equalTo: dateOfBirthTextField.bottomAnchor, constant: 24),
-            privacyProtectedView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            privacyProtectedView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
-            
-            privacyIcon.leadingAnchor.constraint(equalTo: privacyProtectedView.leadingAnchor, constant: 12),
-            privacyIcon.topAnchor.constraint(equalTo: privacyProtectedView.topAnchor, constant: 12),
-            
-            privacyTitleLabel.leadingAnchor.constraint(equalTo: privacyIcon.trailingAnchor, constant: 12),
-            privacyTitleLabel.topAnchor.constraint(equalTo: privacyProtectedView.topAnchor, constant: 12),
-            privacyTitleLabel.trailingAnchor.constraint(equalTo: privacyProtectedView.trailingAnchor, constant: -12),
-            
-            privacySubtitleLabel.topAnchor.constraint(equalTo: privacyTitleLabel.bottomAnchor, constant: 4),
-            privacySubtitleLabel.leadingAnchor.constraint(equalTo: privacyTitleLabel.leadingAnchor),
-            privacySubtitleLabel.trailingAnchor.constraint(equalTo: privacyProtectedView.trailingAnchor, constant: -12),
-            privacySubtitleLabel.bottomAnchor.constraint(equalTo: privacyProtectedView.bottomAnchor, constant: -12),
-            
-            // Card View bottom constraint (set to privacy protected view)
-            cardView.bottomAnchor.constraint(equalTo: privacyProtectedView.bottomAnchor, constant: 20),
-            
-            // Content View bottom constraint (set to card view for proper scrolling)
-            contentView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 20),
-            
-            // Continue Button
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            // Continue Button (after inputs)
+            continueButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            continueButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 56),
+            continueButton.topAnchor.constraint(equalTo: dateOfBirthContainerView.bottomAnchor, constant: 32),
+            
+            // Footer Spacer (pushes footer to bottom - expands to fill space)
+            footerSpacerView.topAnchor.constraint(equalTo: continueButton.bottomAnchor, constant: 40),
+            footerSpacerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            footerSpacerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            footerSpacerView.bottomAnchor.constraint(equalTo: footerView.topAnchor),
+            
+            // Footer View (at bottom of content view)
+            footerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            footerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            footerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
             
             arrowIcon.trailingAnchor.constraint(equalTo: continueButton.trailingAnchor, constant: -20),
             arrowIcon.centerYAnchor.constraint(equalTo: continueButton.centerYAnchor),
@@ -345,6 +344,20 @@ class UserInfoVerificationViewController: UIViewController {
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+        
+        // Set text field delegates for keyboard handling
+        firstNameTextField.delegate = self
+        lastNameTextField.delegate = self
+        dateOfBirthTextField.delegate = self
+        
+        // Add tap gesture to dismiss keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     @objc private func textFieldChanged() {
@@ -354,7 +367,7 @@ class UserInfoVerificationViewController: UIViewController {
         
         let isValid = hasFirstName && hasLastName && hasDateOfBirth
         continueButton.isEnabled = isValid
-        continueButton.backgroundColor = isValid ? UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 1.0) : UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 0.5)
+        continueButton.backgroundColor = isValid ? .black : .black.withAlphaComponent(0.5)
     }
     
     @objc private func datePickerChanged() {
