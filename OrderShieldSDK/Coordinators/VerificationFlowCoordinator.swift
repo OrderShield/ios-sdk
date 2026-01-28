@@ -3,6 +3,16 @@ import UIKit
 
 @available(iOS 13.0, *)
 class VerificationFlowCoordinator {
+    // Static navigation sequence - steps will be shown in this order
+    private static let staticNavigationSequence: [String] = [
+        "sms",
+        "selfie",
+        "userInfo",
+        "email",
+        "terms",
+        "signature"
+    ]
+    
     private var customerId: String? {
         return StorageService.shared.getCustomerId()
     }
@@ -23,6 +33,31 @@ class VerificationFlowCoordinator {
         self.delegate = delegate
     }
     
+    /// Filters and orders steps from API response based on static navigation sequence
+    /// - Parameter apiSteps: Steps from API response (steps_required or steps_remaining)
+    /// - Returns: Filtered and ordered steps that match static sequence
+    private func filterStepsByStaticSequence(_ apiSteps: [String]) -> [String] {
+        var filteredSteps: [String] = []
+        
+        // Iterate through static sequence in order
+        for step in Self.staticNavigationSequence {
+            // Check if this step exists in API response
+            if apiSteps.contains(step) {
+                // If yes, add it to filtered steps (maintains static sequence order)
+                filteredSteps.append(step)
+                print("OrderShieldSDK: Step '\(step)' found in API response - including in navigation flow")
+            } else {
+                print("OrderShieldSDK: Step '\(step)' not found in API response - skipping")
+            }
+        }
+        
+        print("OrderShieldSDK: Static sequence: \(Self.staticNavigationSequence)")
+        print("OrderShieldSDK: API steps: \(apiSteps)")
+        print("OrderShieldSDK: Filtered steps (final navigation order): \(filteredSteps)")
+        
+        return filteredSteps
+    }
+    
     func start() {
         Task {
             await startVerificationSession()
@@ -31,8 +66,12 @@ class VerificationFlowCoordinator {
     
     func start(with sessionToken: String) {
         self.sessionToken = sessionToken
-        // Load required steps from storage if available
-        self.requiredSteps = StorageService.shared.getRequiredSteps()
+        // Steps should already be set from session API response (via initializer)
+        // Do NOT overwrite with storage steps as that contains settings steps, not session-specific steps
+        // The requiredSteps are set either:
+        // 1. Via initializer (from /verification/start response) - for new sessions
+        // 2. Via startVerificationSession() (from /verification/status response) - for resumed sessions
+        // Both use session-specific steps, not settings steps
         Task { @MainActor in
             setupNavigationController()
             // Don't show first step immediately - wait for user to click "Start Verification" button
@@ -49,8 +88,97 @@ class VerificationFlowCoordinator {
             return
         }
         
+        // Try to resume from existing session first
+        let existingSessionToken = StorageService.shared.getSessionToken()
+        print("OrderShieldSDK: Checking for existing session...")
+        print("OrderShieldSDK: - Customer ID: \(customerId)")
+        print("OrderShieldSDK: - Existing session token: \(existingSessionToken ?? "nil")")
+        
+        if let existingSessionToken = existingSessionToken {
+            print("OrderShieldSDK: Found existing session token, calling /verification/status API...")
+            do {
+                let statusResponse = try await NetworkService.shared.getVerificationStatus(
+                    customerId: customerId,
+                    sessionToken: existingSessionToken
+                )
+                
+                if let statusData = statusResponse.data {
+                    // If verification is complete, show completion screen
+                    if statusData.isComplete {
+                        print("OrderShieldSDK: Verification already complete. Showing completion screen.")
+                        await MainActor.run {
+                            // Clear device identifier on completion
+                            StorageService.shared.clearDeviceIdentifier()
+                            setupNavigationController()
+                            // Show completion screen immediately
+                            showCompletion()
+                        }
+                        return
+                    }
+                    
+                    // If not complete, resume from first remaining step
+                    if !statusData.stepsRemaining.isEmpty {
+                        print("OrderShieldSDK: Resuming verification")
+                        print("OrderShieldSDK: - Steps completed: \(statusData.stepsCompleted)")
+                        print("OrderShieldSDK: - Steps remaining: \(statusData.stepsRemaining)")
+                        
+                        // Filter and order remaining steps based on static navigation sequence
+                        let filteredRemainingSteps = filterStepsByStaticSequence(statusData.stepsRemaining)
+                        
+                        guard !filteredRemainingSteps.isEmpty else {
+                            print("OrderShieldSDK: No remaining steps match static sequence after filtering")
+                            await MainActor.run {
+                                showError("No remaining verification steps found")
+                            }
+                            return
+                        }
+                        
+                        let nextStepKey = filteredRemainingSteps[0]
+                        print("OrderShieldSDK: Resuming verification at step: \(nextStepKey)")
+                        
+                        // IMPORTANT: Use filtered remaining steps (ordered by static sequence)
+                        // This ensures we only show steps that haven't been completed yet, in static order
+                        self.requiredSteps = filteredRemainingSteps
+                        self.currentStepIndex = 0  // Always start from first remaining step (index 0)
+                        
+                        self.sessionToken = existingSessionToken
+                        
+                        // Store session ID if available
+                        if let sessionId = statusData.sessionId {
+                            StorageService.shared.saveSessionId(sessionId)
+                        }
+                        
+                        // Store only remaining steps (not all steps) for consistency
+                        StorageService.shared.saveRequiredSteps(statusData.stepsRemaining)
+                        
+                        await MainActor.run {
+                            delegate?.orderShieldDidStartVerification(success: true, sessionToken: existingSessionToken, error: nil)
+                            delegate?.orderShieldDidStartVerificationWithDetails(
+                                success: true,
+                                sessionId: statusData.sessionId,
+                                sessionToken: existingSessionToken,
+                                stepsRequired: statusData.stepsRemaining,
+                                stepsOptional: statusData.stepsOptional,
+                                expiresAt: statusData.expiresAt,
+                                error: nil
+                            )
+                            setupNavigationController()
+                            // Don't show first step immediately - wait for user to click "Start Verification" button
+                        }
+                        return
+                    }
+                }
+            } catch {
+                // If status check fails, continue to start new session
+                print("OrderShieldSDK: Failed to resume from existing session: \(error.localizedDescription). Starting new session.")
+            }
+        } else {
+            print("OrderShieldSDK: No existing session token found. Starting new verification session...")
+        }
+        
+        // No existing session or resume failed - start new verification session
+        print("OrderShieldSDK: Calling /verification/start API to create new session...")
         do {
-            // Start verification session (register-device and verification-settings are called in initialize())
             let request = StartVerificationRequest(customerId: customerId)
             let response = try await NetworkService.shared.startVerification(request)
             
@@ -65,11 +193,26 @@ class VerificationFlowCoordinator {
             
             let sessionToken = data.sessionToken
             self.sessionToken = sessionToken
-            self.requiredSteps = data.stepsRequired
             
-            // Store session token and required steps
+            // Filter and order required steps based on static navigation sequence
+            print("OrderShieldSDK: New session - steps from API: \(data.stepsRequired)")
+            let filteredRequiredSteps = filterStepsByStaticSequence(data.stepsRequired)
+            
+            guard !filteredRequiredSteps.isEmpty else {
+                await MainActor.run {
+                    let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "No required steps match static navigation sequence"])
+                    delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
+                    showError("No required verification steps found")
+                }
+                return
+            }
+            
+            self.requiredSteps = filteredRequiredSteps
+            
+            // Store session token, session ID, and filtered required steps
             StorageService.shared.saveSessionToken(sessionToken)
-            StorageService.shared.saveRequiredSteps(data.stepsRequired)
+            StorageService.shared.saveSessionId(data.sessionId)
+            StorageService.shared.saveRequiredSteps(filteredRequiredSteps)
             
             await MainActor.run {
                 // Call both delegate methods for backward compatibility
@@ -303,9 +446,14 @@ class VerificationFlowCoordinator {
         )
         navigationController?.pushViewController(completionVC, animated: true)
         
-        // Get session ID from stored verification session if available
-        // For now, we'll pass nil as we don't store it, but you can enhance this
-        delegate?.orderShieldDidCompleteVerification(sessionId: nil)
+        // Get session ID from stored verification session
+        let sessionId = StorageService.shared.getSessionId()
+        
+        // Clear device identifier and session data on completion
+        StorageService.shared.clearDeviceIdentifier()
+        print("OrderShieldSDK: Cleared device identifier and session data on verification completion")
+        
+        delegate?.orderShieldDidCompleteVerification(sessionId: sessionId)
     }
     
     @MainActor

@@ -169,6 +169,40 @@ class NetworkService {
         return try decoder.decode(VerificationSettingsResponse.self, from: data)
     }
     
+    // MARK: - Verification Status
+    func getVerificationStatus(customerId: String, sessionToken: String) async throws -> VerificationStatusResponse {
+        guard let apiKey = apiKey else {
+            throw NetworkError.missingAPIKey
+        }
+        
+        var components = URLComponents(string: "\(baseURL)/verification/status")
+        components?.queryItems = [
+            URLQueryItem(name: "customer_id", value: customerId),
+            URLQueryItem(name: "session_token", value: sessionToken)
+        ]
+        
+        guard let url = components?.url else {
+            throw NetworkError.invalidResponse
+        }
+        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "accept")
+        urlRequest.setValue(apiKey, forHTTPHeaderField: "X-API-KEY")
+        
+        logCurlCommand(for: urlRequest, endpoint: "verification/status")
+        
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw NetworkError.invalidResponse
+        }
+        
+        let decoder = JSONDecoder()
+        return try decoder.decode(VerificationStatusResponse.self, from: data)
+    }
+    
     // MARK: - Start Verification
     func startVerification(_ request: StartVerificationRequest) async throws -> StartVerificationResponse {
         guard let apiKey = apiKey else {

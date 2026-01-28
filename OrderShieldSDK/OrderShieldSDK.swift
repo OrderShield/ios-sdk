@@ -19,13 +19,18 @@ public class OrderShield {
     /// Configure the SDK with API key
     /// - Parameter apiKey: Your OrderShield API key
     public func configure(apiKey: String) {
-        // Clear all stored data first to avoid caching issues
-        StorageService.shared.clearAll()
-        print("OrderShieldSDK: Cleared all stored data before configuration")
+        // Clear only configuration data (settings, steps) but preserve session data
+        // This allows session resumption to work across app restarts
+        StorageService.shared.clearConfiguration()
+        print("OrderShieldSDK: Cleared configuration data (preserved session data for resume capability)")
         
         self.apiKey = apiKey
         NetworkService.shared.configure(apiKey: apiKey)
         isInitialized = true
+        
+        // Ensure device_id is synced between DeviceInfo and StorageService
+        let deviceId = DeviceInfo.getDeviceId()
+        StorageService.shared.saveDeviceId(deviceId)
         
         // Mask API key for logging (show first 8 and last 4 characters)
         let maskedKey: String
@@ -37,7 +42,7 @@ public class OrderShield {
             maskedKey = "****"
         }
         
-        print("\n✅ [OrderShieldSDK] SDK initialized with API key: \(maskedKey)")
+        print("\n✅ :- [OrderShieldSDK] SDK initialized with API key: \(maskedKey)")
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
     }
     
@@ -51,26 +56,62 @@ public class OrderShield {
         }
         
         do {
-            // Step 1: Register device
-            let deviceRequest = DeviceRegistrationRequest(
-                deviceId: DeviceInfo.getDeviceId(),
-                deviceType: "ios",
-                deviceModel: DeviceInfo.getDeviceModel(),
-                osVersion: DeviceInfo.getOSVersion(),
-                appVersion: DeviceInfo.getAppVersion(),
-                ipAddress: DeviceInfo.getIPAddress(),
-                userAgent: DeviceInfo.getUserAgent(),
-                timezone: DeviceInfo.getTimezone()
-            )
+            // Step 1: Register device (skip if device_id already exists)
+            let deviceId = DeviceInfo.getDeviceId()
+            let existingDeviceId = StorageService.shared.getDeviceId()
             
-            let registrationResponse = try await NetworkService.shared.registerDevice(deviceRequest)
-            print("OrderShieldSDK: Device registered successfully")
-            
-            // Store customer_id locally
-            StorageService.shared.saveCustomerId(registrationResponse.data.customerId)
-            print("OrderShieldSDK: Customer ID stored: \(registrationResponse.data.customerId)")
-            
-            delegate?.orderShieldDidRegisterDevice(success: true, error: nil)
+            if existingDeviceId != nil && existingDeviceId == deviceId {
+                print("OrderShieldSDK: Device ID found in storage. Skipping Register Device API call.")
+                // Ensure customer_id is available from storage
+                if let customerId = StorageService.shared.getCustomerId() {
+                    print("OrderShieldSDK: Using existing Customer ID: \(customerId)")
+                } else {
+                    print("OrderShieldSDK: Warning - Device ID exists but Customer ID not found. Registering device.")
+                    // Register device via API
+                    let deviceRequest = DeviceRegistrationRequest(
+                        deviceId: deviceId,
+                        deviceType: "ios",
+                        deviceModel: DeviceInfo.getDeviceModel(),
+                        osVersion: DeviceInfo.getOSVersion(),
+                        appVersion: DeviceInfo.getAppVersion(),
+                        ipAddress: DeviceInfo.getIPAddress(),
+                        userAgent: DeviceInfo.getUserAgent(),
+                        timezone: DeviceInfo.getTimezone()
+                    )
+                    
+                    let registrationResponse = try await NetworkService.shared.registerDevice(deviceRequest)
+                    print("OrderShieldSDK:- Device registered successfully")
+                    
+                    // Store device_id, customer_id locally
+                    StorageService.shared.saveDeviceId(deviceId)
+                    StorageService.shared.saveCustomerId(registrationResponse.data.customerId)
+                    print("OrderShieldSDK:- Device ID and Customer ID stored")
+                    
+                    delegate?.orderShieldDidRegisterDevice(success: true, error: nil)
+                }
+            } else {
+                // Register device via API
+                let deviceRequest = DeviceRegistrationRequest(
+                    deviceId: deviceId,
+                    deviceType: "ios",
+                    deviceModel: DeviceInfo.getDeviceModel(),
+                    osVersion: DeviceInfo.getOSVersion(),
+                    appVersion: DeviceInfo.getAppVersion(),
+                    ipAddress: DeviceInfo.getIPAddress(),
+                    userAgent: DeviceInfo.getUserAgent(),
+                    timezone: DeviceInfo.getTimezone()
+                )
+                
+                let registrationResponse = try await NetworkService.shared.registerDevice(deviceRequest)
+                print("OrderShieldSDK:- Device registered successfully")
+                
+                // Store device_id, customer_id locally
+                StorageService.shared.saveDeviceId(deviceId)
+                StorageService.shared.saveCustomerId(registrationResponse.data.customerId)
+                print("OrderShieldSDK:- Device ID and Customer ID stored")
+                
+                delegate?.orderShieldDidRegisterDevice(success: true, error: nil)
+            }
             
             // Step 2: Fetch verification settings
             let settingsResponse = try await NetworkService.shared.fetchVerificationSettings()
@@ -120,7 +161,7 @@ public class OrderShield {
     }
     
     /// Start verification flow with UI (async version)
-    /// Calls verification/start API immediately and starts the verification flow based on required steps
+    /// Checks for existing session first, then starts verification flow based on required steps
     /// - Parameter presentingViewController: View controller to present the flow from
     /// - Returns: Session token if successful, nil otherwise
     @discardableResult
@@ -140,46 +181,19 @@ public class OrderShield {
             return nil
         }
         
-        let requiredSteps = StorageService.shared.getRequiredSteps()
-        guard !requiredSteps.isEmpty else {
-            print("OrderShieldSDK: No required steps found. Please call initialize() first")
-            let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "No required steps found. Please call initialize() first"])
-            delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
-            return nil
+        // Create coordinator - it will handle session resumption via startVerificationSession()
+        // This ensures verification/status is called if session token exists
+        await MainActor.run {
+            verificationFlowCoordinator = VerificationFlowCoordinator(
+                requiredSteps: [],
+                presentingViewController: presentingViewController,
+                delegate: delegate
+            )
+            
+            verificationFlowCoordinator?.start()
         }
         
-        do {
-            let request = StartVerificationRequest(customerId: customerId)
-            let response = try await NetworkService.shared.startVerification(request)
-            
-            guard let data = response.data else {
-                let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to start verification session"])
-                delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
-                return nil
-            }
-            
-            let sessionToken = data.sessionToken
-            
-            // Store session token and required steps
-            StorageService.shared.saveSessionToken(sessionToken)
-            StorageService.shared.saveRequiredSteps(data.stepsRequired)
-            
-            delegate?.orderShieldDidStartVerification(success: true, sessionToken: sessionToken, error: nil)
-            
-            await MainActor.run {
-                verificationFlowCoordinator = VerificationFlowCoordinator(
-                    requiredSteps: data.stepsRequired,
-                    presentingViewController: presentingViewController,
-                    delegate: delegate
-                )
-                
-                verificationFlowCoordinator?.start(with: sessionToken)
-            }
-            
-            return sessionToken
-        } catch {
-            delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
-            return nil
-        }
+        // Return the session token from storage (if exists) or wait for coordinator to create one
+        return StorageService.shared.getSessionToken()
     }
 }

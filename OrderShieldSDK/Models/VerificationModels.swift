@@ -405,6 +405,40 @@ struct UserInfoVerificationRequest: Codable {
     }
 }
 
+// MARK: - Verification Status
+struct VerificationStatusResponse: Codable {
+    let status: String
+    let message: String
+    let data: VerificationStatusData?
+    let statusCode: Int
+}
+
+struct VerificationStatusData: Codable {
+    let sessionId: String?
+    let customerId: String?
+    let sessionToken: String?
+    let stepsCompleted: [String]
+    let stepsRemaining: [String]
+    let stepsOptional: [String]
+    let isComplete: Bool
+    let expiresAt: String?
+    let createdAt: String?
+    let completedAt: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case sessionId = "session_id"
+        case customerId = "customer_id"
+        case sessionToken = "session_token"
+        case stepsCompleted = "steps_completed"
+        case stepsRemaining = "steps_remaining"
+        case stepsOptional = "steps_optional"
+        case isComplete = "is_complete"
+        case expiresAt = "expires_at"
+        case createdAt = "created_at"
+        case completedAt = "completed_at"
+    }
+}
+
 // MARK: - API Error
 struct APIError: Codable, Error {
     let status: String

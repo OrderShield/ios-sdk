@@ -8,6 +8,8 @@ class StorageService {
     private let verificationSettingsKey = "OrderShieldSDK.verificationSettings"
     private let customerIdKey = "OrderShieldSDK.customerId"
     private let sessionTokenKey = "OrderShieldSDK.sessionToken"
+    private let sessionIdKey = "OrderShieldSDK.sessionId"
+    private let deviceIdKey = "OrderShieldSDK.deviceId"
     
     private init() {}
     
@@ -53,11 +55,59 @@ class StorageService {
         return userDefaults.string(forKey: sessionTokenKey)
     }
     
+    // MARK: - Session ID
+    func saveSessionId(_ sessionId: String) {
+        userDefaults.set(sessionId, forKey: sessionIdKey)
+    }
+    
+    func getSessionId() -> String? {
+        return userDefaults.string(forKey: sessionIdKey)
+    }
+    
+    // MARK: - Device ID
+    func getDeviceId() -> String? {
+        return userDefaults.string(forKey: deviceIdKey)
+    }
+    
+    func saveDeviceId(_ deviceId: String) {
+        userDefaults.set(deviceId, forKey: deviceIdKey)
+    }
+    
+    // MARK: - Cleanup
+    /// Clear all stored data (called during configure to reset SDK state)
+    /// Note: This preserves device_id, customer_id, session_token, and session_id to allow session resumption
     func clearAll() {
+        // Only clear settings and steps, but preserve session data for resume capability
+        userDefaults.removeObject(forKey: requiredStepsKey)
+        userDefaults.removeObject(forKey: verificationSettingsKey)
+        // Note: We intentionally do NOT clear:
+        // - customerIdKey (needed for resume)
+        // - sessionTokenKey (needed for resume)
+        // - sessionIdKey (needed for resume)
+        // - deviceIdKey (needed for device registration skip logic)
+    }
+    
+    /// Clear configuration data only (settings and steps, but keep session data)
+    func clearConfiguration() {
+        userDefaults.removeObject(forKey: requiredStepsKey)
+        userDefaults.removeObject(forKey: verificationSettingsKey)
+    }
+    
+    /// Clear device identifier and session data (called on verification completion)
+    func clearDeviceIdentifier() {
+        userDefaults.removeObject(forKey: deviceIdKey)
+        userDefaults.removeObject(forKey: sessionIdKey)
+        userDefaults.removeObject(forKey: sessionTokenKey)
+    }
+    
+    /// Clear everything including session data (use with caution - breaks resume capability)
+    func clearAllIncludingSession() {
         userDefaults.removeObject(forKey: requiredStepsKey)
         userDefaults.removeObject(forKey: verificationSettingsKey)
         userDefaults.removeObject(forKey: customerIdKey)
         userDefaults.removeObject(forKey: sessionTokenKey)
+        userDefaults.removeObject(forKey: sessionIdKey)
+        userDefaults.removeObject(forKey: deviceIdKey)
     }
 }
 

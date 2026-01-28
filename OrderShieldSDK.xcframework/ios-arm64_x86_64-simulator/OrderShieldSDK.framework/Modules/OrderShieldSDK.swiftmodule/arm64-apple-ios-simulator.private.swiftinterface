@@ -13,18 +13,6 @@ import Vision
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
-@_hasMissingDesignatedInitializers @available(iOS 13.0, *)
-public class OrderShield {
-  public static let shared: OrderShieldSDK.OrderShield
-  weak public var delegate: (any OrderShieldSDK.OrderShieldDelegate)?
-  public func configure(apiKey: Swift.String)
-  @discardableResult
-  public func initialize() async -> Swift.Bool
-  public func startVerification(presentingViewController: UIKit.UIViewController)
-  @discardableResult
-  public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
-  @objc deinit
-}
 @available(iOS 13.0, *)
 public protocol OrderShieldDelegate : AnyObject {
   func orderShieldDidRegisterDevice(success: Swift.Bool, error: (any Swift.Error)?)
@@ -62,6 +50,18 @@ extension OrderShieldSDK.OrderShieldDelegate {
   public func orderShieldDidCancelVerification(error: (any Swift.Error)?)
   public func orderShieldWillCallAPI(endpoint: Swift.String, method: Swift.String)
   public func orderShieldDidCallAPI(endpoint: Swift.String, success: Swift.Bool, statusCode: Swift.Int?, error: (any Swift.Error)?)
+}
+@_hasMissingDesignatedInitializers @available(iOS 13.0, *)
+public class OrderShield {
+  public static let shared: OrderShieldSDK.OrderShield
+  weak public var delegate: (any OrderShieldSDK.OrderShieldDelegate)?
+  public func configure(apiKey: Swift.String)
+  @discardableResult
+  public func initialize() async -> Swift.Bool
+  public func startVerification(presentingViewController: UIKit.UIViewController)
+  @discardableResult
+  public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
+  @objc deinit
 }
 public struct VerificationSettingsData : Swift.Codable {
   public let success: Swift.Bool

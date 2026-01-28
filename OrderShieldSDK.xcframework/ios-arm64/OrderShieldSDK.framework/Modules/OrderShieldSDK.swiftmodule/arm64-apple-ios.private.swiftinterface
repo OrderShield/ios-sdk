@@ -13,6 +13,38 @@ import Vision
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
+public struct VerificationSettingsData : Swift.Codable {
+  public let success: Swift.Bool
+  public let verificationEnabled: Swift.Bool
+  public let settings: OrderShieldSDK.VerificationSettings
+  public let requiredSteps: [Swift.String]
+  public let optionalSteps: [Swift.String]
+  public init(success: Swift.Bool, verificationEnabled: Swift.Bool, settings: OrderShieldSDK.VerificationSettings, requiredSteps: [Swift.String], optionalSteps: [Swift.String])
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct VerificationSettings : Swift.Codable {
+  public let selfieVerificationEnabled: Swift.Bool
+  public let emailVerificationEnabled: Swift.Bool
+  public let emailVerificationRequired: Swift.Bool
+  public let smsVerificationEnabled: Swift.Bool
+  public let smsVerificationRequired: Swift.Bool
+  public let termsAgreementEnabled: Swift.Bool
+  public let signatureConfirmationEnabled: Swift.Bool
+  public let userInfoVerificationEnabled: Swift.Bool
+  public init(selfieVerificationEnabled: Swift.Bool, emailVerificationEnabled: Swift.Bool, emailVerificationRequired: Swift.Bool, smsVerificationEnabled: Swift.Bool, smsVerificationRequired: Swift.Bool, termsAgreementEnabled: Swift.Bool, signatureConfirmationEnabled: Swift.Bool, userInfoVerificationEnabled: Swift.Bool)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct TermsCheckbox : Swift.Codable {
+  public let id: Swift.String
+  public let checkboxText: Swift.String
+  public let isRequired: Swift.Bool
+  public let displayOrder: Swift.Int
+  public init(id: Swift.String, checkboxText: Swift.String, isRequired: Swift.Bool, displayOrder: Swift.Int)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
 @available(iOS 13.0, *)
 public protocol OrderShieldDelegate : AnyObject {
   func orderShieldDidRegisterDevice(success: Swift.Bool, error: (any Swift.Error)?)
@@ -62,36 +94,4 @@ public class OrderShield {
   @discardableResult
   public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
   @objc deinit
-}
-public struct VerificationSettingsData : Swift.Codable {
-  public let success: Swift.Bool
-  public let verificationEnabled: Swift.Bool
-  public let settings: OrderShieldSDK.VerificationSettings
-  public let requiredSteps: [Swift.String]
-  public let optionalSteps: [Swift.String]
-  public init(success: Swift.Bool, verificationEnabled: Swift.Bool, settings: OrderShieldSDK.VerificationSettings, requiredSteps: [Swift.String], optionalSteps: [Swift.String])
-  public func encode(to encoder: any Swift.Encoder) throws
-  public init(from decoder: any Swift.Decoder) throws
-}
-public struct VerificationSettings : Swift.Codable {
-  public let selfieVerificationEnabled: Swift.Bool
-  public let emailVerificationEnabled: Swift.Bool
-  public let emailVerificationRequired: Swift.Bool
-  public let smsVerificationEnabled: Swift.Bool
-  public let smsVerificationRequired: Swift.Bool
-  public let termsAgreementEnabled: Swift.Bool
-  public let signatureConfirmationEnabled: Swift.Bool
-  public let userInfoVerificationEnabled: Swift.Bool
-  public init(selfieVerificationEnabled: Swift.Bool, emailVerificationEnabled: Swift.Bool, emailVerificationRequired: Swift.Bool, smsVerificationEnabled: Swift.Bool, smsVerificationRequired: Swift.Bool, termsAgreementEnabled: Swift.Bool, signatureConfirmationEnabled: Swift.Bool, userInfoVerificationEnabled: Swift.Bool)
-  public func encode(to encoder: any Swift.Encoder) throws
-  public init(from decoder: any Swift.Decoder) throws
-}
-public struct TermsCheckbox : Swift.Codable {
-  public let id: Swift.String
-  public let checkboxText: Swift.String
-  public let isRequired: Swift.Bool
-  public let displayOrder: Swift.Int
-  public init(id: Swift.String, checkboxText: Swift.String, isRequired: Swift.Bool, displayOrder: Swift.Int)
-  public func encode(to encoder: any Swift.Encoder) throws
-  public init(from decoder: any Swift.Decoder) throws
 }
