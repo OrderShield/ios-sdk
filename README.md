@@ -5,8 +5,8 @@ A comprehensive identity verification SDK for iOS applications that provides a c
 ## Features
 
 - ✅ **Automatic Device Registration**: Device is registered automatically during initialization
-- ✅ **Dynamic Verification Steps**: Steps are fetched from the server and displayed based on requirements
-- ✅ **Direct Flow Start**: Verification flow starts immediately with the first required step (no welcome screen)
+- ✅ **Dynamic Verification Steps**: Which steps are required is fetched from the server, and the SDK automatically chooses an appropriate order for the current session
+- ✅ **Start + Resume Flow**: A start screen is shown first, and the SDK either starts a new session or resumes an existing one from the first remaining step using the `verification/status` API
 - ✅ **Multiple Verification Methods**:
   - Selfie verification with camera capture
   - Email verification with optional OTP
@@ -89,7 +89,9 @@ class ViewController: UIViewController {
 
     @IBAction func startVerificationTapped(_ sender: UIButton) {
         // 3. Start verification flow
-        // Flow starts directly with first required step
+        // The SDK shows a "Start Verification" screen, then:
+        // - If there's an existing session token, it calls /verification/status and resumes from the first remaining step
+        // - Otherwise it calls /verification/start and begins a new session
         OrderShield.shared.startVerification(
             presentingViewController: self
         )
@@ -107,10 +109,13 @@ class ViewController: UIViewController {
 
 The SDK automatically:
 - Registers the device and stores customer ID
-- Fetches required verification steps from the server
-- Displays verification screens in the correct order
+- Fetches verification settings from the server (which steps are enabled/required)
+- When starting verification:
+  - Checks for an existing session token and, if found, calls `GET /verification/status` to resume from remaining steps
+  - Otherwise calls `POST /verification/start` to create a new session
+- Displays verification screens in a consistent SDK-controlled order, showing only the steps that are actually required/remaining for that session
 - Handles API calls and error responses
-- Manages the verification flow state
+- Manages verification flow state and completion
 
 ### Advanced Integration with Delegate
 
@@ -151,14 +156,18 @@ class ViewController: UIViewController, OrderShieldDelegate {
 
 ## Verification Steps
 
-The SDK supports the following verification steps (displayed based on server configuration):
+The SDK supports the following verification steps (whether each step is required/optional is controlled by server configuration; the display **order** is determined by the SDK at runtime):
 
-- **selfie**: Camera-based selfie capture with retake option
-- **email**: Email address input with optional OTP verification
 - **sms**: Phone number input with country picker and optional SMS OTP
-- **user_info**: Personal information collection (first name, last name, date of birth)
+- **selfie**: Camera-based selfie capture with retake option
+- **userInfo**: Personal information collection (first name, last name, date of birth)
+- **email**: Email address input with optional OTP verification
 - **terms**: Terms and conditions acceptance with dynamic checkboxes
 - **signature**: Digital signature capture
+
+At runtime the SDK:
+- Looks at the required/optional steps from the server
+- Shows only the steps that are required/remaining for the current session, in a consistent SDK-controlled order
 
 ## UI Features
 

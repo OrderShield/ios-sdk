@@ -391,17 +391,16 @@ class ViewController: UIViewController, OrderShieldDelegate {
 
 1. **Build and Run** (⌘R)
 2. Tap your "Start Verification" button
-3. The verification flow will start directly with the first required step:
-   - Selfie verification
-   - Email verification
-   - Phone/SMS verification
-   - User information
-   - Terms & Signature
-4. Complete all required verification steps
-5. Verify completion screen appears
-6. Check console logs for API calls and errors
+3. The SDK "Start Verification" screen will appear; tap the button there to begin
+4. The verification flow will:
+   - For a **new** session, call `/verification/start` and begin from the first available step
+   - For an **existing** session, call `/verification/status` and resume from the first remaining step
+   - Show steps in a consistent SDK-controlled order based on which steps are required/remaining for that session
+5. Complete all required verification steps
+6. Verify completion screen appears
+7. Check console logs for API calls and errors
 
-**Note:** The verification flow automatically adapts based on the required steps returned from the server. Steps are displayed in the order specified by the API response.
+**Note:** The verification flow automatically adapts based on which steps are required/remaining for the session. The **order** is determined by the SDK (not by the settings API order) and may evolve over time.
 
 ---
 

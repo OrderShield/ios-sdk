@@ -41,7 +41,10 @@ class ViewController: UIViewController, OrderShieldDelegate {
     
     func orderShieldDidFetchSettings(success: Bool, settings: VerificationSettingsData?, error: Error?) {
         if success, let settings = settings {
-            print("✅ Settings fetched: \(settings.requiredSteps)")
+            // These are configuration steps from verification-settings (not the final runtime order)
+            // The SDK will still order actual runtime steps using its static sequence:
+            // sms → selfie → userInfo → email → terms → signature
+            print("✅ Settings fetched - required steps from settings API: \(settings.requiredSteps)")
         } else {
             print("❌ Failed to fetch settings: \(error?.localizedDescription ?? "Unknown error")")
         }

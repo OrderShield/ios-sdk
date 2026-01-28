@@ -203,10 +203,10 @@ class ViewController: UIViewController {
 - [ ] SDK configures without errors
 - [ ] Device registration API call succeeds
 - [ ] Verification settings are fetched and stored
-- [ ] Required steps are saved locally
+- [ ] Required/optional steps from settings are saved locally (for configuration)
 
 ### ✅ UI Flow Test
-- [ ] Welcome screen appears
+- [ ] SDK "Start Verification" screen appears after calling `startVerification`
 - [ ] Navigation between steps works
 - [ ] Each step's UI displays correctly
 - [ ] Back navigation works (if applicable)
@@ -246,9 +246,9 @@ class ViewController: UIViewController {
 - [ ] Next step appears after success
 
 ### ✅ Completion Test
-- [ ] Completion screen appears after all steps
+- [ ] Completion screen appears after all required/remaining steps
 - [ ] Close button dismisses the flow
-- [ ] Flow completes successfully
+- [ ] Flow completes successfully (for new and resumed sessions)
 
 ## Step 5: Debugging Tips
 

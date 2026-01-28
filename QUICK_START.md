@@ -80,7 +80,10 @@ class ViewController: UIViewController {
 
     @IBAction func startTapped() {
         // 3. Start verification flow
-        // The flow will directly start with the first required verification step
+        // The SDK shows a "Start Verification" screen and then:
+        // - If a previous session token exists, it calls /verification/status and resumes from the first remaining step
+        // - Otherwise it calls /verification/start and begins a new session
+        // Steps are shown in an SDK-controlled order, based on which steps are required/remaining for the session
         // customer_id is automatically retrieved from storage (no parameter needed)
         OrderShield.shared.startVerification(
             presentingViewController: self
@@ -94,7 +97,8 @@ class ViewController: UIViewController {
 1. Connect iOS device (or use simulator)
 2. Build and run (⌘R)
 3. Tap "Start Verification"
-4. Complete the flow!
+4. On the SDK "Start Verification" screen, tap the button to begin
+5. Complete the flow (new sessions start from the first available step; existing sessions resume from the first remaining step)
 
 ## ✅ Verification Checklist
 
@@ -105,7 +109,7 @@ class ViewController: UIViewController {
 - [ ] SDK configures successfully
 - [ ] SDK initializes successfully
 - [ ] Customer ID is stored after initialization
-- [ ] Verification flow starts directly (no welcome screen)
+- [ ] Start screen appears and verification flow begins after tapping "Start Verification"
 - [ ] All verification steps complete successfully
 - [ ] Continue buttons display with purple background and arrow icons
 - [ ] Buttons show proper enabled/disabled states
@@ -131,6 +135,7 @@ class ViewController: UIViewController {
 - Check Xcode console for error messages
 - Implement `OrderShieldDelegate` to get detailed error callbacks
 - Check that `initialize()` completed successfully before calling `startVerification()`
+- If you expect a resumed session, confirm that a previous verification session was started and that a session token exists (you should see a `GET /verification/status` call in the console when resuming)
 
 ### Build errors
 

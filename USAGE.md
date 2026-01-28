@@ -2,7 +2,9 @@
 
 ## Overview
 
-OrderShieldSDK is a dynamic framework for iOS that provides a complete verification flow with UI screens. The SDK automatically handles the verification sequence based on the required steps from the server.
+OrderShieldSDK is a dynamic framework for iOS that provides a complete verification flow with UI screens. The SDK automatically:
+- Fetches which steps are enabled/required from the server, and
+- Handles the verification sequence in an SDK-controlled order, starting or resuming sessions using the `verification/start` and `verification/status` APIs.
 
 ## Installation
 
@@ -43,11 +45,16 @@ Task {
 When you're ready to start the verification flow, call `startVerification`:
 
 ```swift
-OrderShieldSDK.shared.startVerification(
-    customerId: "your-customer-id",
+OrderShield.shared.startVerification(
     presentingViewController: self
 )
 ```
+
+At this point the SDK will:
+- Check for an existing session token in storage
+- If a token exists, call `GET /api/sdk/verification/status` and resume from the first remaining step
+- If no token exists, call `POST /api/sdk/verification/start` to create a new session
+- Build the runtime flow by taking only the steps that are required/remaining for the session and ordering them according to the current SDK rules
 
 ## Complete Example
 
@@ -86,19 +93,29 @@ OrderShield.shared.startVerification(
 
 ## Verification Flow
 
-The SDK automatically handles the verification flow based on the `required_steps` returned from the verification settings API. The flow includes:
+The SDK automatically handles the verification flow based on:
+- The per-session steps returned from the `verification/start` and `verification/status` APIs, and
+- An internal ordering strategy that defines the visual order of steps.
 
-1. **Welcome Screen** - Introduction to the verification process
-2. **Selfie Verification** - Camera-based face verification
-3. **Email Verification** - Email address verification with OTP
-4. **Phone Verification** - Phone number verification with OTP
-5. **Terms Agreement** - Accept terms and conditions
-6. **Digital Signature** - Capture user signature
-7. **Completion Screen** - Verification complete confirmation
+High-level flow:
+
+1. **Start Verification Screen** – SDK presents its own start screen
+2. **Runtime step list is built**:
+   - New session → from `steps_required` in `verification/start`
+   - Resumed session → from `steps_remaining` in `verification/status`
+   - Both are then ordered by the SDK according to its current navigation rules
+3. **Verification Steps (if enabled for the session)**:
+   - **sms** – Phone number verification with optional OTP
+   - **selfie** – Camera-based face verification
+   - **userInfo** – User information (name, DOB)
+   - **email** – Email verification with optional OTP
+   - **terms** – Terms agreement with dynamic checkboxes
+   - **signature** – Digital signature capture
+4. **Completion Screen** – Verification complete confirmation
 
 The SDK will automatically:
-- Show only the required steps based on server configuration
-- Navigate between steps in the correct order
+- Show only the steps that are required/remaining for the current session
+- Navigate in a consistent order determined by the SDK for that version
 - Handle API calls for each step
 - Show the completion screen when all steps are done
 
@@ -130,8 +147,10 @@ The SDK handles errors internally and displays appropriate error messages to use
 The SDK uses the following endpoints:
 
 - `POST /api/sdk/register-device` - Device registration
-- `GET /api/sdk/verification-settings` - Fetch verification settings
-- `POST /api/sdk/verification/start` - Start verification session
+- `GET /api/sdk/verification-settings` - Fetch verification settings (feature flags and configuration)
+- `POST /api/sdk/verification/start` - Start a new verification session
+- `GET /api/sdk/verification/status` - Resume an existing verification session and get remaining steps
+- `GET /api/sdk/terms-checkboxes` - Fetch dynamic terms checkboxes
 - `POST /api/sdk/verification/selfie` - Submit selfie
 - `POST /api/sdk/verification/email/send-code` - Send email OTP
 - `POST /api/sdk/verification/email/verify-code` - Verify email OTP
