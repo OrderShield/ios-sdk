@@ -1696,13 +1696,13 @@ class NetworkService {
     }
 }
 
-// MARK: - Network Errors
+// MARK: - Network Errors (Objective-C visible via NSError bridging)
 enum NetworkError: Error {
     case missingAPIKey
     case invalidResponse
     case decodingError
     case encodingError
-    
+
     var localizedDescription: String {
         switch self {
         case .missingAPIKey:
@@ -1714,6 +1714,21 @@ enum NetworkError: Error {
         case .encodingError:
             return "Failed to encode request."
         }
+    }
+}
+
+extension NetworkError: CustomNSError {
+    public static var errorDomain: String { "OrderShieldSDK.NetworkError" }
+    public var errorCode: Int {
+        switch self {
+        case .missingAPIKey: return 1
+        case .invalidResponse: return 2
+        case .decodingError: return 3
+        case .encodingError: return 4
+        }
+    }
+    public var errorUserInfo: [String: Any] {
+        [NSLocalizedDescriptionKey: localizedDescription]
     }
 }
 

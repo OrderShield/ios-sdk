@@ -1,24 +1,31 @@
 import Foundation
 import UIKit
 
+/// Main entry point for the OrderShield SDK. Objective-C apps use `OrderShield.shared` and the completion-handler APIs.
 @available(iOS 13.0, *)
-public class OrderShield {
-    public static let shared = OrderShield()
+@objc(OrderShield)
+public class OrderShield: NSObject {
+    @objc public static let shared = OrderShield()
     
     private var apiKey: String?
     private var isInitialized = false
     private var verificationFlowCoordinator: VerificationFlowCoordinator?
     
-    /// Delegate for receiving SDK callbacks
+    /// Delegate for receiving SDK callbacks (Swift apps)
     public weak var delegate: OrderShieldDelegate?
     
-    private init() {}
+    /// Delegate for receiving SDK callbacks from Objective-C apps. Set this when integrating from ObjC.
+    @objc public weak var objcDelegate: OrderShieldDelegateObjC?
+    
+    private override init() {
+        super.init()
+    }
     
     // MARK: - Public API
     
     /// Configure the SDK with API key
     /// - Parameter apiKey: Your OrderShield API key
-    public func configure(apiKey: String) {
+    @objc public func configure(apiKey: String) {
         // Clear only configuration data (settings, steps) but preserve session data
         // This allows session resumption to work across app restarts
         StorageService.shared.clearConfiguration()
@@ -46,7 +53,7 @@ public class OrderShield {
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
     }
     
-    /// Register device and fetch verification settings
+    /// Register device and fetch verification settings (async). Use from Swift.
     /// - Returns: True if successful, false otherwise
     @discardableResult
     public func initialize() async -> Bool {
@@ -88,6 +95,7 @@ public class OrderShield {
                     print("OrderShieldSDK:- Device ID and Customer ID stored")
                     
                     delegate?.orderShieldDidRegisterDevice(success: true, error: nil)
+                    objcDelegate?.orderShieldDidRegisterDevice?(success: true, error: nil)
                 }
             } else {
                 // Register device via API
@@ -111,6 +119,7 @@ public class OrderShield {
                 print("OrderShieldSDK:- Device ID and Customer ID stored")
                 
                 delegate?.orderShieldDidRegisterDevice(success: true, error: nil)
+                objcDelegate?.orderShieldDidRegisterDevice?(success: true, error: nil)
             }
             
             // Step 2: Fetch verification settings
@@ -119,14 +128,19 @@ public class OrderShield {
             StorageService.shared.saveVerificationSettings(settingsResponse.data)
             print("OrderShieldSDK: Verification settings fetched and saved")
             delegate?.orderShieldDidFetchSettings(success: true, settings: settingsResponse.data, error: nil)
+            objcDelegate?.orderShieldDidFetchSettings?(success: true, settings: OSVerificationSettingsData(from: settingsResponse.data), error: nil)
             
             delegate?.orderShieldDidInitialize(success: true, error: nil)
+            objcDelegate?.orderShieldDidInitialize?(success: true, error: nil)
             return true
         } catch {
             print("OrderShieldSDK: Initialization failed - \(error.localizedDescription)")
             delegate?.orderShieldDidRegisterDevice(success: false, error: error)
+            objcDelegate?.orderShieldDidRegisterDevice?(success: false, error: error)
             delegate?.orderShieldDidFetchSettings(success: false, settings: nil, error: error)
+            objcDelegate?.orderShieldDidFetchSettings?(success: false, settings: nil, error: error)
             delegate?.orderShieldDidInitialize(success: false, error: error)
+            objcDelegate?.orderShieldDidInitialize?(success: false, error: error)
             return false
         }
     }
@@ -134,12 +148,13 @@ public class OrderShield {
     /// Start verification flow with UI
     /// Calls verification/start API immediately and starts the verification flow based on required steps
     /// - Parameter presentingViewController: View controller to present the flow from
-    public func startVerification(
+    @objc public func startVerification(
         presentingViewController: UIViewController
     ) {
         guard isInitialized else {
             print("OrderShieldSDK: SDK not initialized. Call configure(apiKey:) first")
             delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: NetworkError.missingAPIKey)
+            objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: NetworkError.missingAPIKey)
             return
         }
         
@@ -147,6 +162,7 @@ public class OrderShield {
             print("OrderShieldSDK: Customer ID not found. Please call initialize() first")
             let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "Customer ID not found. Please call initialize() first"])
             delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
+            objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: error)
             return
         }
         
@@ -154,7 +170,8 @@ public class OrderShield {
         verificationFlowCoordinator = VerificationFlowCoordinator(
             requiredSteps: [],
             presentingViewController: presentingViewController,
-            delegate: delegate
+            delegate: delegate,
+            objcDelegate: objcDelegate
         )
         
         verificationFlowCoordinator?.start()
@@ -171,6 +188,7 @@ public class OrderShield {
         guard isInitialized else {
             print("OrderShieldSDK: SDK not initialized. Call configure(apiKey:) first")
             delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: NetworkError.missingAPIKey)
+            objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: NetworkError.missingAPIKey)
             return nil
         }
         
@@ -178,6 +196,7 @@ public class OrderShield {
             print("OrderShieldSDK: Customer ID not found. Please call initialize() first")
             let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "Customer ID not found. Please call initialize() first"])
             delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
+            objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: error)
             return nil
         }
         
@@ -187,7 +206,8 @@ public class OrderShield {
             verificationFlowCoordinator = VerificationFlowCoordinator(
                 requiredSteps: [],
                 presentingViewController: presentingViewController,
-                delegate: delegate
+                delegate: delegate,
+                objcDelegate: objcDelegate
             )
             
             verificationFlowCoordinator?.start()
@@ -195,5 +215,31 @@ public class OrderShield {
         
         // Return the session token from storage (if exists) or wait for coordinator to create one
         return StorageService.shared.getSessionToken()
+    }
+
+    // MARK: - Objective-C Completion Handler APIs
+
+    /// Initialize the SDK (completion-handler version for Objective-C).
+    /// Registers device and fetches verification settings, then calls the completion on the main queue.
+    /// - Parameter completion: Called on the main queue with success (true/false).
+    @objc public func initialize(completion: @escaping (Bool) -> Void) {
+        Task { @MainActor in
+            let success = await initialize()
+            completion(success)
+        }
+    }
+
+    /// Start verification flow with UI (completion-handler version for Objective-C).
+    /// - Parameters:
+    ///   - presentingViewController: View controller to present the flow from.
+    ///   - completion: Called on the main queue with the session token if successful, nil otherwise.
+    @objc public func startVerification(
+        presentingViewController: UIViewController,
+        completion: @escaping (String?) -> Void
+    ) {
+        Task { @MainActor in
+            let token = await startVerification(presentingViewController: presentingViewController)
+            completion(token)
+        }
     }
 }

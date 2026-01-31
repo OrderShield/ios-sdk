@@ -1,0 +1,133 @@
+//
+//  ViewController.m (Objective-C sample – corrected for OrderShield SDK)
+//
+
+#import "ViewController.h"
+#import <OrderShieldSDK/OrderShieldSDK-Swift.h>
+
+@interface ViewController () <OrderShieldDelegateObjC>
+
+@property (weak, nonatomic) IBOutlet UIButton *startVerificationButton;
+@property (weak, nonatomic) IBOutlet UILabel *appplicationLabel;
+
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    [self setupUI];
+    [self initializeSDK];
+}
+
+#pragma mark - UI Setup
+
+- (void)setupUI {
+
+    // Label
+    self.appplicationLabel.text = @"OrderShield Verification";
+    self.appplicationLabel.font =
+        [UIFont systemFontOfSize:22 weight:UIFontWeightSemibold];
+    self.appplicationLabel.textAlignment = NSTextAlignmentCenter;
+    self.appplicationLabel.numberOfLines = 0;
+    self.appplicationLabel.textColor = [UIColor labelColor];
+
+    // Button
+    [self.startVerificationButton setTitle:@"Start SDK"
+                                  forState:UIControlStateNormal];
+
+    self.startVerificationButton.titleLabel.font =
+        [UIFont systemFontOfSize:18 weight:UIFontWeightSemibold];
+
+    self.startVerificationButton.backgroundColor = [UIColor systemBlueColor];
+
+    [self.startVerificationButton setTitleColor:[UIColor whiteColor]
+                                       forState:UIControlStateNormal];
+
+    self.startVerificationButton.layer.cornerRadius = 12;
+    self.startVerificationButton.layer.masksToBounds = YES;
+
+    self.startVerificationButton.contentEdgeInsets =
+        UIEdgeInsetsMake(14, 20, 14, 20);
+}
+
+#pragma mark - Button Action
+
+- (IBAction)clickedOnVerifcationButton:(id)sender {
+
+    [self startVerificationFlow];
+}
+
+#pragma mark - SDK
+
+- (void)initializeSDK {
+
+    OrderShield *sdk = [OrderShield shared];
+
+    // CHANGE 1: Use objcDelegate for Objective-C (not delegate)
+    sdk.objcDelegate = self;
+
+    [sdk configureWithApiKey:
+        @"prod__NaNVXAkoDIFaQZC8u9etr3lxEQqiKNVWS-bMAltyI0"];
+
+    // CHANGE 2: Use completion-handler version so init runs and then you get the result
+    [sdk initializeWithCompletion:^(BOOL success) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (success) {
+                NSLog(@"✅ SDK Ready – you can start verification");
+            } else {
+                NSLog(@"❌ SDK initialization failed");
+            }
+        });
+    }];
+}
+
+- (void)startVerificationFlow {
+
+    // Option A: No completion (flow just starts)
+    [[OrderShield shared] startVerificationWithPresentingViewController:self];
+
+    // Option B: With completion (get session token when started)
+    // [[OrderShield shared] startVerificationWithPresentingViewController:self
+    //     completion:^(NSString * _Nullable sessionToken) {
+    //     dispatch_async(dispatch_get_main_queue(), ^{
+    //         if (sessionToken.length > 0) {
+    //             NSLog(@"✅ Verification started, token: %@", sessionToken);
+    //         } else {
+    //             NSLog(@"❌ Failed to start verification");
+    //         }
+    //     });
+    // }];
+}
+
+#pragma mark - OrderShieldDelegateObjC (optional methods)
+
+- (void)orderShieldDidInitializeWithSuccess:(BOOL)success
+                                      error:(NSError *)error {
+
+    if (success) {
+        NSLog(@"✅ SDK Initialized");
+    } else {
+        NSLog(@"❌ Init Failed: %@", error.localizedDescription);
+    }
+}
+
+- (void)orderShieldDidCompleteVerificationWithSessionId:(NSString *)sessionId {
+
+    NSLog(@"🎉 Verification Completed: %@", sessionId);
+
+    UIAlertController *alert =
+        [UIAlertController alertControllerWithTitle:@"Success"
+                                            message:@"Verification Completed"
+                                     preferredStyle:UIAlertControllerStyleAlert];
+
+    [alert addAction:
+        [UIAlertAction actionWithTitle:@"OK"
+                                 style:UIAlertActionStyleDefault
+                               handler:nil]];
+
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+@end

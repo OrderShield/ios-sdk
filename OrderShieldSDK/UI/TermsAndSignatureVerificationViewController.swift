@@ -278,7 +278,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
                     self.isLoadingCheckboxes = false
                     self.loadingIndicator.stopAnimating()
                     self.checkboxesStack.isHidden = false
-                    // Notify delegate
+                    // Notify delegate (Swift delegate gets [TermsCheckbox]; ObjC delegate is notified by coordinator if needed)
                     self.delegate?.orderShieldDidFetchTermsCheckboxes(success: true, checkboxes: self.checkboxes, error: nil)
                     // Update button state after checkboxes are loaded
                     self.updateCompleteButton()

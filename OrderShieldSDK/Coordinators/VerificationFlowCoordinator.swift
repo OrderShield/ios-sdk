@@ -19,6 +19,7 @@ class VerificationFlowCoordinator {
     private var requiredSteps: [String] = []
     private weak var presentingViewController: UIViewController?
     private weak var delegate: OrderShieldDelegate?
+    private weak var objcDelegate: OrderShieldDelegateObjC?
     private var currentStepIndex = 0
     private var sessionToken: String?
     private var navigationController: UINavigationController?
@@ -26,11 +27,13 @@ class VerificationFlowCoordinator {
     init(
         requiredSteps: [String] = [],
         presentingViewController: UIViewController,
-        delegate: OrderShieldDelegate?
+        delegate: OrderShieldDelegate?,
+        objcDelegate: OrderShieldDelegateObjC? = nil
     ) {
         self.requiredSteps = requiredSteps
         self.presentingViewController = presentingViewController
         self.delegate = delegate
+        self.objcDelegate = objcDelegate
     }
     
     /// Filters and orders steps from API response based on static navigation sequence
@@ -83,6 +86,7 @@ class VerificationFlowCoordinator {
             await MainActor.run {
                 let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "Customer ID not found"])
                 delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
+                objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: error)
                 showError("Customer ID not found. Please call initialize() first")
             }
             return
@@ -153,7 +157,17 @@ class VerificationFlowCoordinator {
                         
                         await MainActor.run {
                             delegate?.orderShieldDidStartVerification(success: true, sessionToken: existingSessionToken, error: nil)
+                            objcDelegate?.orderShieldDidStartVerification?(success: true, sessionToken: existingSessionToken, error: nil)
                             delegate?.orderShieldDidStartVerificationWithDetails(
+                                success: true,
+                                sessionId: statusData.sessionId,
+                                sessionToken: existingSessionToken,
+                                stepsRequired: statusData.stepsRemaining,
+                                stepsOptional: statusData.stepsOptional,
+                                expiresAt: statusData.expiresAt,
+                                error: nil
+                            )
+                            objcDelegate?.orderShieldDidStartVerificationWithDetails?(
                                 success: true,
                                 sessionId: statusData.sessionId,
                                 sessionToken: existingSessionToken,
@@ -186,6 +200,7 @@ class VerificationFlowCoordinator {
                 await MainActor.run {
                     let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to start verification session"])
                     delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
+                    objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: error)
                     showError("Failed to start verification session")
                 }
                 return
@@ -202,6 +217,7 @@ class VerificationFlowCoordinator {
                 await MainActor.run {
                     let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "No required steps match static navigation sequence"])
                     delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
+                    objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: error)
                     showError("No required verification steps found")
                 }
                 return
@@ -215,8 +231,8 @@ class VerificationFlowCoordinator {
             StorageService.shared.saveRequiredSteps(filteredRequiredSteps)
             
             await MainActor.run {
-                // Call both delegate methods for backward compatibility
                 delegate?.orderShieldDidStartVerification(success: true, sessionToken: sessionToken, error: nil)
+                objcDelegate?.orderShieldDidStartVerification?(success: true, sessionToken: sessionToken, error: nil)
                 delegate?.orderShieldDidStartVerificationWithDetails(
                     success: true,
                     sessionId: data.sessionId,
@@ -226,14 +242,31 @@ class VerificationFlowCoordinator {
                     expiresAt: data.expiresAt,
                     error: nil
                 )
+                objcDelegate?.orderShieldDidStartVerificationWithDetails?(
+                    success: true,
+                    sessionId: data.sessionId,
+                    sessionToken: sessionToken,
+                    stepsRequired: data.stepsRequired,
+                    stepsOptional: data.stepsOptional,
+                    expiresAt: data.expiresAt,
+                    error: nil
+                )
                 setupNavigationController()
-                // Don't show first step immediately - wait for user to click "Start Verification" button
             }
         } catch {
             await MainActor.run {
-                // Call both delegate methods for backward compatibility
                 delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
+                objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: error)
                 delegate?.orderShieldDidStartVerificationWithDetails(
+                    success: false,
+                    sessionId: nil,
+                    sessionToken: nil,
+                    stepsRequired: nil,
+                    stepsOptional: nil,
+                    expiresAt: nil,
+                    error: error
+                )
+                objcDelegate?.orderShieldDidStartVerificationWithDetails?(
                     success: false,
                     sessionId: nil,
                     sessionToken: nil,
@@ -294,6 +327,7 @@ class VerificationFlowCoordinator {
         
         // Notify delegate that step is starting
         delegate?.orderShieldDidStartStep(step: step, stepIndex: currentStepIndex, totalSteps: requiredSteps.count)
+        objcDelegate?.orderShieldDidStartStep?(step: step, stepIndex: currentStepIndex, totalSteps: requiredSteps.count)
         
         let viewController: UIViewController
         
@@ -304,12 +338,14 @@ class VerificationFlowCoordinator {
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
                     }
                 },
                 onError: { [weak self] error in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
                     }
                 }
             )
@@ -319,12 +355,14 @@ class VerificationFlowCoordinator {
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
                     }
                 },
                 onError: { [weak self] error in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
                     }
                 }
             )
@@ -334,12 +372,14 @@ class VerificationFlowCoordinator {
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
                     }
                 },
                 onError: { [weak self] error in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
                     }
                 }
             )
@@ -355,21 +395,23 @@ class VerificationFlowCoordinator {
                     Task { @MainActor [weak self] in
                         // Mark terms as complete
                         self?.delegate?.orderShieldDidCompleteStep(step: "terms", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: "terms", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         // If signature is next, skip it and mark it complete too
                         if isSignatureNext {
                             self?.currentStepIndex += 1
                             self?.delegate?.orderShieldDidCompleteStep(step: "signature", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                            self?.objcDelegate?.orderShieldDidCompleteStep?(step: "signature", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         }
-                        // Move to next step
                         self?.moveToNextStep()
                     }
                 },
                 onError: { [weak self] error in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
                     }
                 },
-                delegate: delegate
+                delegate: self
             )
         case "signature":
             // Check if terms was the previous step - if so, it was already handled
@@ -385,15 +427,17 @@ class VerificationFlowCoordinator {
                     onComplete: { [weak self] in
                         Task { @MainActor [weak self] in
                             self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                            self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                             self?.moveToNextStep()
                         }
                     },
                     onError: { [weak self] error in
                         Task { @MainActor [weak self] in
                             self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                            self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
                         }
                     },
-                    delegate: delegate
+                    delegate: self
                 )
             }
         case "userInfo":
@@ -404,15 +448,17 @@ class VerificationFlowCoordinator {
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
                     }
                 },
                 onError: { [weak self] error in
                     Task { @MainActor [weak self] in
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                        self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
                     }
                 },
-                delegate: delegate
+                delegate: self
             )
         default:
             // Unknown step, skip it
@@ -454,12 +500,14 @@ class VerificationFlowCoordinator {
         print("OrderShieldSDK: Cleared device identifier and session data on verification completion")
         
         delegate?.orderShieldDidCompleteVerification(sessionId: sessionId)
+        objcDelegate?.orderShieldDidCompleteVerification?(sessionId: sessionId)
     }
     
     @MainActor
     private func showError(_ message: String) {
         let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: message])
         delegate?.orderShieldDidCancelVerification(error: error)
+        objcDelegate?.orderShieldDidCancelVerification?(error: error)
         
         let alert = UIAlertController(
             title: "Error",
@@ -470,6 +518,31 @@ class VerificationFlowCoordinator {
             self?.navigationController?.dismiss(animated: true)
         })
         navigationController?.present(alert, animated: true)
+    }
+}
+
+// MARK: - OrderShieldDelegate (forward view controller callbacks to both Swift and ObjC delegates)
+@available(iOS 13.0, *)
+extension VerificationFlowCoordinator: OrderShieldDelegate {
+    public func orderShieldDidFetchTermsCheckboxes(success: Bool, checkboxes: [TermsCheckbox]?, error: Error?) {
+        delegate?.orderShieldDidFetchTermsCheckboxes(success: success, checkboxes: checkboxes, error: error)
+        objcDelegate?.orderShieldDidFetchTermsCheckboxes?(success: success, checkboxes: checkboxes?.map { OSTermsCheckbox(from: $0) }, error: error)
+    }
+    public func orderShieldDidAcceptTerms(success: Bool, acceptedCheckboxIds: [String]?, error: Error?) {
+        delegate?.orderShieldDidAcceptTerms(success: success, acceptedCheckboxIds: acceptedCheckboxIds, error: error)
+        objcDelegate?.orderShieldDidAcceptTerms?(success: success, acceptedCheckboxIds: acceptedCheckboxIds, error: error)
+    }
+    public func orderShieldDidSubmitSignature(success: Bool, error: Error?) {
+        delegate?.orderShieldDidSubmitSignature(success: success, error: error)
+        objcDelegate?.orderShieldDidSubmitSignature?(success: success, error: error)
+    }
+    public func orderShieldDidSubmitTermsAndSignature(success: Bool, acceptedCheckboxIds: [String]?, error: Error?) {
+        delegate?.orderShieldDidSubmitTermsAndSignature(success: success, acceptedCheckboxIds: acceptedCheckboxIds, error: error)
+        objcDelegate?.orderShieldDidSubmitTermsAndSignature?(success: success, acceptedCheckboxIds: acceptedCheckboxIds, error: error)
+    }
+    public func orderShieldDidSubmitUserInfo(success: Bool, firstName: String?, lastName: String?, dateOfBirth: String?, error: Error?) {
+        delegate?.orderShieldDidSubmitUserInfo(success: success, firstName: firstName, lastName: lastName, dateOfBirth: dateOfBirth, error: error)
+        objcDelegate?.orderShieldDidSubmitUserInfo?(success: success, firstName: firstName, lastName: lastName, dateOfBirth: dateOfBirth, error: error)
     }
 }
 

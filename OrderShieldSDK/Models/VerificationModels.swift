@@ -373,6 +373,102 @@ public struct TermsCheckbox: Codable {
     }
 }
 
+// MARK: - Objective-C Visible Types (for delegate and public API)
+
+/// Objective-C visible wrapper for verification settings. Use in delegate callbacks.
+@objc(OSVerificationSettings)
+public class OSVerificationSettings: NSObject {
+    @objc public let selfieVerificationEnabled: Bool
+    @objc public let emailVerificationEnabled: Bool
+    @objc public let emailVerificationRequired: Bool
+    @objc public let smsVerificationEnabled: Bool
+    @objc public let smsVerificationRequired: Bool
+    @objc public let termsAgreementEnabled: Bool
+    @objc public let signatureConfirmationEnabled: Bool
+    @objc public let userInfoVerificationEnabled: Bool
+
+    @objc public init(
+        selfieVerificationEnabled: Bool,
+        emailVerificationEnabled: Bool,
+        emailVerificationRequired: Bool,
+        smsVerificationEnabled: Bool,
+        smsVerificationRequired: Bool,
+        termsAgreementEnabled: Bool,
+        signatureConfirmationEnabled: Bool,
+        userInfoVerificationEnabled: Bool
+    ) {
+        self.selfieVerificationEnabled = selfieVerificationEnabled
+        self.emailVerificationEnabled = emailVerificationEnabled
+        self.emailVerificationRequired = emailVerificationRequired
+        self.smsVerificationEnabled = smsVerificationEnabled
+        self.smsVerificationRequired = smsVerificationRequired
+        self.termsAgreementEnabled = termsAgreementEnabled
+        self.signatureConfirmationEnabled = signatureConfirmationEnabled
+        self.userInfoVerificationEnabled = userInfoVerificationEnabled
+    }
+
+    init(from settings: VerificationSettings) {
+        self.selfieVerificationEnabled = settings.selfieVerificationEnabled
+        self.emailVerificationEnabled = settings.emailVerificationEnabled
+        self.emailVerificationRequired = settings.emailVerificationRequired
+        self.smsVerificationEnabled = settings.smsVerificationEnabled
+        self.smsVerificationRequired = settings.smsVerificationRequired
+        self.termsAgreementEnabled = settings.termsAgreementEnabled
+        self.signatureConfirmationEnabled = settings.signatureConfirmationEnabled
+        self.userInfoVerificationEnabled = settings.userInfoVerificationEnabled
+    }
+}
+
+/// Objective-C visible wrapper for verification settings data. Use in delegate callbacks.
+@objc(OSVerificationSettingsData)
+public class OSVerificationSettingsData: NSObject {
+    @objc public let success: Bool
+    @objc public let verificationEnabled: Bool
+    @objc public let settings: OSVerificationSettings
+    @objc public let requiredSteps: [String]
+    @objc public let optionalSteps: [String]
+
+    @objc public init(success: Bool, verificationEnabled: Bool, settings: OSVerificationSettings, requiredSteps: [String], optionalSteps: [String]) {
+        self.success = success
+        self.verificationEnabled = verificationEnabled
+        self.settings = settings
+        self.requiredSteps = requiredSteps
+        self.optionalSteps = optionalSteps
+    }
+
+    init(from data: VerificationSettingsData) {
+        self.success = data.success
+        self.verificationEnabled = data.verificationEnabled
+        self.settings = OSVerificationSettings(from: data.settings)
+        self.requiredSteps = data.requiredSteps
+        self.optionalSteps = data.optionalSteps
+    }
+}
+
+/// Objective-C visible wrapper for a terms checkbox. Use in delegate callbacks.
+@objc(OSTermsCheckbox)
+public class OSTermsCheckbox: NSObject {
+    /// Checkbox identifier (exposed as checkboxId in Objective-C to avoid conflict with `id` type)
+    @objc(checkboxId) public let id: String
+    @objc public let checkboxText: String
+    @objc public let isRequired: Bool
+    @objc public let displayOrder: Int
+
+    @objc public init(id: String, checkboxText: String, isRequired: Bool, displayOrder: Int) {
+        self.id = id
+        self.checkboxText = checkboxText
+        self.isRequired = isRequired
+        self.displayOrder = displayOrder
+    }
+
+    init(from checkbox: TermsCheckbox) {
+        self.id = checkbox.id
+        self.checkboxText = checkbox.checkboxText
+        self.isRequired = checkbox.isRequired
+        self.displayOrder = checkbox.displayOrder
+    }
+}
+
 // MARK: - Signature Verification
 // Note: Signature is now sent as multipart/form-data, not JSON
 // This struct is kept for backward compatibility but won't be used for encoding
