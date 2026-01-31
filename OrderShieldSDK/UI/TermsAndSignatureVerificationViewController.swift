@@ -15,15 +15,25 @@ class TermsAndSignatureVerificationViewController: UIViewController {
     private var checkboxes: [TermsCheckbox] = []
     private var isLoadingCheckboxes = false
     
-    // Track which sections are enabled based on requiredSteps
+    // Track which sections are enabled based on requiredSteps + settings
     private var isTermsEnabled: Bool {
         let requiredSteps = StorageService.shared.getRequiredSteps()
         return requiredSteps.contains("terms")
     }
     
+    /// Signature step is considered enabled only when:
+    /// - The current session's required steps include "signature"
+    /// - AND the signature confirmation feature is enabled in verification settings
     private var isSignatureEnabled: Bool {
         let requiredSteps = StorageService.shared.getRequiredSteps()
-        return requiredSteps.contains("signature")
+        guard requiredSteps.contains("signature") else { return false }
+        
+        // If settings are available, honor the signatureConfirmationEnabled flag.
+        // If settings are missing (unexpected), default to requiring signature.
+        if let settings = StorageService.shared.getVerificationSettings()?.settings {
+            return settings.signatureConfirmationEnabled
+        }
+        return true
     }
     
     private let scrollView = UIScrollView()
@@ -152,7 +162,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         contentView.addSubview(loadingIndicator)
         
         // Complete Button
-        completeButton.setTitle("Accept and Sign", for: .normal)
+        completeButton.setTitle(isSignatureEnabled ? "Accept and Sign" : "Accept", for: .normal)
         completeButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         completeButton.backgroundColor = .black
         completeButton.setTitleColor(.white, for: .normal)
@@ -397,8 +407,15 @@ class TermsAndSignatureVerificationViewController: UIViewController {
     }
     
     @objc private func completeTapped() {
-        // Show signature sheet modal
-        showSignatureSheet()
+        // If signature is enabled, collect signature via sheet.
+        // If signature is disabled (by settings / required steps), skip the sheet and submit directly.
+        if isSignatureEnabled {
+            // Show signature sheet modal
+            showSignatureSheet()
+        } else {
+            // No signature required - proceed with terms submission only
+            handleSignatureAccepted(signatureImage: nil)
+        }
     }
     
     private func showSignatureSheet() {
