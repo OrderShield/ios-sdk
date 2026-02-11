@@ -488,6 +488,17 @@ class SelfieVerificationViewController: UIViewController {
     }
     
     @objc private func retakePhoto() {
+        // Track step_retry for selfie (user chose to retake)
+        if let customerId = customerId {
+            Task {
+                _ = await OrderShield.shared.trackEvent(
+                    customerId: customerId,
+                    sessionToken: sessionToken,
+                    eventType: .stepRetry,
+                    description: "selfie \(trackEventCurrentTime())"
+                )
+            }
+        }
         previewImageView.isHidden = true
         previewImageView.image = nil
         retakeButton.isHidden = true

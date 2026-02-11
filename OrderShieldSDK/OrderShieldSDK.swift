@@ -242,4 +242,71 @@ public class OrderShield: NSObject {
             completion(token)
         }
     }
+
+    // MARK: - Track Event
+
+    /// Log a tracking event (e.g. app_open, login, consumption, custom). Delegate receives the API response via `orderShieldDidTrackEvent(success:response:error:)`.
+    /// - Parameters:
+    ///   - customerId: Customer ID (e.g. from StorageService or verification session).
+    ///   - sessionToken: Session token (optional for events like app_open; use nil if not in a session).
+    ///   - eventType: One of app_open, login, consumption, custom.
+    ///   - description: Human-readable description of the event.
+    /// - Returns: True if the API call succeeded, false otherwise. Delegate is always called with the full response.
+    @discardableResult
+    public func trackEvent(
+        customerId: String,
+        sessionToken: String?,
+        eventType: SDKEventType,
+        description: String
+    ) async -> Bool {
+        let token = sessionToken ?? ""
+        let request = TrackEventRequest(customerId: customerId, sessionToken: token, eventType: eventType, description: description)
+        return await performTrackEvent(request: request)
+    }
+
+    /// Log a tracking event with a custom event type string. Delegate receives the API response via `orderShieldDidTrackEvent(success:response:error:)`.
+    @discardableResult
+    public func trackEvent(
+        customerId: String,
+        sessionToken: String?,
+        eventType: String,
+        description: String
+    ) async -> Bool {
+        let token = sessionToken ?? ""
+        let request = TrackEventRequest(customerId: customerId, sessionToken: token, eventType: eventType, description: description)
+        return await performTrackEvent(request: request)
+    }
+
+    /// Track event (completion-handler version for Objective-C). Use eventType string: "app_open", "login", "consumption", or "custom".
+    @objc public func trackEvent(
+        customerId: String,
+        sessionToken: String?,
+        eventType: String,
+        description: String,
+        completion: @escaping (Bool) -> Void
+    ) {
+        Task { @MainActor in
+            let success = await trackEvent(customerId: customerId, sessionToken: sessionToken, eventType: eventType, description: description)
+            completion(success)
+        }
+    }
+
+    private func performTrackEvent(request: TrackEventRequest) async -> Bool {
+        do {
+            let response = try await NetworkService.shared.trackEvent(request)
+            await MainActor.run {
+                delegate?.orderShieldDidTrackEvent(success: true, response: response, error: nil)
+                objcDelegate?.orderShieldDidTrackEvent?(success: true, response: OSTrackEventResponse(from: response), error: nil)
+            }
+            print("✅ [OrderShieldSDK] Track event API call succeeded – event_type: \(request.eventType), description: \(request.description)")
+            return true
+        } catch {
+            await MainActor.run {
+                delegate?.orderShieldDidTrackEvent(success: false, response: nil, error: error)
+                objcDelegate?.orderShieldDidTrackEvent?(success: false, response: nil, error: error)
+            }
+            print("❌ [OrderShieldSDK] Track event API call failed – \(error.localizedDescription)")
+            return false
+        }
+    }
 }

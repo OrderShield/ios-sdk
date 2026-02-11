@@ -4,7 +4,11 @@ import Foundation
 class NetworkService {
     static let shared = NetworkService()
     
+  //stage
     private let baseURL = "https://ordershield-api.projectbeta.biz/api/sdk"
+    
+    //prod
+//    private let baseURL = "https://api.ordershield.ai/api/sdk"
     private var apiKey: String?
     
     private init() {}
@@ -1692,6 +1696,47 @@ class NetworkService {
         // Log response details
         print("📡 [OrderShieldSDK] Terms Checkboxes - statusCode: \(responseModel.statusCode), status: '\(responseModel.status)', message: '\(responseModel.message)', count: \(responseModel.data.count)")
         
+        return responseModel
+    }
+
+    // MARK: - Track Event (SDK events: app_open, login, consumption, custom)
+    /// Log a tracking event from the SDK.
+    /// - Parameter request: TrackEventRequest with customer_id, session_token, event_type, description.
+    /// - Returns: TrackEventResponse on success.
+    func trackEvent(_ request: TrackEventRequest) async throws -> TrackEventResponse {
+        guard let apiKey = apiKey else {
+            throw NetworkError.missingAPIKey
+        }
+
+        let url = URL(string: "\(baseURL)/track-event")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "accept")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue(apiKey, forHTTPHeaderField: "X-API-KEY")
+
+        let encoder = JSONEncoder()
+        urlRequest.httpBody = try encoder.encode(request)
+
+        logCurlCommand(for: urlRequest, endpoint: "track-event")
+
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("📡 [OrderShieldSDK] Track event failed – invalid response")
+            throw NetworkError.invalidResponse
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            let body = String(data: data, encoding: .utf8) ?? ""
+            print("📡 [OrderShieldSDK] Track event failed – HTTP \(httpResponse.statusCode)")
+            if !body.isEmpty { print("📡 [OrderShieldSDK] Track event response body: \(body)") }
+            throw NetworkError.invalidResponse
+        }
+
+        let decoder = JSONDecoder()
+        let responseModel = try decoder.decode(TrackEventResponse.self, from: data)
+        print("📡 [OrderShieldSDK] Track event succeeded – status: \(responseModel.status ?? "–"), message: \(responseModel.message ?? "–"), statusCode: \(responseModel.statusCode.map { String(describing: $0) } ?? "–")")
         return responseModel
     }
 }

@@ -319,6 +319,18 @@ SWIFT_CLASS_NAMED("OSTermsCheckbox")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@class NSNumber;
+/// Objective-C visible wrapper for track-event API response. Use in delegate callbacks.
+SWIFT_CLASS_NAMED("OSTrackEventResponse")
+@interface OSTrackEventResponse : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nullable status;
+@property (nonatomic, readonly, copy) NSString * _Nullable message;
+@property (nonatomic, readonly, strong) NSNumber * _Nullable statusCode;
+- (nonnull instancetype)initWithStatus:(NSString * _Nullable)status message:(NSString * _Nullable)message statusCode:(NSNumber * _Nullable)statusCode OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// Objective-C visible wrapper for verification settings. Use in delegate callbacks.
 SWIFT_CLASS_NAMED("OSVerificationSettings")
 @interface OSVerificationSettings : NSObject
@@ -379,9 +391,10 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OrderShield 
 /// \param completion Called on the main queue with the session token if successful, nil otherwise.
 ///
 - (void)startVerificationWithPresentingViewController:(UIViewController * _Nonnull)presentingViewController completion:(void (^ _Nonnull)(NSString * _Nullable))completion;
+/// Track event (completion-handler version for Objective-C). Use eventType string: “app_open”, “login”, “consumption”, or “custom”.
+- (void)trackEventWithCustomerId:(NSString * _Nonnull)customerId sessionToken:(NSString * _Nullable)sessionToken eventType:(NSString * _Nonnull)eventType description:(NSString * _Nonnull)description completion:(void (^ _Nonnull)(BOOL))completion;
 @end
 
-@class NSNumber;
 /// Delegate protocol for OrderShield SDK callbacks from Objective-C. Use <code>objcDelegate</code> from ObjC apps.
 SWIFT_PROTOCOL_NAMED("OrderShieldDelegateObjC") SWIFT_AVAILABILITY(ios,introduced=13.0)
 @protocol OrderShieldDelegateObjC
@@ -402,6 +415,7 @@ SWIFT_PROTOCOL_NAMED("OrderShieldDelegateObjC") SWIFT_AVAILABILITY(ios,introduce
 - (void)orderShieldDidCancelVerificationWithError:(NSError * _Nullable)error;
 - (void)orderShieldWillCallAPIWithEndpoint:(NSString * _Nonnull)endpoint method:(NSString * _Nonnull)method;
 - (void)orderShieldDidCallAPIWithEndpoint:(NSString * _Nonnull)endpoint success:(BOOL)success statusCode:(NSNumber * _Nullable)statusCode error:(NSError * _Nullable)error;
+- (void)orderShieldDidTrackEventWithSuccess:(BOOL)success response:(OSTrackEventResponse * _Nullable)response error:(NSError * _Nullable)error;
 @end
 
 #endif

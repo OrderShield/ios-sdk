@@ -31,6 +31,7 @@ public protocol OrderShieldDelegate : AnyObject {
   func orderShieldDidCancelVerification(error: (any Swift.Error)?)
   func orderShieldWillCallAPI(endpoint: Swift.String, method: Swift.String)
   func orderShieldDidCallAPI(endpoint: Swift.String, success: Swift.Bool, statusCode: Swift.Int?, error: (any Swift.Error)?)
+  func orderShieldDidTrackEvent(success: Swift.Bool, response: OrderShieldSDK.TrackEventResponse?, error: (any Swift.Error)?)
 }
 @available(iOS 13.0, *)
 extension OrderShieldSDK.OrderShieldDelegate {
@@ -50,6 +51,7 @@ extension OrderShieldSDK.OrderShieldDelegate {
   public func orderShieldDidCancelVerification(error: (any Swift.Error)?)
   public func orderShieldWillCallAPI(endpoint: Swift.String, method: Swift.String)
   public func orderShieldDidCallAPI(endpoint: Swift.String, success: Swift.Bool, statusCode: Swift.Int?, error: (any Swift.Error)?)
+  public func orderShieldDidTrackEvent(success: Swift.Bool, response: OrderShieldSDK.TrackEventResponse?, error: (any Swift.Error)?)
 }
 @available(iOS 13.0, *)
 @objc(OrderShieldDelegateObjC) public protocol OrderShieldDelegateObjC {
@@ -69,6 +71,27 @@ extension OrderShieldSDK.OrderShieldDelegate {
   @objc optional func orderShieldDidCancelVerification(error: (any Swift.Error)?)
   @objc optional func orderShieldWillCallAPI(endpoint: Swift.String, method: Swift.String)
   @objc optional func orderShieldDidCallAPI(endpoint: Swift.String, success: Swift.Bool, statusCode: Foundation.NSNumber?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidTrackEvent(success: Swift.Bool, response: OrderShieldSDK.OSTrackEventResponse?, error: (any Swift.Error)?)
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @available(iOS 13.0, *)
+@objc(OrderShield) public class OrderShield : ObjectiveC.NSObject {
+  @objc public static let shared: OrderShieldSDK.OrderShield
+  weak public var delegate: (any OrderShieldSDK.OrderShieldDelegate)?
+  @objc weak public var objcDelegate: (any OrderShieldSDK.OrderShieldDelegateObjC)?
+  @objc public func configure(apiKey: Swift.String)
+  @discardableResult
+  public func initialize() async -> Swift.Bool
+  @objc public func startVerification(presentingViewController: UIKit.UIViewController)
+  @discardableResult
+  public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
+  @objc public func initialize(completion: @escaping (Swift.Bool) -> Swift.Void)
+  @objc public func startVerification(presentingViewController: UIKit.UIViewController, completion: @escaping (Swift.String?) -> Swift.Void)
+  @discardableResult
+  public func trackEvent(customerId: Swift.String, sessionToken: Swift.String?, eventType: OrderShieldSDK.SDKEventType, description: Swift.String) async -> Swift.Bool
+  @discardableResult
+  public func trackEvent(customerId: Swift.String, sessionToken: Swift.String?, eventType: Swift.String, description: Swift.String) async -> Swift.Bool
+  @objc public func trackEvent(customerId: Swift.String, sessionToken: Swift.String?, eventType: Swift.String, description: Swift.String, completion: @escaping (Swift.Bool) -> Swift.Void)
+  @objc deinit
 }
 public struct VerificationSettingsData : Swift.Codable {
   public let success: Swift.Bool
@@ -131,18 +154,37 @@ public struct TermsCheckbox : Swift.Codable {
   @objc public init(id: Swift.String, checkboxText: Swift.String, isRequired: Swift.Bool, displayOrder: Swift.Int)
   @objc deinit
 }
-@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @available(iOS 13.0, *)
-@objc(OrderShield) public class OrderShield : ObjectiveC.NSObject {
-  @objc public static let shared: OrderShieldSDK.OrderShield
-  weak public var delegate: (any OrderShieldSDK.OrderShieldDelegate)?
-  @objc weak public var objcDelegate: (any OrderShieldSDK.OrderShieldDelegateObjC)?
-  @objc public func configure(apiKey: Swift.String)
-  @discardableResult
-  public func initialize() async -> Swift.Bool
-  @objc public func startVerification(presentingViewController: UIKit.UIViewController)
-  @discardableResult
-  public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
-  @objc public func initialize(completion: @escaping (Swift.Bool) -> Swift.Void)
-  @objc public func startVerification(presentingViewController: UIKit.UIViewController, completion: @escaping (Swift.String?) -> Swift.Void)
+public enum SDKEventType : Swift.String, Swift.Codable, Swift.CaseIterable {
+  case sessionStart
+  case sessionEnd
+  case stepStart
+  case stepEnd
+  case stepRetry
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [OrderShieldSDK.SDKEventType]
+  public typealias RawValue = Swift.String
+  nonisolated public static var allCases: [OrderShieldSDK.SDKEventType] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct TrackEventResponse : Swift.Codable {
+  public let status: Swift.String?
+  public let message: Swift.String?
+  public let statusCode: Swift.Int?
+  public init(status: Swift.String?, message: Swift.String?, statusCode: Swift.Int?)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@_hasMissingDesignatedInitializers @objc(OSTrackEventResponse) public class OSTrackEventResponse : ObjectiveC.NSObject {
+  @objc final public let status: Swift.String?
+  @objc final public let message: Swift.String?
+  @objc final public let statusCode: Foundation.NSNumber?
+  @objc public init(status: Swift.String?, message: Swift.String?, statusCode: Foundation.NSNumber?)
   @objc deinit
 }
+extension OrderShieldSDK.SDKEventType : Swift.Equatable {}
+extension OrderShieldSDK.SDKEventType : Swift.Hashable {}
+extension OrderShieldSDK.SDKEventType : Swift.RawRepresentable {}

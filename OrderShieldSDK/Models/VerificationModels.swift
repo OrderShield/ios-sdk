@@ -535,6 +535,84 @@ struct VerificationStatusData: Codable {
     }
 }
 
+// MARK: - Track Event (SDK session/step events)
+/// Event types supported by the track-event API for verification flow.
+public enum SDKEventType: String, Codable, CaseIterable {
+    case sessionStart = "session_start"
+    case sessionEnd = "session_end"
+    case stepStart = "step_start"
+    case stepEnd = "step_end"
+    case stepRetry = "step_retry"
+}
+
+/// Current time string for track-event descriptions (ISO8601).
+func trackEventCurrentTime() -> String {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return formatter.string(from: Date())
+}
+
+struct TrackEventRequest: Codable {
+    let customerId: String
+    let sessionToken: String
+    let eventType: String
+    let description: String
+
+    enum CodingKeys: String, CodingKey {
+        case customerId = "customer_id"
+        case sessionToken = "session_token"
+        case eventType = "event_type"
+        case description
+    }
+
+    init(customerId: String, sessionToken: String, eventType: SDKEventType, description: String) {
+        self.customerId = customerId
+        self.sessionToken = sessionToken
+        self.eventType = eventType.rawValue
+        self.description = description
+    }
+
+    init(customerId: String, sessionToken: String, eventType: String, description: String) {
+        self.customerId = customerId
+        self.sessionToken = sessionToken
+        self.eventType = eventType
+        self.description = description
+    }
+}
+
+/// Response from the track-event API. Passed to the delegate in `orderShieldDidTrackEvent(success:response:error:)`.
+public struct TrackEventResponse: Codable {
+    public let status: String?
+    public let message: String?
+    public let statusCode: Int?
+
+    public init(status: String?, message: String?, statusCode: Int?) {
+        self.status = status
+        self.message = message
+        self.statusCode = statusCode
+    }
+}
+
+/// Objective-C visible wrapper for track-event API response. Use in delegate callbacks.
+@objc(OSTrackEventResponse)
+public class OSTrackEventResponse: NSObject {
+    @objc public let status: String?
+    @objc public let message: String?
+    @objc public let statusCode: NSNumber?
+
+    @objc public init(status: String?, message: String?, statusCode: NSNumber?) {
+        self.status = status
+        self.message = message
+        self.statusCode = statusCode
+    }
+
+    init(from response: TrackEventResponse) {
+        self.status = response.status
+        self.message = response.message
+        self.statusCode = response.statusCode.map { NSNumber(value: $0) }
+    }
+}
+
 // MARK: - API Error
 struct APIError: Codable, Error {
     let status: String

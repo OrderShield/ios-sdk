@@ -52,6 +52,25 @@ class StartVerificationViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         setupUI()
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        logSDKStartedEvent()
+    }
+
+    /// Log session_start track-event when the verification start screen is shown; description = current time.
+    private func logSDKStartedEvent() {
+        guard let customerId = StorageService.shared.getCustomerId() else { return }
+        let sessionToken = StorageService.shared.getSessionToken() ?? ""
+        Task {
+            _ = await OrderShield.shared.trackEvent(
+                customerId: customerId,
+                sessionToken: sessionToken.isEmpty ? nil : sessionToken,
+                eventType: .sessionStart,
+                description: trackEventCurrentTime()
+            )
+        }
+    }
     
     private func setupUI() {
         view.backgroundColor = .white

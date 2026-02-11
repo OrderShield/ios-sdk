@@ -40,6 +40,11 @@ public protocol OrderShieldDelegate: AnyObject {
     
     func orderShieldWillCallAPI(endpoint: String, method: String)
     func orderShieldDidCallAPI(endpoint: String, success: Bool, statusCode: Int?, error: Error?)
+
+    // MARK: - Track Event Callback
+    
+    /// Called after the SDK logs a tracking event. Use this to see the API response (status, message, statusCode).
+    func orderShieldDidTrackEvent(success: Bool, response: TrackEventResponse?, error: Error?)
 }
 
 // MARK: - Optional Delegate Methods (Swift)
@@ -69,6 +74,7 @@ extension OrderShieldDelegate {
     public func orderShieldDidCancelVerification(error: Error?) {}
     public func orderShieldWillCallAPI(endpoint: String, method: String) {}
     public func orderShieldDidCallAPI(endpoint: String, success: Bool, statusCode: Int?, error: Error?) {}
+    public func orderShieldDidTrackEvent(success: Bool, response: TrackEventResponse?, error: Error?) {}
 }
 
 // MARK: - Objective-C Delegate (Objective-C apps use this; ObjC-visible types)
@@ -101,4 +107,5 @@ public protocol OrderShieldDelegateObjC: AnyObject {
     @objc optional func orderShieldDidCancelVerification(error: Error?)
     @objc optional func orderShieldWillCallAPI(endpoint: String, method: String)
     @objc optional func orderShieldDidCallAPI(endpoint: String, success: Bool, statusCode: NSNumber?, error: Error?)
+    @objc optional func orderShieldDidTrackEvent(success: Bool, response: OSTrackEventResponse?, error: Error?)
 }

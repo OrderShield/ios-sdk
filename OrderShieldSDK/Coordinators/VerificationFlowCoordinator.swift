@@ -328,7 +328,10 @@ class VerificationFlowCoordinator {
         // Notify delegate that step is starting
         delegate?.orderShieldDidStartStep(step: step, stepIndex: currentStepIndex, totalSteps: requiredSteps.count)
         objcDelegate?.orderShieldDidStartStep?(step: step, stepIndex: currentStepIndex, totalSteps: requiredSteps.count)
-        
+
+        // Track step_start (step name: sms, selfie, userInfo, email, terms, signature)
+        trackSessionEvent(.stepStart, description: step)
+
         let viewController: UIViewController
         
         switch step {
@@ -337,6 +340,7 @@ class VerificationFlowCoordinator {
                 sessionToken: sessionToken,
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
+                        self?.trackSessionEvent(.stepEnd, description: step)
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
@@ -354,6 +358,7 @@ class VerificationFlowCoordinator {
                 sessionToken: sessionToken,
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
+                        self?.trackSessionEvent(.stepEnd, description: step)
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
@@ -371,6 +376,7 @@ class VerificationFlowCoordinator {
                 sessionToken: sessionToken,
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
+                        self?.trackSessionEvent(.stepEnd, description: step)
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
@@ -393,11 +399,13 @@ class VerificationFlowCoordinator {
                 sessionToken: sessionToken,
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
+                        self?.trackSessionEvent(.stepEnd, description: "terms")
                         // Mark terms as complete
                         self?.delegate?.orderShieldDidCompleteStep(step: "terms", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.objcDelegate?.orderShieldDidCompleteStep?(step: "terms", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         // If signature is next, skip it and mark it complete too
                         if isSignatureNext {
+                            self?.trackSessionEvent(.stepEnd, description: "signature")
                             self?.currentStepIndex += 1
                             self?.delegate?.orderShieldDidCompleteStep(step: "signature", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                             self?.objcDelegate?.orderShieldDidCompleteStep?(step: "signature", stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
@@ -426,6 +434,7 @@ class VerificationFlowCoordinator {
                     sessionToken: sessionToken,
                     onComplete: { [weak self] in
                         Task { @MainActor [weak self] in
+                            self?.trackSessionEvent(.stepEnd, description: step)
                             self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                             self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                             self?.moveToNextStep()
@@ -447,6 +456,7 @@ class VerificationFlowCoordinator {
                 totalSteps: requiredSteps.count,
                 onComplete: { [weak self] in
                     Task { @MainActor [weak self] in
+                        self?.trackSessionEvent(.stepEnd, description: step)
                         self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
                         self?.moveToNextStep()
@@ -472,7 +482,7 @@ class VerificationFlowCoordinator {
     @MainActor
     private func moveToNextStep() {
         currentStepIndex += 1
-        
+
         if currentStepIndex >= requiredSteps.count {
             // All steps completed, show completion screen
             showCompletion()
@@ -485,6 +495,9 @@ class VerificationFlowCoordinator {
     
     @MainActor
     private func showCompletion() {
+        // Track session_end with current time (before clearing session data)
+        trackSessionEvent(.sessionEnd, description: trackEventCurrentTime())
+
         let completionVC = VerificationCompleteViewController(
             onDismiss: { [weak self] in
                 self?.navigationController?.dismiss(animated: true)
@@ -503,6 +516,19 @@ class VerificationFlowCoordinator {
         objcDelegate?.orderShieldDidCompleteVerification?(sessionId: sessionId)
     }
     
+    @MainActor
+    private func trackSessionEvent(_ eventType: SDKEventType, description: String) {
+        guard let customerId = customerId, let token = sessionToken else { return }
+        Task {
+            _ = await OrderShield.shared.trackEvent(
+                customerId: customerId,
+                sessionToken: token,
+                eventType: eventType,
+                description: description
+            )
+        }
+    }
+
     @MainActor
     private func showError(_ message: String) {
         let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: message])

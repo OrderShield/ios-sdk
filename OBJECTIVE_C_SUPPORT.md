@@ -148,7 +148,8 @@ The SDK is **Swift-only today**. To support Objective-C:
 - `configure(apiKey:)` → `configureWithApiKey:`
 - `initialize(completion:)` → `initializeWithCompletion:`
 - `startVerification(presentingViewController:completion:)` → `startVerificationWithPresentingViewController:completion:`
-- Delegate: use **`objcDelegate`** and **`OrderShieldDelegateObjC`**; settings type is `OSVerificationSettingsData *`, checkboxes `NSArray<OSTermsCheckbox *> *`, status code `NSNumber *` (use `.intValue`); checkbox id is `checkboxId` in ObjC.
+- `trackEvent(customerId:sessionToken:eventType:description:completion:)` → `trackEventWithCustomerId:sessionToken:eventType:description:completion:` (event types: `@"app_open"`, `@"login"`, `@"consumption"`, `@"custom"`; response in delegate via `OSTrackEventResponse *` with `status`, `message`, `statusCode`).
+- Delegate: use **`objcDelegate`** and **`OrderShieldDelegateObjC`**; settings type is `OSVerificationSettingsData *`, checkboxes `NSArray<OSTermsCheckbox *> *`, status code `NSNumber *` (use `.intValue`); checkbox id is `checkboxId` in ObjC; track-event response is `OSTrackEventResponse *` (optional method `orderShieldDidTrackEventWithSuccess:response:error:`).
 
 ---
 
