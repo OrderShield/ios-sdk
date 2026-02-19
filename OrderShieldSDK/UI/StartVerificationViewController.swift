@@ -55,6 +55,7 @@ class StartVerificationViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        print("OrderShieldSDK: [StartVerification] Start screen did appear")
         logSDKStartedEvent()
     }
 
@@ -75,9 +76,10 @@ class StartVerificationViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         
-        // Scroll View
+        // Scroll View (delaysContentTouches = false so the Start button responds on first tap)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
+        scrollView.delaysContentTouches = false
         view.addSubview(scrollView)
         
         // Content View
@@ -185,9 +187,11 @@ class StartVerificationViewController: UIViewController {
         contentView.addSubview(startButton)
         
         // Button Content Stack View (to center camera icon and text together)
+        // isUserInteractionEnabled = false so taps go to startButton, not to the stack/labels
         buttonContentStackView.axis = .horizontal
         buttonContentStackView.spacing = 8
         buttonContentStackView.alignment = .center
+        buttonContentStackView.isUserInteractionEnabled = false
         buttonContentStackView.translatesAutoresizingMaskIntoConstraints = false
         startButton.addSubview(buttonContentStackView)
         
@@ -195,6 +199,7 @@ class StartVerificationViewController: UIViewController {
         cameraImageView.image = UIImage(systemName: "camera.fill")
         cameraImageView.tintColor = .white
         cameraImageView.contentMode = .scaleAspectFit
+        cameraImageView.isUserInteractionEnabled = false
         cameraImageView.translatesAutoresizingMaskIntoConstraints = false
         buttonContentStackView.addArrangedSubview(cameraImageView)
         
@@ -202,6 +207,7 @@ class StartVerificationViewController: UIViewController {
         startTextLabel.text = "Start"
         startTextLabel.font = .systemFont(ofSize: 18, weight: .semibold)
         startTextLabel.textColor = .white
+        startTextLabel.isUserInteractionEnabled = false
         buttonContentStackView.addArrangedSubview(startTextLabel)
         
         // Lighting Tip
@@ -322,6 +328,7 @@ class StartVerificationViewController: UIViewController {
     }
     
     @objc private func startButtonTapped() {
+        print("OrderShieldSDK: [StartVerification] Start button tapped")
         onStart()
     }
 }

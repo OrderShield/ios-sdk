@@ -1,0 +1,216 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.1.2 effective-5.10 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+// swift-module-flags: -target x86_64-apple-ios17.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name OrderShieldSDK
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -interface-compiler-version 6.1.2
+import AVFoundation
+import Darwin
+import DeveloperToolsSupport
+import Foundation
+import Swift
+import SwiftUI
+import UIKit
+import Vision
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+public struct PredefinedUserInfo {
+  public var email: Swift.String?
+  public var phoneNumber: Swift.String?
+  public var firstName: Swift.String?
+  public var lastName: Swift.String?
+  public var dateOfBirth: Swift.String?
+  public init(email: Swift.String? = nil, phoneNumber: Swift.String? = nil, firstName: Swift.String? = nil, lastName: Swift.String? = nil, dateOfBirth: Swift.String? = nil)
+  public var hasAllUserInfoFields: Swift.Bool {
+    get
+  }
+  public var normalizedDateOfBirth: Swift.String? {
+    get
+  }
+  public init(from objc: OrderShieldSDK.OSPredefinedUserInfo?)
+}
+@objc(OSPredefinedUserInfo) public class OSPredefinedUserInfo : ObjectiveC.NSObject {
+  @objc final public let email: Swift.String?
+  @objc final public let phoneNumber: Swift.String?
+  @objc final public let firstName: Swift.String?
+  @objc final public let lastName: Swift.String?
+  @objc final public let dateOfBirth: Swift.String?
+  @objc public init(email: Swift.String? = nil, phoneNumber: Swift.String? = nil, firstName: Swift.String? = nil, lastName: Swift.String? = nil, dateOfBirth: Swift.String? = nil)
+  @objc deinit
+}
+public struct VerificationSettingsData : Swift.Codable {
+  public let success: Swift.Bool
+  public let verificationEnabled: Swift.Bool
+  public let settings: OrderShieldSDK.VerificationSettings
+  public let requiredSteps: [Swift.String]
+  public let optionalSteps: [Swift.String]
+  public init(success: Swift.Bool, verificationEnabled: Swift.Bool, settings: OrderShieldSDK.VerificationSettings, requiredSteps: [Swift.String], optionalSteps: [Swift.String])
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct VerificationSettings : Swift.Codable {
+  public let selfieVerificationEnabled: Swift.Bool
+  public let emailVerificationEnabled: Swift.Bool
+  public let emailVerificationRequired: Swift.Bool
+  public let smsVerificationEnabled: Swift.Bool
+  public let smsVerificationRequired: Swift.Bool
+  public let termsAgreementEnabled: Swift.Bool
+  public let signatureConfirmationEnabled: Swift.Bool
+  public let userInfoVerificationEnabled: Swift.Bool
+  public init(selfieVerificationEnabled: Swift.Bool, emailVerificationEnabled: Swift.Bool, emailVerificationRequired: Swift.Bool, smsVerificationEnabled: Swift.Bool, smsVerificationRequired: Swift.Bool, termsAgreementEnabled: Swift.Bool, signatureConfirmationEnabled: Swift.Bool, userInfoVerificationEnabled: Swift.Bool)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct TermsCheckbox : Swift.Codable {
+  public let id: Swift.String
+  public let checkboxText: Swift.String
+  public let isRequired: Swift.Bool
+  public let displayOrder: Swift.Int
+  public init(id: Swift.String, checkboxText: Swift.String, isRequired: Swift.Bool, displayOrder: Swift.Int)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@_hasMissingDesignatedInitializers @objc(OSVerificationSettings) public class OSVerificationSettings : ObjectiveC.NSObject {
+  @objc final public let selfieVerificationEnabled: Swift.Bool
+  @objc final public let emailVerificationEnabled: Swift.Bool
+  @objc final public let emailVerificationRequired: Swift.Bool
+  @objc final public let smsVerificationEnabled: Swift.Bool
+  @objc final public let smsVerificationRequired: Swift.Bool
+  @objc final public let termsAgreementEnabled: Swift.Bool
+  @objc final public let signatureConfirmationEnabled: Swift.Bool
+  @objc final public let userInfoVerificationEnabled: Swift.Bool
+  @objc public init(selfieVerificationEnabled: Swift.Bool, emailVerificationEnabled: Swift.Bool, emailVerificationRequired: Swift.Bool, smsVerificationEnabled: Swift.Bool, smsVerificationRequired: Swift.Bool, termsAgreementEnabled: Swift.Bool, signatureConfirmationEnabled: Swift.Bool, userInfoVerificationEnabled: Swift.Bool)
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers @objc(OSVerificationSettingsData) public class OSVerificationSettingsData : ObjectiveC.NSObject {
+  @objc final public let success: Swift.Bool
+  @objc final public let verificationEnabled: Swift.Bool
+  @objc final public let settings: OrderShieldSDK.OSVerificationSettings
+  @objc final public let requiredSteps: [Swift.String]
+  @objc final public let optionalSteps: [Swift.String]
+  @objc public init(success: Swift.Bool, verificationEnabled: Swift.Bool, settings: OrderShieldSDK.OSVerificationSettings, requiredSteps: [Swift.String], optionalSteps: [Swift.String])
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers @objc(OSTermsCheckbox) public class OSTermsCheckbox : ObjectiveC.NSObject {
+  @objc(checkboxId) final public let id: Swift.String
+  @objc final public let checkboxText: Swift.String
+  @objc final public let isRequired: Swift.Bool
+  @objc final public let displayOrder: Swift.Int
+  @objc public init(id: Swift.String, checkboxText: Swift.String, isRequired: Swift.Bool, displayOrder: Swift.Int)
+  @objc deinit
+}
+public enum SDKEventType : Swift.String, Swift.Codable, Swift.CaseIterable {
+  case sessionStart
+  case sessionEnd
+  case stepStart
+  case stepEnd
+  case stepRetry
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [OrderShieldSDK.SDKEventType]
+  public typealias RawValue = Swift.String
+  nonisolated public static var allCases: [OrderShieldSDK.SDKEventType] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct TrackEventResponse : Swift.Codable {
+  public let status: Swift.String?
+  public let message: Swift.String?
+  public let statusCode: Swift.Int?
+  public init(status: Swift.String?, message: Swift.String?, statusCode: Swift.Int?)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@_hasMissingDesignatedInitializers @objc(OSTrackEventResponse) public class OSTrackEventResponse : ObjectiveC.NSObject {
+  @objc final public let status: Swift.String?
+  @objc final public let message: Swift.String?
+  @objc final public let statusCode: Foundation.NSNumber?
+  @objc public init(status: Swift.String?, message: Swift.String?, statusCode: Foundation.NSNumber?)
+  @objc deinit
+}
+@available(iOS 13.0, *)
+public protocol OrderShieldDelegate : AnyObject {
+  func orderShieldDidRegisterDevice(success: Swift.Bool, error: (any Swift.Error)?)
+  func orderShieldDidFetchSettings(success: Swift.Bool, settings: OrderShieldSDK.VerificationSettingsData?, error: (any Swift.Error)?)
+  func orderShieldDidInitialize(success: Swift.Bool, error: (any Swift.Error)?)
+  func orderShieldDidStartVerification(success: Swift.Bool, sessionToken: Swift.String?, error: (any Swift.Error)?)
+  func orderShieldDidStartVerificationWithDetails(success: Swift.Bool, sessionId: Swift.String?, sessionToken: Swift.String?, stepsRequired: [Swift.String]?, stepsOptional: [Swift.String]?, expiresAt: Swift.String?, error: (any Swift.Error)?)
+  func orderShieldDidStartStep(step: Swift.String, stepIndex: Swift.Int, totalSteps: Swift.Int)
+  func orderShieldDidCompleteStep(step: Swift.String, stepIndex: Swift.Int, success: Swift.Bool, error: (any Swift.Error)?)
+  func orderShieldDidFetchTermsCheckboxes(success: Swift.Bool, checkboxes: [OrderShieldSDK.TermsCheckbox]?, error: (any Swift.Error)?)
+  func orderShieldDidAcceptTerms(success: Swift.Bool, acceptedCheckboxIds: [Swift.String]?, error: (any Swift.Error)?)
+  func orderShieldDidSubmitSignature(success: Swift.Bool, error: (any Swift.Error)?)
+  func orderShieldDidSubmitTermsAndSignature(success: Swift.Bool, acceptedCheckboxIds: [Swift.String]?, error: (any Swift.Error)?)
+  func orderShieldDidSubmitUserInfo(success: Swift.Bool, firstName: Swift.String?, lastName: Swift.String?, dateOfBirth: Swift.String?, error: (any Swift.Error)?)
+  func orderShieldDidCompleteVerification(sessionId: Swift.String?)
+  func orderShieldDidCancelVerification(error: (any Swift.Error)?)
+  func orderShieldWillCallAPI(endpoint: Swift.String, method: Swift.String)
+  func orderShieldDidCallAPI(endpoint: Swift.String, success: Swift.Bool, statusCode: Swift.Int?, error: (any Swift.Error)?)
+  func orderShieldDidTrackEvent(success: Swift.Bool, response: OrderShieldSDK.TrackEventResponse?, error: (any Swift.Error)?)
+}
+@available(iOS 13.0, *)
+extension OrderShieldSDK.OrderShieldDelegate {
+  public func orderShieldDidRegisterDevice(success: Swift.Bool, error: (any Swift.Error)?)
+  public func orderShieldDidFetchSettings(success: Swift.Bool, settings: OrderShieldSDK.VerificationSettingsData?, error: (any Swift.Error)?)
+  public func orderShieldDidInitialize(success: Swift.Bool, error: (any Swift.Error)?)
+  public func orderShieldDidStartVerification(success: Swift.Bool, sessionToken: Swift.String?, error: (any Swift.Error)?)
+  public func orderShieldDidStartVerificationWithDetails(success: Swift.Bool, sessionId: Swift.String?, sessionToken: Swift.String?, stepsRequired: [Swift.String]?, stepsOptional: [Swift.String]?, expiresAt: Swift.String?, error: (any Swift.Error)?)
+  public func orderShieldDidStartStep(step: Swift.String, stepIndex: Swift.Int, totalSteps: Swift.Int)
+  public func orderShieldDidCompleteStep(step: Swift.String, stepIndex: Swift.Int, success: Swift.Bool, error: (any Swift.Error)?)
+  public func orderShieldDidFetchTermsCheckboxes(success: Swift.Bool, checkboxes: [OrderShieldSDK.TermsCheckbox]?, error: (any Swift.Error)?)
+  public func orderShieldDidAcceptTerms(success: Swift.Bool, acceptedCheckboxIds: [Swift.String]?, error: (any Swift.Error)?)
+  public func orderShieldDidSubmitSignature(success: Swift.Bool, error: (any Swift.Error)?)
+  public func orderShieldDidSubmitTermsAndSignature(success: Swift.Bool, acceptedCheckboxIds: [Swift.String]?, error: (any Swift.Error)?)
+  public func orderShieldDidSubmitUserInfo(success: Swift.Bool, firstName: Swift.String?, lastName: Swift.String?, dateOfBirth: Swift.String?, error: (any Swift.Error)?)
+  public func orderShieldDidCompleteVerification(sessionId: Swift.String?)
+  public func orderShieldDidCancelVerification(error: (any Swift.Error)?)
+  public func orderShieldWillCallAPI(endpoint: Swift.String, method: Swift.String)
+  public func orderShieldDidCallAPI(endpoint: Swift.String, success: Swift.Bool, statusCode: Swift.Int?, error: (any Swift.Error)?)
+  public func orderShieldDidTrackEvent(success: Swift.Bool, response: OrderShieldSDK.TrackEventResponse?, error: (any Swift.Error)?)
+}
+@available(iOS 13.0, *)
+@objc(OrderShieldDelegateObjC) public protocol OrderShieldDelegateObjC {
+  @objc optional func orderShieldDidRegisterDevice(success: Swift.Bool, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidFetchSettings(success: Swift.Bool, settings: OrderShieldSDK.OSVerificationSettingsData?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidInitialize(success: Swift.Bool, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidStartVerification(success: Swift.Bool, sessionToken: Swift.String?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidStartVerificationWithDetails(success: Swift.Bool, sessionId: Swift.String?, sessionToken: Swift.String?, stepsRequired: [Swift.String]?, stepsOptional: [Swift.String]?, expiresAt: Swift.String?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidStartStep(step: Swift.String, stepIndex: Swift.Int, totalSteps: Swift.Int)
+  @objc optional func orderShieldDidCompleteStep(step: Swift.String, stepIndex: Swift.Int, success: Swift.Bool, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidFetchTermsCheckboxes(success: Swift.Bool, checkboxes: [OrderShieldSDK.OSTermsCheckbox]?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidAcceptTerms(success: Swift.Bool, acceptedCheckboxIds: [Swift.String]?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidSubmitSignature(success: Swift.Bool, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidSubmitTermsAndSignature(success: Swift.Bool, acceptedCheckboxIds: [Swift.String]?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidSubmitUserInfo(success: Swift.Bool, firstName: Swift.String?, lastName: Swift.String?, dateOfBirth: Swift.String?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidCompleteVerification(sessionId: Swift.String?)
+  @objc optional func orderShieldDidCancelVerification(error: (any Swift.Error)?)
+  @objc optional func orderShieldWillCallAPI(endpoint: Swift.String, method: Swift.String)
+  @objc optional func orderShieldDidCallAPI(endpoint: Swift.String, success: Swift.Bool, statusCode: Foundation.NSNumber?, error: (any Swift.Error)?)
+  @objc optional func orderShieldDidTrackEvent(success: Swift.Bool, response: OrderShieldSDK.OSTrackEventResponse?, error: (any Swift.Error)?)
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @available(iOS 13.0, *)
+@objc(OrderShield) public class OrderShield : ObjectiveC.NSObject {
+  @objc public static let shared: OrderShieldSDK.OrderShield
+  weak public var delegate: (any OrderShieldSDK.OrderShieldDelegate)?
+  @objc weak public var objcDelegate: (any OrderShieldSDK.OrderShieldDelegateObjC)?
+  @objc public func configure(apiKey: Swift.String)
+  @discardableResult
+  public func initialize() async -> Swift.Bool
+  public func setPredefinedUserInfo(_ info: OrderShieldSDK.PredefinedUserInfo?)
+  @objc public func setPredefinedUserInfoWithObjC(_ info: OrderShieldSDK.OSPredefinedUserInfo?)
+  @objc public func startVerification(presentingViewController: UIKit.UIViewController)
+  @discardableResult
+  public func startVerification(presentingViewController: UIKit.UIViewController) async -> Swift.String?
+  @objc public func initialize(completion: @escaping (Swift.Bool) -> Swift.Void)
+  @objc public func startVerification(presentingViewController: UIKit.UIViewController, completion: @escaping (Swift.String?) -> Swift.Void)
+  @discardableResult
+  public func trackEvent(customerId: Swift.String, sessionToken: Swift.String?, eventType: OrderShieldSDK.SDKEventType, description: Swift.String) async -> Swift.Bool
+  @discardableResult
+  public func trackEvent(customerId: Swift.String, sessionToken: Swift.String?, eventType: Swift.String, description: Swift.String) async -> Swift.Bool
+  @objc public func trackEvent(customerId: Swift.String, sessionToken: Swift.String?, eventType: Swift.String, description: Swift.String, completion: @escaping (Swift.Bool) -> Swift.Void)
+  @objc deinit
+}
+extension OrderShieldSDK.SDKEventType : Swift.Equatable {}
+extension OrderShieldSDK.SDKEventType : Swift.Hashable {}
+extension OrderShieldSDK.SDKEventType : Swift.RawRepresentable {}

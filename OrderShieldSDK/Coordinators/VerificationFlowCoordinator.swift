@@ -303,17 +303,21 @@ class VerificationFlowCoordinator {
     
     @MainActor
     private func proceedToVerificationFlow() {
+        print("OrderShieldSDK: [Coordinator] proceedToVerificationFlow called")
         showFirstStep()
     }
     
     @MainActor
     private func showFirstStep() {
+        print("OrderShieldSDK: [Coordinator] showFirstStep - requiredSteps.count=\(requiredSteps.count), sessionToken=\(sessionToken != nil ? "set" : "nil")")
         guard !requiredSteps.isEmpty else {
+            print("OrderShieldSDK: [Coordinator] showFirstStep - no required steps, showing completion")
             showCompletion()
             return
         }
         
         let firstStep = requiredSteps[0]
+        print("OrderShieldSDK: [Coordinator] showFirstStep - showing step: \(firstStep)")
         showStep(firstStep)
     }
     
