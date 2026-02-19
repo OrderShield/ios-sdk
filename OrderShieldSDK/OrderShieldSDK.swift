@@ -10,6 +10,8 @@ public class OrderShield: NSObject {
     private var apiKey: String?
     private var isInitialized = false
     private var verificationFlowCoordinator: VerificationFlowCoordinator?
+    /// Stored predefined user info. Set via setPredefinedUserInfo(_:); used when startVerification is called and cleared after that flow uses it.
+    private var storedPredefinedUserInfo: PredefinedUserInfo?
     
     /// Delegate for receiving SDK callbacks (Swift apps)
     public weak var delegate: OrderShieldDelegate?
@@ -145,8 +147,21 @@ public class OrderShield: NSObject {
         }
     }
     
-    /// Start verification flow with UI
-    /// Calls verification/start API immediately and starts the verification flow based on required steps
+    /// Set predefined user info to skip steps when you later call startVerification.
+    /// Call this before startVerification; the stored value is used for the next verification flow and then cleared.
+    /// - Email: skip email step when set. Phone: skip SMS step when set. UserInfo: skip the name/DOB screen only when firstName, lastName, and dateOfBirth are all set.
+    /// - Parameter info: Predefined values, or nil to clear. Pass nil for normal flow with no skips.
+    public func setPredefinedUserInfo(_ info: PredefinedUserInfo?) {
+        storedPredefinedUserInfo = info
+    }
+    
+    /// Set predefined user info from Objective-C. Call before startVerification.
+    @objc public func setPredefinedUserInfoWithObjC(_ info: OSPredefinedUserInfo?) {
+        storedPredefinedUserInfo = info.map { PredefinedUserInfo(from: $0) }
+    }
+    
+    /// Start verification flow with UI.
+    /// Uses any predefined user info previously set via setPredefinedUserInfo(_:); that stored value is consumed and cleared for this flow.
     /// - Parameter presentingViewController: View controller to present the flow from
     @objc public func startVerification(
         presentingViewController: UIViewController
@@ -166,19 +181,22 @@ public class OrderShield: NSObject {
             return
         }
         
-        // Create coordinator - verification/start API will be called immediately
+        let predefined = storedPredefinedUserInfo
+        storedPredefinedUserInfo = nil  // consume so next startVerification doesn't reuse
+        
         verificationFlowCoordinator = VerificationFlowCoordinator(
             requiredSteps: [],
             presentingViewController: presentingViewController,
             delegate: delegate,
-            objcDelegate: objcDelegate
+            objcDelegate: objcDelegate,
+            predefinedUserInfo: predefined
         )
         
         verificationFlowCoordinator?.start()
     }
     
-    /// Start verification flow with UI (async version)
-    /// Checks for existing session first, then starts verification flow based on required steps
+    /// Start verification flow with UI (async version).
+    /// Uses any predefined user info previously set via setPredefinedUserInfo(_:); that stored value is consumed and cleared for this flow.
     /// - Parameter presentingViewController: View controller to present the flow from
     /// - Returns: Session token if successful, nil otherwise
     @discardableResult
@@ -200,20 +218,24 @@ public class OrderShield: NSObject {
             return nil
         }
         
-        // Create coordinator - it will handle session resumption via startVerificationSession()
-        // This ensures verification/status is called if session token exists
+        let predefined = await MainActor.run { () -> PredefinedUserInfo? in
+            let p = storedPredefinedUserInfo
+            storedPredefinedUserInfo = nil
+            return p
+        }
+        
         await MainActor.run {
             verificationFlowCoordinator = VerificationFlowCoordinator(
                 requiredSteps: [],
                 presentingViewController: presentingViewController,
                 delegate: delegate,
-                objcDelegate: objcDelegate
+                objcDelegate: objcDelegate,
+                predefinedUserInfo: predefined
             )
             
             verificationFlowCoordinator?.start()
         }
         
-        // Return the session token from storage (if exists) or wait for coordinator to create one
         return StorageService.shared.getSessionToken()
     }
 
@@ -230,9 +252,7 @@ public class OrderShield: NSObject {
     }
 
     /// Start verification flow with UI (completion-handler version for Objective-C).
-    /// - Parameters:
-    ///   - presentingViewController: View controller to present the flow from.
-    ///   - completion: Called on the main queue with the session token if successful, nil otherwise.
+    /// Uses any predefined user info previously set via setPredefinedUserInfoWithObjC(_:).
     @objc public func startVerification(
         presentingViewController: UIViewController,
         completion: @escaping (String?) -> Void

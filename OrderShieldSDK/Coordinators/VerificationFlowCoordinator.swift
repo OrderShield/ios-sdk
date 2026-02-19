@@ -23,17 +23,20 @@ class VerificationFlowCoordinator {
     private var currentStepIndex = 0
     private var sessionToken: String?
     private var navigationController: UINavigationController?
+    private var predefinedUserInfo: PredefinedUserInfo?
     
     init(
         requiredSteps: [String] = [],
         presentingViewController: UIViewController,
         delegate: OrderShieldDelegate?,
-        objcDelegate: OrderShieldDelegateObjC? = nil
+        objcDelegate: OrderShieldDelegateObjC? = nil,
+        predefinedUserInfo: PredefinedUserInfo? = nil
     ) {
         self.requiredSteps = requiredSteps
         self.presentingViewController = presentingViewController
         self.delegate = delegate
         self.objcDelegate = objcDelegate
+        self.predefinedUserInfo = predefinedUserInfo
     }
     
     /// Filters and orders steps from API response based on static navigation sequence
@@ -275,7 +278,8 @@ class VerificationFlowCoordinator {
                     expiresAt: nil,
                     error: error
                 )
-                showError("Failed to start verification: \(error.localizedDescription)")
+                let message = (error as? NetworkError)?.localizedDescription ?? error.localizedDescription
+                showError(message.isEmpty ? "Failed to start verification." : message)
             }
         }
     }
@@ -331,6 +335,17 @@ class VerificationFlowCoordinator {
 
         // Track step_start (step name: sms, selfie, userInfo, email, terms, signature)
         trackSessionEvent(.stepStart, description: step)
+
+        // Skip step when SDK user provided predefined values: submit data in background and advance
+        if let pre = predefinedUserInfo {
+            let shouldSkipSms = step == "sms" && !(pre.phoneNumber?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+            let shouldSkipEmail = step == "email" && !(pre.email?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+            let shouldSkipUserInfo = step == "userInfo" && pre.hasAllUserInfoFields
+            if shouldSkipSms || shouldSkipEmail || shouldSkipUserInfo {
+                submitPredefinedStepAndAdvance(step: step, customerId: customerId, sessionToken: sessionToken)
+                return
+            }
+        }
 
         let viewController: UIViewController
         
@@ -479,6 +494,56 @@ class VerificationFlowCoordinator {
         navigationController?.pushViewController(viewController, animated: true)
     }
     
+    /// Submits predefined data for a skipped step (sms, email, or userInfo) then advances to next step.
+    @MainActor
+    private func submitPredefinedStepAndAdvance(step: String, customerId: String, sessionToken: String) {
+        guard let pre = predefinedUserInfo else { return }
+        Task {
+            do {
+                switch step {
+                case "sms":
+                    let phone = (pre.phoneNumber ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !phone.isEmpty else { return }
+                    let request = PhoneSendCodeRequest(customerId: customerId, sessionToken: sessionToken, phoneNumber: phone, skipVerification: true)
+                    _ = try await NetworkService.shared.sendPhoneCode(request)
+                case "email":
+                    let email = (pre.email ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !email.isEmpty else { return }
+                    let request = EmailSendCodeRequest(customerId: customerId, sessionToken: sessionToken, email: email, skipVerification: true)
+                    _ = try await NetworkService.shared.sendEmailCode(request)
+                case "userInfo":
+                    let firstName = (pre.firstName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    let lastName = (pre.lastName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard let dob = pre.normalizedDateOfBirth, !firstName.isEmpty, !lastName.isEmpty else { return }
+                    let request = UserInfoVerificationRequest(customerId: customerId, sessionToken: sessionToken, firstName: firstName, lastName: lastName, dateOfBirth: dob)
+                    _ = try await NetworkService.shared.submitUserInfo(request)
+                default:
+                    return
+                }
+                await MainActor.run { [weak self] in
+                    self?.trackSessionEvent(.stepEnd, description: step)
+                    self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                    self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: true, error: nil)
+                    if step == "userInfo" {
+                        self?.delegate?.orderShieldDidSubmitUserInfo(success: true, firstName: pre.firstName, lastName: pre.lastName, dateOfBirth: pre.normalizedDateOfBirth, error: nil)
+                        self?.objcDelegate?.orderShieldDidSubmitUserInfo?(success: true, firstName: pre.firstName, lastName: pre.lastName, dateOfBirth: pre.normalizedDateOfBirth, error: nil)
+                    }
+                    self?.moveToNextStep()
+                }
+            } catch {
+                await MainActor.run { [weak self] in
+                    self?.delegate?.orderShieldDidCompleteStep(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                    self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
+                    if step == "userInfo" {
+                        self?.delegate?.orderShieldDidSubmitUserInfo(success: false, firstName: nil, lastName: nil, dateOfBirth: nil, error: error)
+                        self?.objcDelegate?.orderShieldDidSubmitUserInfo?(success: false, firstName: nil, lastName: nil, dateOfBirth: nil, error: error)
+                    }
+                    self?.showError(error.localizedDescription)
+                }
+            }
+        }
+    }
+
     @MainActor
     private func moveToNextStep() {
         currentStepIndex += 1

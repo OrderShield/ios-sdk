@@ -181,7 +181,11 @@ class UserInfoVerificationViewController: UIViewController {
         
         // Date Picker
         datePicker.datePickerMode = .date
-        datePicker.preferredDatePickerStyle = .wheels
+        if #available(iOS 13.4, *) {
+            datePicker.preferredDatePickerStyle = .wheels
+        } else {
+            datePicker.datePickerMode = .date
+        }
         datePicker.maximumDate = Date()
         datePicker.addTarget(self, action: #selector(datePickerChanged), for: .valueChanged)
         

@@ -306,6 +306,19 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #if defined(__OBJC__)
 
 @class NSString;
+/// Objective-C compatible predefined user info. Use this from ObjC when calling startVerification to skip steps.
+SWIFT_CLASS_NAMED("OSPredefinedUserInfo")
+@interface OSPredefinedUserInfo : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nullable email;
+@property (nonatomic, readonly, copy) NSString * _Nullable phoneNumber;
+@property (nonatomic, readonly, copy) NSString * _Nullable firstName;
+@property (nonatomic, readonly, copy) NSString * _Nullable lastName;
+@property (nonatomic, readonly, copy) NSString * _Nullable dateOfBirth;
+- (nonnull instancetype)initWithEmail:(NSString * _Nullable)email phoneNumber:(NSString * _Nullable)phoneNumber firstName:(NSString * _Nullable)firstName lastName:(NSString * _Nullable)lastName dateOfBirth:(NSString * _Nullable)dateOfBirth OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// Objective-C visible wrapper for a terms checkbox. Use in delegate callbacks.
 SWIFT_CLASS_NAMED("OSTermsCheckbox")
 @interface OSTermsCheckbox : NSObject
@@ -375,8 +388,10 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OrderShield 
 /// \param apiKey Your OrderShield API key
 ///
 - (void)configureWithApiKey:(NSString * _Nonnull)apiKey;
-/// Start verification flow with UI
-/// Calls verification/start API immediately and starts the verification flow based on required steps
+/// Set predefined user info from Objective-C. Call before startVerification.
+- (void)setPredefinedUserInfoWithObjC:(OSPredefinedUserInfo * _Nullable)info;
+/// Start verification flow with UI.
+/// Uses any predefined user info previously set via setPredefinedUserInfo(_:); that stored value is consumed and cleared for this flow.
 /// \param presentingViewController View controller to present the flow from
 ///
 - (void)startVerificationWithPresentingViewController:(UIViewController * _Nonnull)presentingViewController;
@@ -386,10 +401,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OrderShield 
 ///
 - (void)initializeWithCompletion:(void (^ _Nonnull)(BOOL))completion;
 /// Start verification flow with UI (completion-handler version for Objective-C).
-/// \param presentingViewController View controller to present the flow from.
-///
-/// \param completion Called on the main queue with the session token if successful, nil otherwise.
-///
+/// Uses any predefined user info previously set via setPredefinedUserInfoWithObjC(_:).
 - (void)startVerificationWithPresentingViewController:(UIViewController * _Nonnull)presentingViewController completion:(void (^ _Nonnull)(NSString * _Nullable))completion;
 /// Track event (completion-handler version for Objective-C). Use eventType string: “app_open”, “login”, “consumption”, or “custom”.
 - (void)trackEventWithCustomerId:(NSString * _Nonnull)customerId sessionToken:(NSString * _Nullable)sessionToken eventType:(NSString * _Nonnull)eventType description:(NSString * _Nonnull)description completion:(void (^ _Nonnull)(BOOL))completion;

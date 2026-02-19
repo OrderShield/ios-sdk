@@ -352,7 +352,8 @@ class EmailVerificationViewController: UIViewController {
                 let request = EmailSendCodeRequest(
                     customerId: customerId,
                     sessionToken: sessionToken,
-                    email: email
+                    email: email,
+                    skipVerification: false
                 )
                 
                 _ = try await NetworkService.shared.sendEmailCode(request)

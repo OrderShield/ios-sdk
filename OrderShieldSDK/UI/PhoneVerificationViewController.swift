@@ -535,7 +535,8 @@ class PhoneVerificationViewController: UIViewController {
                 let request = PhoneSendCodeRequest(
                     customerId: customerId,
                     sessionToken: sessionToken,
-                    phoneNumber: fullPhoneNumber
+                    phoneNumber: fullPhoneNumber,
+                    skipVerification: false
                 )
                 
                 _ = try await NetworkService.shared.sendPhoneCode(request)

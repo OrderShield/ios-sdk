@@ -139,9 +139,11 @@ class NetworkService {
         
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
         }
         
         let decoder = JSONDecoder()
@@ -164,9 +166,11 @@ class NetworkService {
         
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
         }
         
         let decoder = JSONDecoder()
@@ -198,9 +202,11 @@ class NetworkService {
         
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
         }
         
         let decoder = JSONDecoder()
@@ -227,13 +233,35 @@ class NetworkService {
         
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
         }
         
         let decoder = JSONDecoder()
         return try decoder.decode(StartVerificationResponse.self, from: data)
+    }
+    
+    /// Parses optional `message` from API error JSON for non-2xx responses.
+    private static func parseAPIErrorMessage(from data: Data) -> String? {
+        struct APIErrorBody: Codable {
+            let message: String?
+        }
+        guard let body = try? JSONDecoder().decode(APIErrorBody.self, from: data),
+              let msg = body.message?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !msg.isEmpty else { return nil }
+        return msg
+    }
+
+    /// Returns the appropriate error to throw for a non-2xx response (API message if present, else generic).
+    private static func errorForNonSuccessResponse(data: Data, statusCode: Int) -> NetworkError {
+        if let message = parseAPIErrorMessage(from: data) {
+            return .apiError(message: message)
+        }
+        return .invalidResponse
     }
     
     // MARK: - Selfie Verification
@@ -463,10 +491,10 @@ class NetworkService {
                 }
             }
             
-            // If HTTP status is not 200-299, throw invalid response
+            // If HTTP status is not 200-299, throw with API message if present
             if !(200...299).contains(httpResponse.statusCode) {
                 print("❌ [OrderShieldSDK] Selfie verification HTTP error - statusCode: \(httpResponse.statusCode)")
-                throw NetworkError.invalidResponse
+                throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
             }
             
             // If we can't extract message, throw original error
@@ -1221,10 +1249,10 @@ class NetworkService {
                 }
             }
             
-            // If HTTP status is not 200-299, throw invalid response
+            // If HTTP status is not 200-299, throw with API message if present
             if !(200...299).contains(httpResponse.statusCode) {
                 print("❌ [OrderShieldSDK] Terms verification HTTP error - statusCode: \(httpResponse.statusCode)")
-                throw NetworkError.invalidResponse
+                throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
             }
             
             // If we can't extract message, throw original error
@@ -1409,10 +1437,10 @@ class NetworkService {
                 }
             }
             
-            // If HTTP status is not 200-299, throw invalid response
+            // If HTTP status is not 200-299, throw with API message if present
             if !(200...299).contains(httpResponse.statusCode) {
                 print("❌ [OrderShieldSDK] User Info verification HTTP error - statusCode: \(httpResponse.statusCode)")
-                throw NetworkError.invalidResponse
+                throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
             }
             
             // If we can't extract message, throw original error
@@ -1652,10 +1680,10 @@ class NetworkService {
                 }
             }
             
-            // If HTTP status is not 200-299, throw invalid response
+            // If HTTP status is not 200-299, throw with API message if present
             if !(200...299).contains(httpResponse.statusCode) {
                 print("❌ [OrderShieldSDK] Signature verification HTTP error - statusCode: \(httpResponse.statusCode)")
-                throw NetworkError.invalidResponse
+                throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
             }
             
             // If we can't extract message, throw original error
@@ -1685,9 +1713,11 @@ class NetworkService {
             print("📡 [OrderShieldSDK] Terms Checkboxes Response: \(responseString)")
         }
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
         }
         
         let decoder = JSONDecoder()
@@ -1728,10 +1758,8 @@ class NetworkService {
         }
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            let body = String(data: data, encoding: .utf8) ?? ""
             print("📡 [OrderShieldSDK] Track event failed – HTTP \(httpResponse.statusCode)")
-            if !body.isEmpty { print("📡 [OrderShieldSDK] Track event response body: \(body)") }
-            throw NetworkError.invalidResponse
+            throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
         }
 
         let decoder = JSONDecoder()
@@ -1745,6 +1773,7 @@ class NetworkService {
 enum NetworkError: Error {
     case missingAPIKey
     case invalidResponse
+    case apiError(message: String)
     case decodingError
     case encodingError
 
@@ -1754,6 +1783,8 @@ enum NetworkError: Error {
             return "API key is missing. Please configure the SDK first."
         case .invalidResponse:
             return "Invalid response from server."
+        case .apiError(let message):
+            return message
         case .decodingError:
             return "Failed to decode response."
         case .encodingError:
@@ -1768,6 +1799,7 @@ extension NetworkError: CustomNSError {
         switch self {
         case .missingAPIKey: return 1
         case .invalidResponse: return 2
+        case .apiError: return 5
         case .decodingError: return 3
         case .encodingError: return 4
         }

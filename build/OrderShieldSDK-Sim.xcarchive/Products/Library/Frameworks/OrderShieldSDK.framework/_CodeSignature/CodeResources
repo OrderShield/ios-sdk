@@ -10,7 +10,7 @@
 		</data>
 		<key>Headers/OrderShieldSDK-Swift.h</key>
 		<data>
-		jnIjh4uT4+4Hr8mj6vyoslUQtaE=
+		wWNHdCAGRLynZ9/x4l12Scixln8=
 		</data>
 		<key>Info.plist</key>
 		<data>
@@ -18,43 +18,43 @@
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		jvbpuEUE7zw1hfpoUfLK787O0RY=
+		guDiP05dneSBEzlpDCLUDHiWbSU=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		rOAPBkHuaJyJVamx7+WLuNS3xtA=
+		U7yhkmsDy/5lZ80kBV9D55Cnyg0=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		BBhZ9oj085qKO2KM6wrvm3WsAEA=
+		CWMPo1dh5iZngc6a2WiC1yoCUkc=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		rOAPBkHuaJyJVamx7+WLuNS3xtA=
+		U7yhkmsDy/5lZ80kBV9D55Cnyg0=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		RBaxHyWZQYEEFYNCH2w8swnhM3o=
+		+MeJKWeNPeZrel3HivZkxObPiPI=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		jvbpuEUE7zw1hfpoUfLK787O0RY=
+		guDiP05dneSBEzlpDCLUDHiWbSU=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		4OC+QLnUZZFsgdFEwP2JaNIgTsk=
+		2S3A0Qs2+XJ9oodfGRTeol2Y+Go=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		ffwV0rXvoObwf5u0/21c3ziXYOo=
+		SWEz7jVd1hAmyZM/qslnGQR8ndI=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		4OC+QLnUZZFsgdFEwP2JaNIgTsk=
+		2S3A0Qs2+XJ9oodfGRTeol2Y+Go=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		YDiAQNgy+g5VLCGWFFOJVmyum0s=
+		jMM2/XJQ0wdrVE1htzbxkdBpKUY=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -70,77 +70,77 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Phq19f75BSO+NPimrY23Wx/O4E39ijvgosOXmxrf07I=
+			SEcTHWPCaTs7gkNE2mJ5Q2Z5DNaEcnrP5u3qNRxvRt8=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/pWdzbJHPr02fAcCzDpV9mH6XvzQ19x628XP2I8xZdA=
+			TvY3oRLAnLQV49h28uBJhQsRda+4e3ABpxr1ZSlMeZc=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Pp958J2k9uJK8cvt6LFdKVdXUn5yZJLLVW52BcH4hpk=
+			QQmiGzgNCGxF+x5WY47hSeYJ1rvXoydpemxTnFd5KZo=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			CycgWej7FRrC0FlpOdv1GUwU6XTfGzS0CrgjJJbVHxY=
+			5fKxhWbeln8+EY9qUkODORDRcev0g+3UHFmhQjp3sDM=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Pp958J2k9uJK8cvt6LFdKVdXUn5yZJLLVW52BcH4hpk=
+			QQmiGzgNCGxF+x5WY47hSeYJ1rvXoydpemxTnFd5KZo=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			1wDGDm9BBVJ1e+GYy2uaVsu20/qRS5Lzk7a127iAC4M=
+			uuOeml+R2AEs5ipE4FoubiicT9RkUZ7vCPwKGtsuKbs=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/pWdzbJHPr02fAcCzDpV9mH6XvzQ19x628XP2I8xZdA=
+			TvY3oRLAnLQV49h28uBJhQsRda+4e3ABpxr1ZSlMeZc=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			F69CN9ynF/2mdghGsUyUjnaP0RJiSLMFcqZ5XRdULnY=
+			ibwzHg3fZaNcsRYZ1j6AvvoRlZ/pRT5HNXo2SsPQp2E=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			kYc5ogwCD7pzUxupKkiDpcTEmfRR98fcX01vaVU5vdE=
+			IZXrrwG/KIwlH/T3SMCcFsX/yXgLEgz46oFsglCl2MY=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			F69CN9ynF/2mdghGsUyUjnaP0RJiSLMFcqZ5XRdULnY=
+			ibwzHg3fZaNcsRYZ1j6AvvoRlZ/pRT5HNXo2SsPQp2E=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			7MnvDTz99l1FpK3znSLfM0AavDVXjUYe/qom7uHHLMw=
+			YJ1XivisSRoogQK7ghNboHmCkzZp60PxcKh+n7GCjTo=
 			</data>
 		</dict>
 	</dict>

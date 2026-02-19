@@ -1,5 +1,91 @@
 import Foundation
 
+// MARK: - Predefined User Info (optional values to skip steps)
+/// Optional values the SDK user can provide to skip corresponding verification steps.
+/// - If `email` is provided, the email step is skipped.
+/// - If `phoneNumber` is provided, the SMS/phone step is skipped.
+/// - The userInfo step (first name, last name, date of birth) is skipped only when all three are provided.
+public struct PredefinedUserInfo {
+    public var email: String?
+    public var phoneNumber: String?
+    public var firstName: String?
+    public var lastName: String?
+    public var dateOfBirth: String?
+    
+    public init(
+        email: String? = nil,
+        phoneNumber: String? = nil,
+        firstName: String? = nil,
+        lastName: String? = nil,
+        dateOfBirth: String? = nil
+    ) {
+        self.email = email
+        self.phoneNumber = phoneNumber
+        self.firstName = firstName
+        self.lastName = lastName
+        self.dateOfBirth = dateOfBirth
+    }
+    
+    /// Returns true if all userInfo fields are non-empty (so we can skip the userInfo step).
+    public var hasAllUserInfoFields: Bool {
+        let first = (firstName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let last = (lastName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let dob = (dateOfBirth ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return !first.isEmpty && !last.isEmpty && !dob.isEmpty
+    }
+    
+    /// Normalizes date of birth to yyyy-MM-dd for API. Accepts mm/dd/yyyy or yyyy-MM-dd.
+    public var normalizedDateOfBirth: String? {
+        guard let dob = dateOfBirth?.trimmingCharacters(in: .whitespacesAndNewlines), !dob.isEmpty else { return nil }
+        let inMmDd = DateFormatter()
+        inMmDd.dateFormat = "MM/dd/yyyy"
+        let inIso = DateFormatter()
+        inIso.dateFormat = "yyyy-MM-dd"
+        if let date = inMmDd.date(from: dob) {
+            return inIso.string(from: date)
+        }
+        if let date = inIso.date(from: dob) {
+            return inIso.string(from: date)
+        }
+        return dob
+    }
+    
+    /// Build from ObjC-friendly type.
+    public init(from objc: OSPredefinedUserInfo?) {
+        self.init(
+            email: objc?.email as String?,
+            phoneNumber: objc?.phoneNumber as String?,
+            firstName: objc?.firstName as String?,
+            lastName: objc?.lastName as String?,
+            dateOfBirth: objc?.dateOfBirth as String?
+        )
+    }
+}
+
+/// Objective-C compatible predefined user info. Use this from ObjC when calling startVerification to skip steps.
+@objc(OSPredefinedUserInfo)
+public class OSPredefinedUserInfo: NSObject {
+    @objc public let email: String?
+    @objc public let phoneNumber: String?
+    @objc public let firstName: String?
+    @objc public let lastName: String?
+    @objc public let dateOfBirth: String?
+    
+    @objc public init(
+        email: String? = nil,
+        phoneNumber: String? = nil,
+        firstName: String? = nil,
+        lastName: String? = nil,
+        dateOfBirth: String? = nil
+    ) {
+        self.email = email
+        self.phoneNumber = phoneNumber
+        self.firstName = firstName
+        self.lastName = lastName
+        self.dateOfBirth = dateOfBirth
+    }
+}
+
 // MARK: - Device Registration
 struct DeviceRegistrationRequest: Codable {
     let deviceId: String
@@ -198,11 +284,13 @@ struct EmailSendCodeRequest: Codable {
     let customerId: String
     let sessionToken: String
     let email: String
+    let skipVerification: Bool
     
     enum CodingKeys: String, CodingKey {
         case customerId = "customer_id"
         case sessionToken = "session_token"
         case email
+        case skipVerification = "skip_verification"
     }
 }
 
@@ -299,11 +387,13 @@ struct PhoneSendCodeRequest: Codable {
     let customerId: String
     let sessionToken: String
     let phoneNumber: String
+    let skipVerification: Bool
     
     enum CodingKeys: String, CodingKey {
         case customerId = "customer_id"
         case sessionToken = "session_token"
         case phoneNumber = "phone_number"
+        case skipVerification = "skip_verification"
     }
 }
 

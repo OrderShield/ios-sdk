@@ -99,10 +99,10 @@ class ViewController: UIViewController {
             return
         }
         
-        // Start verification flow - customerId is already stored after initialize() is called
-        OrderShield.shared.startVerification(
-            presentingViewController: self
-        )
+        // Optional: set predefined user info before starting to skip steps (phone, email, or userInfo when all 3 name/dob provided)
+        // OrderShield.shared.setPredefinedUserInfo(PredefinedUserInfo(phoneNumber: "+15551234567"))
+        
+        OrderShield.shared.startVerification(presentingViewController: self)
     }
     
     @IBAction func apiKeyChanged(_ sender: UITextField) {
