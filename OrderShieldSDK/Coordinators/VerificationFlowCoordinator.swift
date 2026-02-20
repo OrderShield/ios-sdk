@@ -24,19 +24,21 @@ class VerificationFlowCoordinator {
     private var sessionToken: String?
     private var navigationController: UINavigationController?
     private var predefinedUserInfo: PredefinedUserInfo?
+    /// Called when user taps "Start" so we use the latest predefined data (e.g. after they corrected format).
+    private let getPredefinedUserInfo: () -> PredefinedUserInfo?
     
     init(
         requiredSteps: [String] = [],
         presentingViewController: UIViewController,
         delegate: OrderShieldDelegate?,
         objcDelegate: OrderShieldDelegateObjC? = nil,
-        predefinedUserInfo: PredefinedUserInfo? = nil
+        getPredefinedUserInfo: @escaping () -> PredefinedUserInfo?
     ) {
         self.requiredSteps = requiredSteps
         self.presentingViewController = presentingViewController
         self.delegate = delegate
         self.objcDelegate = objcDelegate
-        self.predefinedUserInfo = predefinedUserInfo
+        self.getPredefinedUserInfo = getPredefinedUserInfo
     }
     
     /// Filters and orders steps from API response based on static navigation sequence
@@ -212,9 +214,25 @@ class VerificationFlowCoordinator {
             let sessionToken = data.sessionToken
             self.sessionToken = sessionToken
             
-            // Filter and order required steps based on static navigation sequence
-            print("OrderShieldSDK: New session - steps from API: \(data.stepsRequired)")
-            let filteredRequiredSteps = filterStepsByStaticSequence(data.stepsRequired)
+            // Fetch completed steps from customer-info API to skip them (except selfie and terms — always show)
+            var stepsCompleted: [String] = []
+            do {
+                let customerInfoResponse = try await NetworkService.shared.getCustomerInfo(customerId: customerId)
+                stepsCompleted = customerInfoResponse.data?.stepsCompleted ?? []
+                print("OrderShieldSDK: Customer completed steps: \(stepsCompleted)")
+            } catch {
+                print("OrderShieldSDK: Could not fetch customer-info (will show all steps): \(error.localizedDescription)")
+            }
+            
+            // Steps to show = required steps minus completed, but always include selfie and terms
+            let stepsToShow = data.stepsRequired.filter { step in
+                if step == "selfie" || step == "terms" { return true }
+                return !stepsCompleted.contains(step)
+            }
+            
+            // Filter and order based on static navigation sequence
+            print("OrderShieldSDK: New session - steps from API: \(data.stepsRequired), steps to show: \(stepsToShow)")
+            let filteredRequiredSteps = filterStepsByStaticSequence(stepsToShow)
             
             guard !filteredRequiredSteps.isEmpty else {
                 await MainActor.run {
@@ -304,6 +322,8 @@ class VerificationFlowCoordinator {
     @MainActor
     private func proceedToVerificationFlow() {
         print("OrderShieldSDK: [Coordinator] proceedToVerificationFlow called")
+        // Use latest predefined data when user taps "Start" (so corrected data after format alert is used)
+        predefinedUserInfo = getPredefinedUserInfo()
         showFirstStep()
     }
     
@@ -469,6 +489,7 @@ class VerificationFlowCoordinator {
                 )
             }
         case "userInfo":
+            let pre = predefinedUserInfo
             viewController = UserInfoVerificationViewController(
                 sessionToken: sessionToken,
                 currentStep: currentStepIndex + 1,
@@ -487,7 +508,10 @@ class VerificationFlowCoordinator {
                         self?.objcDelegate?.orderShieldDidCompleteStep?(step: step, stepIndex: self?.currentStepIndex ?? 0, success: false, error: error)
                     }
                 },
-                delegate: self
+                delegate: self,
+                prefilledFirstName: pre?.firstName,
+                prefilledLastName: pre?.lastName,
+                prefilledDateOfBirth: (pre?.normalizedDateOfBirth ?? pre?.dateOfBirth)
             )
         default:
             // Unknown step, skip it
@@ -610,6 +634,10 @@ class VerificationFlowCoordinator {
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+            // Clear stored predefined data when user dismisses the error so the app can set
+            // corrected data and the next Start will use it (no stale invalid phone/email/userInfo).
+            OrderShield.shared.setPredefinedUserInfo(nil)
+            self?.predefinedUserInfo = nil
             self?.navigationController?.dismiss(animated: true)
         })
         navigationController?.present(alert, animated: true)

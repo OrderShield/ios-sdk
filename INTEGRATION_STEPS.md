@@ -1,6 +1,19 @@
 # Step-by-Step Integration Guide
 
-## Method 1: Direct Framework Integration (Easiest)
+## Method 1: Swift Package Manager (recommended — no framework build)
+
+Add the SDK as a package dependency so you don’t need to build or manually add a framework.
+
+1. In Xcode: **File** → **Add Package Dependencies...**
+2. Enter the package URL: `https://github.com/OrderShield/ios-sdk.git` and add the package.
+3. Select the **OrderShieldSDK** library and add it to your app target.
+4. Add camera permission to `Info.plist` (see Method 2, Step 4).
+
+Then add your app code as in **Method 2, Step 5** (configure and initialize at launch in AppDelegate; start verification from a view controller). The project’s `Package.swift` is used automatically; no framework file is generated or added by hand.
+
+---
+
+## Method 2: Direct Framework Integration
 
 ### Step 1: Build the Framework
 
@@ -604,7 +617,7 @@ curl -X 'POST' \
 
 ---
 
-## Method 2: Workspace Integration (Better for Development)
+## Method 3: Workspace Integration (Better for Development)
 
 ### Step 1: Create Workspace
 

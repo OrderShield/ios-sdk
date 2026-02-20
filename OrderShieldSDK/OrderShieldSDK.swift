@@ -160,6 +160,13 @@ public class OrderShield: NSObject {
         storedPredefinedUserInfo = info.map { PredefinedUserInfo(from: $0) }
     }
     
+    /// Returns current stored predefined user info and clears it. Called when user taps "Start" so the flow uses the latest data (e.g. after they corrected format).
+    func consumeStoredPredefinedUserInfo() -> PredefinedUserInfo? {
+        let value = storedPredefinedUserInfo
+        storedPredefinedUserInfo = nil
+        return value
+    }
+    
     /// Start verification flow with UI.
     /// Uses any predefined user info previously set via setPredefinedUserInfo(_:); that stored value is consumed and cleared for this flow.
     /// - Parameter presentingViewController: View controller to present the flow from
@@ -181,15 +188,13 @@ public class OrderShield: NSObject {
             return
         }
         
-        let predefined = storedPredefinedUserInfo
-        storedPredefinedUserInfo = nil  // consume so next startVerification doesn't reuse
-        
+        // Don't consume predefined here – coordinator will read it when user taps "Start" so corrected data is used
         verificationFlowCoordinator = VerificationFlowCoordinator(
             requiredSteps: [],
             presentingViewController: presentingViewController,
             delegate: delegate,
             objcDelegate: objcDelegate,
-            predefinedUserInfo: predefined
+            getPredefinedUserInfo: { OrderShield.shared.consumeStoredPredefinedUserInfo() }
         )
         
         verificationFlowCoordinator?.start()
@@ -218,19 +223,13 @@ public class OrderShield: NSObject {
             return nil
         }
         
-        let predefined = await MainActor.run { () -> PredefinedUserInfo? in
-            let p = storedPredefinedUserInfo
-            storedPredefinedUserInfo = nil
-            return p
-        }
-        
         await MainActor.run {
             verificationFlowCoordinator = VerificationFlowCoordinator(
                 requiredSteps: [],
                 presentingViewController: presentingViewController,
                 delegate: delegate,
                 objcDelegate: objcDelegate,
-                predefinedUserInfo: predefined
+                getPredefinedUserInfo: { OrderShield.shared.consumeStoredPredefinedUserInfo() }
             )
             
             verificationFlowCoordinator?.start()

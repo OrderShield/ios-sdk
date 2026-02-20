@@ -256,6 +256,24 @@ struct VerificationSession: Codable {
     }
 }
 
+// MARK: - Customer Info (completed steps for skip logic)
+struct CustomerInfoResponse: Codable {
+    let message: String
+    let data: CustomerInfoData?
+    let statusCode: Int
+    let status: String
+}
+
+struct CustomerInfoData: Codable {
+    let customerId: String
+    let stepsCompleted: [String]
+    
+    enum CodingKeys: String, CodingKey {
+        case customerId = "customer_id"
+        case stepsCompleted = "steps_completed"
+    }
+}
+
 // MARK: - Selfie Verification
 struct SelfieVerificationResponse: Codable {
     let status: String
@@ -647,26 +665,31 @@ struct TrackEventRequest: Codable {
     let sessionToken: String
     let eventType: String
     let description: String
+    /// Sent as "from_where" in the request body; SDK always passes "SDK".
+    let fromWhere: String
 
     enum CodingKeys: String, CodingKey {
         case customerId = "customer_id"
         case sessionToken = "session_token"
         case eventType = "event_type"
         case description
+        case fromWhere = "from_where"
     }
 
-    init(customerId: String, sessionToken: String, eventType: SDKEventType, description: String) {
+    init(customerId: String, sessionToken: String, eventType: SDKEventType, description: String, fromWhere: String = "SDK") {
         self.customerId = customerId
         self.sessionToken = sessionToken
         self.eventType = eventType.rawValue
         self.description = description
+        self.fromWhere = fromWhere
     }
 
-    init(customerId: String, sessionToken: String, eventType: String, description: String) {
+    init(customerId: String, sessionToken: String, eventType: String, description: String, fromWhere: String = "SDK") {
         self.customerId = customerId
         self.sessionToken = sessionToken
         self.eventType = eventType
         self.description = description
+        self.fromWhere = fromWhere
     }
 }
 

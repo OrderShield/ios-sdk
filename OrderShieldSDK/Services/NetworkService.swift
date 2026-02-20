@@ -213,6 +213,29 @@ class NetworkService {
         return try decoder.decode(VerificationStatusResponse.self, from: data)
     }
     
+    // MARK: - Customer Info (completed steps for skip logic)
+    /// GET /customer-info/{customerId} — returns steps already completed by this customer. Used to skip those steps (except selfie and terms, which are always shown).
+    func getCustomerInfo(customerId: String) async throws -> CustomerInfoResponse {
+        guard let apiKey = apiKey else {
+            throw NetworkError.missingAPIKey
+        }
+        let url = URL(string: "\(baseURL)/customer-info/\(customerId)")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "accept")
+        urlRequest.setValue(apiKey, forHTTPHeaderField: "X-API-KEY")
+        logCurlCommand(for: urlRequest, endpoint: "customer-info/\(customerId)")
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw Self.errorForNonSuccessResponse(data: data, statusCode: httpResponse.statusCode)
+        }
+        let decoder = JSONDecoder()
+        return try decoder.decode(CustomerInfoResponse.self, from: data)
+    }
+    
     // MARK: - Start Verification
     func startVerification(_ request: StartVerificationRequest) async throws -> StartVerificationResponse {
         guard let apiKey = apiKey else {
@@ -1731,7 +1754,7 @@ class NetworkService {
 
     // MARK: - Track Event (SDK events: app_open, login, consumption, custom)
     /// Log a tracking event from the SDK.
-    /// - Parameter request: TrackEventRequest with customer_id, session_token, event_type, description.
+    /// - Parameter request: TrackEventRequest with customer_id, session_token, event_type, description, from_where (SDK).
     /// - Returns: TrackEventResponse on success.
     func trackEvent(_ request: TrackEventRequest) async throws -> TrackEventResponse {
         guard let apiKey = apiKey else {

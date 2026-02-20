@@ -45,13 +45,21 @@ class UserInfoVerificationViewController: UIViewController {
     private var currentStep: Int = 1
     private var totalSteps: Int = 2
     
-    init(sessionToken: String, currentStep: Int, totalSteps: Int, onComplete: @escaping () -> Void, onError: ((Error) -> Void)? = nil, delegate: OrderShieldDelegate? = nil) {
+    /// Optional prefill: when userInfo step is shown with partial predefined data, these values prefill the fields.
+    private let prefilledFirstName: String?
+    private let prefilledLastName: String?
+    private let prefilledDateOfBirth: String?
+    
+    init(sessionToken: String, currentStep: Int, totalSteps: Int, onComplete: @escaping () -> Void, onError: ((Error) -> Void)? = nil, delegate: OrderShieldDelegate? = nil, prefilledFirstName: String? = nil, prefilledLastName: String? = nil, prefilledDateOfBirth: String? = nil) {
         self.sessionToken = sessionToken
         self.currentStep = currentStep
         self.totalSteps = totalSteps
         self.onComplete = onComplete
         self.onError = onError
         self.delegate = delegate
+        self.prefilledFirstName = prefilledFirstName
+        self.prefilledLastName = prefilledLastName
+        self.prefilledDateOfBirth = prefilledDateOfBirth
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -358,6 +366,51 @@ class UserInfoVerificationViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
+        
+        applyPrefilledValues()
+    }
+    
+    /// Prefill fields from predefined data when only partial data was provided (so we show the screen but with available values).
+    private func applyPrefilledValues() {
+        if let fn = prefilledFirstName?.trimmingCharacters(in: .whitespacesAndNewlines), !fn.isEmpty {
+            firstNameTextField.text = fn
+        }
+        if let ln = prefilledLastName?.trimmingCharacters(in: .whitespacesAndNewlines), !ln.isEmpty {
+            lastNameTextField.text = ln
+        }
+        if let dob = prefilledDateOfBirth?.trimmingCharacters(in: .whitespacesAndNewlines), !dob.isEmpty {
+            let displayDOB = dateOfBirthDisplayString(from: dob)
+            dateOfBirthTextField.text = displayDOB
+            if let date = parseDateOfBirth(displayDOB) {
+                datePicker.date = date
+            }
+        }
+        textFieldChanged()
+    }
+    
+    /// Converts yyyy-MM-dd or MM/dd/yyyy to MM/dd/yyyy for display in the text field.
+    private func dateOfBirthDisplayString(from value: String) -> String {
+        let inIso = DateFormatter()
+        inIso.dateFormat = "yyyy-MM-dd"
+        let inMmDd = DateFormatter()
+        inMmDd.dateFormat = "MM/dd/yyyy"
+        let outMmDd = DateFormatter()
+        outMmDd.dateFormat = "MM/dd/yyyy"
+        if let date = inIso.date(from: value) {
+            return outMmDd.string(from: date)
+        }
+        if let date = inMmDd.date(from: value) {
+            return outMmDd.string(from: date)
+        }
+        return value
+    }
+    
+    private func parseDateOfBirth(_ value: String) -> Date? {
+        let iso = DateFormatter()
+        iso.dateFormat = "yyyy-MM-dd"
+        let mmddyyyy = DateFormatter()
+        mmddyyyy.dateFormat = "MM/dd/yyyy"
+        return iso.date(from: value) ?? mmddyyyy.date(from: value)
     }
     
     @objc private func dismissKeyboard() {

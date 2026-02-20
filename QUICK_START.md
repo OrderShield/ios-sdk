@@ -2,46 +2,18 @@
 
 ## 🚀 Fastest Way to Test
 
-### Step 1: Build the Framework
+### Step 1: Add the SDK via Swift Package Manager (no framework build needed)
 
-1. Open `OrderShieldSDK.xcodeproj` in Xcode
-2. Select **OrderShieldSDK** scheme
-3. Select **Any iOS Device** or **Generic iOS Device**
-4. Press **⌘B** (Build)
-5. Framework is ready!
+1. Open your app project in Xcode.
+2. **File** → **Add Package Dependencies...**
+3. Enter the package URL: `https://github.com/OrderShield/ios-sdk.git` and add the package.
+4. Select the **OrderShieldSDK** library and add it to your app target.
 
-### Step 2: Add to Your Test App
+You do **not** need to build a framework or add any file manually — the project’s `Package.swift` is used by Xcode.
 
-#### Option A: Add Framework File Directly
+**Alternative (manual framework):** If you prefer not to use SPM, build the framework from `OrderShieldSDK.xcodeproj` (OrderShieldSDK scheme, Generic iOS Device, ⌘B), then drag `OrderShieldSDK.framework` into your app and add it under **Frameworks, Libraries, and Embedded Content** → **Embed & Sign**.
 
-1. Find the built framework:
-
-   - Go to: `~/Library/Developer/Xcode/DerivedData/OrderShieldSDK-*/Build/Products/Debug-iphoneos/`
-   - Copy `OrderShieldSDK.framework`
-
-2. In your test app:
-   - Drag framework into project
-   - Select your app target
-   - **General** → **Frameworks, Libraries, and Embedded Content**
-   - Add `OrderShieldSDK.framework`
-   - Set to **"Embed & Sign"**
-
-#### Option B: Use Workspace (Recommended)
-
-1. Create workspace:
-
-   ```bash
-   # In terminal, navigate to OrderShieldSDK directory
-   # Create workspace file (or do it in Xcode)
-   ```
-
-2. In Xcode:
-   - File → New → Workspace
-   - Save as `OrderShieldSDK.xcworkspace`
-   - Add both `OrderShieldSDK.xcodeproj` and your test app project
-   - Link framework in test app target settings
-
-### Step 3: Add Camera Permission
+### Step 2: Add Camera Permission
 
 Add to your app's `Info.plist`:
 
@@ -50,49 +22,35 @@ Add to your app's `Info.plist`:
 <string>We need access to your camera to verify your identity</string>
 ```
 
-### Step 4: Use in Code
+### Step 3: Use in Code
+
+Initialize the SDK **at app launch** in `AppDelegate`; start verification from any view controller when the user taps your button.
 
 ```swift
 import UIKit
 import OrderShieldSDK
 
-class ViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // 1. Configure SDK with API key
-        OrderShield.shared.configure(
-            apiKey: "dev_0RZ-0SCe4BS4ORZhTuW5hL5HEfyFH6jIjH6iwWijLlk"
-        )
-
-        // 2. Initialize (register device & fetch settings)
-        // Note: customer_id is automatically retrieved from device registration API
+// In AppDelegate — run at app launch
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        OrderShield.shared.configure(apiKey: "dev_0RZ-0SCe4BS4ORZhTuW5hL5HEfyFH6jIjH6iwWijLlk")
         Task {
             let success = await OrderShield.shared.initialize()
-            if success {
-                print("✅ SDK Ready!")
-            } else {
-                print("❌ SDK Initialization Failed")
-            }
+            if success { print("✅ SDK Ready!") } else { print("❌ SDK Initialization Failed") }
         }
+        return true
     }
+}
 
+// In your view controller — when user taps "Start Verification"
+class ViewController: UIViewController {
     @IBAction func startTapped() {
-        // 3. Start verification flow
-        // The SDK shows a "Start Verification" screen and then:
-        // - If a previous session token exists, it calls /verification/status and resumes from the first remaining step
-        // - Otherwise it calls /verification/start and begins a new session
-        // Steps are shown in an SDK-controlled order, based on which steps are required/remaining for the session
-        // customer_id is automatically retrieved from storage (no parameter needed)
-        OrderShield.shared.startVerification(
-            presentingViewController: self
-        )
+        OrderShield.shared.startVerification(presentingViewController: self)
     }
 }
 ```
 
-### Step 5: Run and Test
+### Step 4: Run and Test
 
 1. Connect iOS device (or use simulator)
 2. Build and run (⌘R)
@@ -102,9 +60,8 @@ class ViewController: UIViewController {
 
 ## ✅ Verification Checklist
 
-- [ ] Framework builds without errors
-- [ ] Framework is linked in app target
-- [ ] Framework is set to "Embed & Sign"
+- [ ] OrderShieldSDK package (or framework) is added to the app target
+- [ ] If using framework: it is set to "Embed & Sign"
 - [ ] Camera permission added to Info.plist
 - [ ] SDK configures successfully
 - [ ] SDK initializes successfully
@@ -120,8 +77,9 @@ class ViewController: UIViewController {
 
 ### "No such module 'OrderShieldSDK'"
 
-- Make sure framework is in "Frameworks, Libraries, and Embedded Content"
-- Clean build folder (⌘⇧K) and rebuild
+- **SPM:** Ensure the OrderShieldSDK package is added to your app target (File → Add Package Dependencies; add the package and select the target).
+- **Framework:** Ensure the framework is in "Frameworks, Libraries, and Embedded Content".
+- Clean build folder (⌘⇧K) and rebuild.
 
 ### Camera not working
 
