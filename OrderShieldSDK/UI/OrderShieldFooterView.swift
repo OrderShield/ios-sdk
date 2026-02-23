@@ -32,7 +32,7 @@ class OrderShieldFooterView: UIView {
         addSubview(footerContainerView)
         
         // Footer Shield Icon (using asset image)
-        footerShieldIcon.image = UIImage(named: "ordershield_icon", in: Bundle(for: OrderShieldFooterView.self), compatibleWith: nil)
+        footerShieldIcon.image = UIImage(named: "ordershield_icon", in: OrderShieldResourceBundle.bundle, compatibleWith: nil)
         footerShieldIcon.contentMode = .scaleAspectFit
         footerShieldIcon.translatesAutoresizingMaskIntoConstraints = false
         footerContainerView.addSubview(footerShieldIcon)
