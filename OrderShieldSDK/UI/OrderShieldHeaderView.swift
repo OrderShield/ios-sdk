@@ -25,7 +25,12 @@ class OrderShieldHeaderView: UIView {
         addSubview(logoContainerView)
         
         // Shield Icon (using asset image)
-        shieldIcon.image = UIImage(named: "ordershield_icon", in: OrderShieldResourceBundle.bundle, compatibleWith: nil)
+        // SPM: use Bundle.module. Framework build: use class bundle.
+#if SWIFT_PACKAGE
+        shieldIcon.image = UIImage(named: "ordershield_icon", in: .module, compatibleWith: nil)
+#else
+        shieldIcon.image = UIImage(named: "ordershield_icon", in: Bundle(for: OrderShieldHeaderView.self), compatibleWith: nil)
+#endif
         shieldIcon.contentMode = .scaleAspectFit
         shieldIcon.translatesAutoresizingMaskIntoConstraints = false
         logoContainerView.addSubview(shieldIcon)
