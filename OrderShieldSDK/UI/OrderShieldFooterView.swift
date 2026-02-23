@@ -31,13 +31,8 @@ class OrderShieldFooterView: UIView {
         footerContainerView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(footerContainerView)
         
-        // Footer Shield Icon (using asset image)
-        // SPM: use Bundle.module. Framework build: use class bundle.
-#if SWIFT_PACKAGE
-        footerShieldIcon.image = UIImage(named: "ordershield_icon", in: .module, compatibleWith: nil)
-#else
-        footerShieldIcon.image = UIImage(named: "ordershield_icon", in: Bundle(for: OrderShieldFooterView.self), compatibleWith: nil)
-#endif
+        // Footer Shield Icon (from SDK assets via Bundle.orderShield)
+        footerShieldIcon.image = UIImage(named: "ordershield_icon", in: .orderShield, compatibleWith: nil)
         footerShieldIcon.contentMode = .scaleAspectFit
         footerShieldIcon.translatesAutoresizingMaskIntoConstraints = false
         footerContainerView.addSubview(footerShieldIcon)
