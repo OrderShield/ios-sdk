@@ -17,7 +17,7 @@ let package = Package(
             name: "OrderShieldSDK",
             path: "OrderShieldSDK",
             resources: [
-                .process("Assets.xcassets")
+                .process("Resources/Assets.xcassets")
             ]
         ),
     ]
