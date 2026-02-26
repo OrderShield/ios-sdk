@@ -512,14 +512,47 @@ class SelfieVerificationViewController: UIViewController {
         // Don't start countdown immediately - wait for face detection
     }
     
+    // MARK: - Selfie compression (same logic as working demo app)
+
+    private static let maxImageBytes = 10 * 1024 * 1024
+
+    private func compressedImageData(for image: UIImage) -> (data: Data, format: String)? {
+        for quality in [0.85, 0.7, 0.55, 0.4, 0.3] as [CGFloat] {
+            if let data = image.jpegData(compressionQuality: quality),
+               data.count <= Self.maxImageBytes {
+                return (data, "jpeg")
+            }
+        }
+        let maxDimension: CGFloat = 1200
+        let size = image.size
+        guard size.width > maxDimension || size.height > maxDimension else {
+            return image.jpegData(compressionQuality: 0.25).map { ($0, "jpeg") }
+        }
+        let scale = min(maxDimension / size.width, maxDimension / size.height)
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        let resized = renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: newSize)) }
+        for quality in [0.7, 0.5, 0.35, 0.25] as [CGFloat] {
+            if let data = resized.jpegData(compressionQuality: quality),
+               data.count <= Self.maxImageBytes {
+                return (data, "jpeg")
+            }
+        }
+        return resized.jpegData(compressionQuality: 0.2).map { ($0, "jpeg") }
+    }
+
     @objc private func submitPhoto() {
         guard let image = previewImageView.image,
-              let imageData = image.jpegData(compressionQuality: 0.1),
               let customerId = customerId else {
             showError("Customer ID not found")
             return
         }
-        
+
+        guard let (imageData, imageFormat) = compressedImageData(for: image) else {
+            showError("Could not prepare image for upload.")
+            return
+        }
+
         submitButton.isEnabled = false
         submitButton.setTitle("Submitting...", for: .normal)
         activityIndicator.startAnimating()
@@ -530,7 +563,7 @@ class SelfieVerificationViewController: UIViewController {
                     customerId: customerId,
                     sessionToken: sessionToken,
                     imageData: imageData,
-                    imageFormat: "png"
+                    imageFormat: imageFormat
                 )
                 
                 await MainActor.run {
@@ -549,120 +582,19 @@ class SelfieVerificationViewController: UIViewController {
         }
     }
     
+    /// Fixes orientation + mirrors horizontally for front camera.
+    /// Uses UIGraphicsImageRenderer so UIKit handles orientation automatically (no manual CGContext rotation math).
     private func fixImageOrientation(_ image: UIImage) -> UIImage {
-        // If image is already correctly oriented (.up), just flip horizontally
-        if image.imageOrientation == .up {
-            return flipImageHorizontally(image)
+        let size = image.size
+        guard size.width > 0, size.height > 0 else { return image }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        return renderer.image { ctx in
+            ctx.cgContext.translateBy(x: size.width, y: 0)
+            ctx.cgContext.scaleBy(x: -1, y: 1)
+            image.draw(at: .zero)
         }
-        
-        guard let cgImage = image.cgImage else { return image }
-        
-        // Determine output dimensions based on orientation
-        let outputWidth: Int
-        let outputHeight: Int
-        
-        switch image.imageOrientation {
-        case .left, .leftMirrored, .right, .rightMirrored:
-            // Rotated 90 degrees - swap dimensions
-            outputWidth = cgImage.height
-            outputHeight = cgImage.width
-        default:
-            outputWidth = cgImage.width
-            outputHeight = cgImage.height
-        }
-        
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
-        
-        guard let context = CGContext(
-            data: nil,
-            width: outputWidth,
-            height: outputHeight,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo.rawValue
-        ) else {
-            return image
-        }
-        
-        // Apply transformations based on orientation
-        switch image.imageOrientation {
-        case .rightMirrored:
-            // Rotate 90° CCW and flip horizontally
-            context.translateBy(x: CGFloat(outputWidth), y: 0)
-            context.rotate(by: -CGFloat.pi / 2)
-            context.scaleBy(x: -1.0, y: 1.0)
-        case .leftMirrored:
-            // Rotate 90° CW and flip horizontally
-            context.translateBy(x: 0, y: CGFloat(outputHeight))
-            context.rotate(by: -CGFloat.pi / 2)
-            context.scaleBy(x: -1.0, y: 1.0)
-        case .right:
-            // Rotate 90° CCW and flip horizontally for front camera
-            context.translateBy(x: CGFloat(outputWidth), y: 0)
-            context.rotate(by: -CGFloat.pi / 2)
-            context.scaleBy(x: -1.0, y: 1.0)
-        case .left:
-            // Rotate 90° CW and flip horizontally for front camera
-            context.translateBy(x: 0, y: CGFloat(outputHeight))
-            context.rotate(by: -CGFloat.pi / 2)
-            context.scaleBy(x: -1.0, y: 1.0)
-        case .down, .downMirrored:
-            // Rotate 180° and flip horizontally
-            context.translateBy(x: CGFloat(outputWidth), y: CGFloat(outputHeight))
-            context.rotate(by: CGFloat.pi)
-            context.scaleBy(x: -1.0, y: 1.0)
-        case .upMirrored:
-            // Just flip horizontally
-            context.translateBy(x: CGFloat(outputWidth), y: 0)
-            context.scaleBy(x: -1.0, y: 1.0)
-        default:
-            // .up - just flip horizontally for front camera
-            context.translateBy(x: CGFloat(outputWidth), y: 0)
-            context.scaleBy(x: -1.0, y: 1.0)
-        }
-        
-        // Draw the image
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
-        
-        guard let fixedCGImage = context.makeImage() else {
-            return image
-        }
-        
-        return UIImage(cgImage: fixedCGImage, scale: image.scale, orientation: .up)
-    }
-    
-    private func flipImageHorizontally(_ image: UIImage) -> UIImage {
-        guard let cgImage = image.cgImage else { return image }
-        
-        let width = cgImage.width
-        let height = cgImage.height
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
-        
-        guard let context = CGContext(
-            data: nil,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo.rawValue
-        ) else {
-            return image
-        }
-        
-        // Flip horizontally by translating and scaling
-        context.translateBy(x: CGFloat(width), y: 0)
-        context.scaleBy(x: -1.0, y: 1.0)
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-        
-        guard let flippedCGImage = context.makeImage() else {
-            return image
-        }
-        
-        return UIImage(cgImage: flippedCGImage, scale: image.scale, orientation: .up)
     }
     
     private func showError(_ message: String) {

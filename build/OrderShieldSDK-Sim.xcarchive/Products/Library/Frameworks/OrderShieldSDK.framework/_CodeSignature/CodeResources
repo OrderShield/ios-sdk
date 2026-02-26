@@ -18,43 +18,43 @@
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		CZGGih+mdEH/ZC1OJ72W3P67bYk=
+		7M5UytYB2GQnxUzuMPz4F/IKsEY=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		5/iBUKKgmWAJ7BUJ7cJXTiJIVoA=
+		nthzNhGahtT6VUo/PVKWkvpniVE=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		qfffxSCNbMBBipIYYkm9InpVMTs=
+		wD/IAB0LlAkS+TWb5ljCqnWKDKM=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		5/iBUKKgmWAJ7BUJ7cJXTiJIVoA=
+		nthzNhGahtT6VUo/PVKWkvpniVE=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		AO5BnSnkzV9pbZ4rADvStzfAY2Q=
+		fLtKg1243pL2GDG9L9hmamztv48=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		CZGGih+mdEH/ZC1OJ72W3P67bYk=
+		7M5UytYB2GQnxUzuMPz4F/IKsEY=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		QrEDZc439tFBBQbcOlSdYkSovHI=
+		R6ZcpeJpys974KO4xwxA5A/Bwfc=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		8Jz/o8bunCs+lGYSsUwVoAoQJi0=
+		Q3Dj4lfb2BRqvdpsuqaban7TcW0=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		QrEDZc439tFBBQbcOlSdYkSovHI=
+		R6ZcpeJpys974KO4xwxA5A/Bwfc=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		zyfRW3QujBGqpjgYE/Dhjj7Oeu4=
+		oaM5aP9w1Bl+PFrOYIZ60aVt/ng=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -77,70 +77,70 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			BYFcVkq+DYLbPzoHaCY7pD+KhuUCovz41JGItap8Jr8=
+			v9PbVtP7tOY7CtpPjVXFadOa4MEFb316KeZkVdqY0Ew=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			N2o2bJ7UPmdghAQmGCn0UUGB/nW/KI8B3ItpoPwQFvM=
+			4XIqZFYVLa8M7ugCs95ui8VREdshsc+YQ5AXPg6441A=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			C/8etYpV8FTsZO0L+e7UK3XBR94G2U5n8vFH6sJNaJE=
+			QsDyZby3WtbaHXg/mSxt5OsPZw6CSR15BgL1paeU4a0=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			N2o2bJ7UPmdghAQmGCn0UUGB/nW/KI8B3ItpoPwQFvM=
+			4XIqZFYVLa8M7ugCs95ui8VREdshsc+YQ5AXPg6441A=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			pnhQVKdxK2eR1epZQeCMnBNS3mTILBVq92js29F01mE=
+			N8kZFJ8HUiKO+8luQ1asggJuCiSxqYHKTA+Xcdpzwlk=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			BYFcVkq+DYLbPzoHaCY7pD+KhuUCovz41JGItap8Jr8=
+			v9PbVtP7tOY7CtpPjVXFadOa4MEFb316KeZkVdqY0Ew=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			0y++3qXoQVKnl8oCfGR+FT1dcOZBkjmj0Iv3G58eAi8=
+			rAaM0vu7z1Hs+o+US7ZZA1XM1WyuimqPCsDVXYpnAo0=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			3hwloLMsE6ECzXnZk/4SGkwzpB3fnpTww0BAUym2Lrw=
+			oSdRg9iKxWGDWy25fB6NuQNVsi7An5yrvOqOaPwsMfo=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			0y++3qXoQVKnl8oCfGR+FT1dcOZBkjmj0Iv3G58eAi8=
+			rAaM0vu7z1Hs+o+US7ZZA1XM1WyuimqPCsDVXYpnAo0=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			p/Wb2fLX8XHdBDtEkawdUij8gCxi0tzloyxQIDsaxGY=
+			g3O0+Vv1gDX+FY5zFJKuxDNchB59FRwuzlbrTOXSirg=
 			</data>
 		</dict>
 	</dict>

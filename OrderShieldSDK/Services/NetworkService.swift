@@ -1,4 +1,3 @@
-
 import Foundation
 
 class NetworkService {
@@ -17,7 +16,7 @@ class NetworkService {
     func configure(apiKey: String) {
         self.apiKey = apiKey
     }
-    
+
     // MARK: - cURL Logging Helper
     private func logCurlCommand(for request: URLRequest, endpoint: String) {
         guard let url = request.url else { return }
@@ -334,15 +333,10 @@ class NetworkService {
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         
         urlRequest.httpBody = body
-        
+
         logCurlCommand(for: urlRequest, endpoint: "verification/selfie")
-        
+
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
-        
-        // Log raw response for debugging
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("📡 [OrderShieldSDK] Selfie Verification Response: \(responseString)")
-        }
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
