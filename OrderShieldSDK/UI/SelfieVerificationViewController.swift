@@ -76,12 +76,12 @@ class SelfieVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Title
         titleLabel.text = "Verification Protection"
         titleLabel.font = .systemFont(ofSize: 18, weight: .medium)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
@@ -128,8 +128,8 @@ class SelfieVerificationViewController: UIViewController {
         captureButton.setTitle("Capture", for: .normal)
         captureButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         captureButton.backgroundColor = UIColor(red: 100/255.0, green: 104/255.0, blue: 254/255.0, alpha: 1.0) // RGB(100, 104, 254)
-        captureButton.setTitleColor(.white, for: .normal)
-        captureButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
+        captureButton.setTitleColor(.systemBackground, for: .normal)
+        captureButton.setTitleColor(.systemBackground.withAlphaComponent(0.5), for: .disabled)
         captureButton.layer.cornerRadius = 12
         captureButton.addTarget(self, action: #selector(capturePhoto), for: .touchUpInside)
         captureButton.isHidden = true // Hidden initially, auto-capture will be used
@@ -139,7 +139,7 @@ class SelfieVerificationViewController: UIViewController {
         // Retake Button (hidden initially, positioned at top right)
         retakeButton.setTitle("Retake", for: .normal)
         retakeButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        retakeButton.setTitleColor(.black, for: .normal)
+        retakeButton.setTitleColor(.label, for: .normal)
         retakeButton.addTarget(self, action: #selector(retakePhoto), for: .touchUpInside)
         retakeButton.isHidden = true
         retakeButton.translatesAutoresizingMaskIntoConstraints = false
@@ -148,9 +148,9 @@ class SelfieVerificationViewController: UIViewController {
         // Submit Button (hidden initially)
         submitButton.setTitle("Continue", for: .normal)
         submitButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        submitButton.backgroundColor = .black
-        submitButton.setTitleColor(.white, for: .normal)
-        submitButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
+        submitButton.backgroundColor = .label
+        submitButton.setTitleColor(.systemBackground, for: .normal)
+        submitButton.setTitleColor(.systemBackground.withAlphaComponent(0.5), for: .disabled)
         submitButton.layer.cornerRadius = 12
         submitButton.addTarget(self, action: #selector(submitPhoto), for: .touchUpInside)
         submitButton.isHidden = true
@@ -159,7 +159,7 @@ class SelfieVerificationViewController: UIViewController {
         
         // Arrow Icon on Button
         let arrowIcon = UIImageView(image: UIImage(systemName: "arrow.right"))
-        arrowIcon.tintColor = .white
+        arrowIcon.tintColor = .systemBackground
         arrowIcon.contentMode = .scaleAspectFit
         arrowIcon.translatesAutoresizingMaskIntoConstraints = false
         submitButton.addSubview(arrowIcon)
@@ -514,7 +514,7 @@ class SelfieVerificationViewController: UIViewController {
     
     @objc private func submitPhoto() {
         guard let image = previewImageView.image,
-              let imageData = image.jpegData(compressionQuality: 0.8),
+              let imageData = image.jpegData(compressionQuality: 0.1),
               let customerId = customerId else {
             showError("Customer ID not found")
             return
@@ -530,7 +530,7 @@ class SelfieVerificationViewController: UIViewController {
                     customerId: customerId,
                     sessionToken: sessionToken,
                     imageData: imageData,
-                    imageFormat: "jpeg"
+                    imageFormat: "png"
                 )
                 
                 await MainActor.run {

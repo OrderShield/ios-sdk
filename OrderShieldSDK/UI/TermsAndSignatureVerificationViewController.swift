@@ -76,7 +76,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Scroll View
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -88,7 +88,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         // Title
         titleLabel.text = "Terms of Service Agreement"
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
@@ -96,7 +96,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         // Subtitle
         descriptionLabel.text = "Require users to accept terms and conditions"
         descriptionLabel.font = .systemFont(ofSize: 14)
-        descriptionLabel.textColor = .systemGray
+        descriptionLabel.textColor = .secondaryLabel
         descriptionLabel.textAlignment = .center
         descriptionLabel.numberOfLines = 0
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -105,12 +105,12 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         // Key Points Section
         keyPointsLabel.text = "Key points"
         keyPointsLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        keyPointsLabel.textColor = .black
+        keyPointsLabel.textColor = .label
         keyPointsLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(keyPointsLabel)
         
         // Key Points Container (grey box)
-        keyPointsContainer.backgroundColor = UIColor.systemGray6
+        keyPointsContainer.backgroundColor = .tertiarySystemBackground
         keyPointsContainer.layer.cornerRadius = 8
         keyPointsContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(keyPointsContainer)
@@ -135,7 +135,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
             let pointLabel = UILabel()
             pointLabel.text = "• \(point)"
             pointLabel.font = .systemFont(ofSize: 14)
-            pointLabel.textColor = .black
+            pointLabel.textColor = .label
             pointLabel.numberOfLines = 0
             pointLabel.translatesAutoresizingMaskIntoConstraints = false
             keyPointsStack.addArrangedSubview(pointLabel)
@@ -144,7 +144,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         // Checkboxes Title
         checkboxesTitleLabel.text = "Tap to accept the following check boxes"
         checkboxesTitleLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        checkboxesTitleLabel.textColor = .black
+        checkboxesTitleLabel.textColor = .label
         checkboxesTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         checkboxesTitleLabel.isHidden = !isTermsEnabled
         contentView.addSubview(checkboxesTitleLabel)
@@ -164,9 +164,9 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         // Complete Button
         completeButton.setTitle(isSignatureEnabled ? "Accept and Sign" : "Accept", for: .normal)
         completeButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        completeButton.backgroundColor = .black
-        completeButton.setTitleColor(.white, for: .normal)
-        completeButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
+        completeButton.backgroundColor = .label
+        completeButton.setTitleColor(.systemBackground, for: .normal)
+        completeButton.setTitleColor(.systemBackground.withAlphaComponent(0.5), for: .disabled)
         completeButton.layer.cornerRadius = 12
         completeButton.isEnabled = false
         completeButton.addTarget(self, action: #selector(completeTapped), for: .touchUpInside)
@@ -175,7 +175,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         
         // Arrow Icon on Button
         let arrowIcon = UIImageView(image: UIImage(systemName: "arrow.right"))
-        arrowIcon.tintColor = .white
+        arrowIcon.tintColor = .systemBackground
         arrowIcon.contentMode = .scaleAspectFit
         arrowIcon.translatesAutoresizingMaskIntoConstraints = false
         completeButton.addSubview(arrowIcon)
@@ -316,7 +316,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         checkboxButton.layer.borderWidth = 2
         checkboxButton.layer.borderColor = UIColor.systemGray3.cgColor
         checkboxButton.layer.cornerRadius = 4
-        checkboxButton.backgroundColor = .white
+        checkboxButton.backgroundColor = .secondarySystemBackground
         checkboxButton.addTarget(self, action: #selector(checkboxTapped(_:)), for: .touchUpInside)
         checkboxButton.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(checkboxButton)
@@ -324,7 +324,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         let textLabel = UILabel()
         textLabel.text = checkbox.checkboxText + (checkbox.isRequired ? " *" : "")
         textLabel.font = .systemFont(ofSize: 16)
-        textLabel.textColor = .black
+        textLabel.textColor = .label
         textLabel.numberOfLines = 0
         textLabel.isUserInteractionEnabled = false // Prevent label from blocking touches
         textLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -379,7 +379,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
             sender.setTitle("✓", for: .normal)
             sender.setTitleColor(.white, for: .normal)
         } else {
-            sender.backgroundColor = .white
+            sender.backgroundColor = .secondarySystemBackground
             sender.setTitle("", for: .normal)
         }
         
@@ -403,7 +403,7 @@ class TermsAndSignatureVerificationViewController: UIViewController {
         // Signature will be collected in the modal sheet
         
         completeButton.isEnabled = canComplete
-        completeButton.backgroundColor = canComplete ? .black : .black.withAlphaComponent(0.5)
+        completeButton.backgroundColor = canComplete ? .label : .label.withAlphaComponent(0.5)
     }
     
     @objc private func completeTapped() {
@@ -580,8 +580,8 @@ class SignatureSheetViewController: UIViewController {
         backgroundOverlay.addGestureRecognizer(tapGesture)
         view.addSubview(backgroundOverlay)
         
-        // Sheet Container (white rounded container at bottom)
-        sheetContainer.backgroundColor = .white
+        // Sheet Container (rounded container at bottom)
+        sheetContainer.backgroundColor = .systemBackground
         sheetContainer.layer.cornerRadius = 20
         sheetContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         sheetContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -590,7 +590,7 @@ class SignatureSheetViewController: UIViewController {
         // Title
         titleLabel.text = "Digital Signature Required"
         titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         sheetContainer.addSubview(titleLabel)
@@ -598,7 +598,7 @@ class SignatureSheetViewController: UIViewController {
         // Instructions
         instructionLabel.text = "Please sign in the box below to complete your verification."
         instructionLabel.font = .systemFont(ofSize: 14)
-        instructionLabel.textColor = .systemGray
+        instructionLabel.textColor = .secondaryLabel
         instructionLabel.textAlignment = .center
         instructionLabel.numberOfLines = 0
         instructionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -607,12 +607,12 @@ class SignatureSheetViewController: UIViewController {
         // Sign Here Label
         signHereLabel.text = "Sign here"
         signHereLabel.font = .systemFont(ofSize: 12)
-        signHereLabel.textColor = .systemGray
+        signHereLabel.textColor = .secondaryLabel
         signHereLabel.translatesAutoresizingMaskIntoConstraints = false
         sheetContainer.addSubview(signHereLabel)
         
         // Signature Container
-        signatureContainer.backgroundColor = .white
+        signatureContainer.backgroundColor = .secondarySystemBackground
         signatureContainer.layer.borderWidth = 1
         signatureContainer.layer.borderColor = UIColor.systemGray3.cgColor
         signatureContainer.layer.cornerRadius = 8
@@ -620,7 +620,7 @@ class SignatureSheetViewController: UIViewController {
         sheetContainer.addSubview(signatureContainer)
         
         // Signature View
-        signatureView.backgroundColor = .white
+        signatureView.backgroundColor = .secondarySystemBackground
         signatureView.isUserInteractionEnabled = true
         signatureView.translatesAutoresizingMaskIntoConstraints = false
         signatureContainer.addSubview(signatureView)
@@ -629,7 +629,7 @@ class SignatureSheetViewController: UIViewController {
         clearButton.setTitle("Clear", for: .normal)
         clearButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         clearButton.setTitleColor(UIColor.systemBlue, for: .normal)
-        clearButton.backgroundColor = .white
+        clearButton.backgroundColor = .secondarySystemBackground
         clearButton.layer.borderWidth = 1
         clearButton.layer.borderColor = UIColor.systemBlue.cgColor
         clearButton.layer.cornerRadius = 8
@@ -640,8 +640,8 @@ class SignatureSheetViewController: UIViewController {
         // Accept Button
         acceptButton.setTitle("Accept", for: .normal)
         acceptButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        acceptButton.backgroundColor = .black
-        acceptButton.setTitleColor(.white, for: .normal)
+        acceptButton.backgroundColor = .label
+        acceptButton.setTitleColor(.systemBackground, for: .normal)
         acceptButton.layer.cornerRadius = 8
         acceptButton.isEnabled = false
         acceptButton.addTarget(self, action: #selector(acceptTapped), for: .touchUpInside)
@@ -717,7 +717,7 @@ class SignatureSheetViewController: UIViewController {
         // Monitor signature changes
         signatureView.onSignatureChanged = { [weak self] hasSignature in
             self?.acceptButton.isEnabled = hasSignature
-            self?.acceptButton.backgroundColor = hasSignature ? .black : .black.withAlphaComponent(0.5)
+            self?.acceptButton.backgroundColor = hasSignature ? .label : .label.withAlphaComponent(0.5)
         }
     }
     

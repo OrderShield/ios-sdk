@@ -40,12 +40,12 @@ class SignatureVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Title
         titleLabel.text = "Digital Signature Required"
         titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
@@ -53,7 +53,7 @@ class SignatureVerificationViewController: UIViewController {
         // Instructions
         instructionLabel.text = "Please sign in the box below to complete your verification."
         instructionLabel.font = .systemFont(ofSize: 16)
-        instructionLabel.textColor = .black
+        instructionLabel.textColor = .label
         instructionLabel.textAlignment = .center
         instructionLabel.numberOfLines = 0
         instructionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -63,12 +63,12 @@ class SignatureVerificationViewController: UIViewController {
         let signHereLabel = UILabel()
         signHereLabel.text = "Sign here"
         signHereLabel.font = .systemFont(ofSize: 14)
-        signHereLabel.textColor = .systemGray
+        signHereLabel.textColor = .secondaryLabel
         signHereLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(signHereLabel)
         
         // Signature View
-        signatureView.backgroundColor = .white
+        signatureView.backgroundColor = .secondarySystemBackground
         signatureView.layer.borderWidth = 1
         signatureView.layer.borderColor = UIColor.systemGray3.cgColor
         signatureView.layer.cornerRadius = 8
@@ -89,8 +89,8 @@ class SignatureVerificationViewController: UIViewController {
         // Accept Button
         acceptButton.setTitle("Accept Signature", for: .normal)
         acceptButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        acceptButton.backgroundColor = .black
-        acceptButton.setTitleColor(.white, for: .normal)
+        acceptButton.backgroundColor = .label
+        acceptButton.setTitleColor(.systemBackground, for: .normal)
         acceptButton.layer.cornerRadius = 8
         acceptButton.isEnabled = false
         acceptButton.alpha = 0.5
@@ -105,6 +105,11 @@ class SignatureVerificationViewController: UIViewController {
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(cancelButton)
+        
+        // Activity Indicator (must be in view hierarchy before activating its constraints)
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(activityIndicator)
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
@@ -139,11 +144,6 @@ class SignatureVerificationViewController: UIViewController {
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-        
-        // Activity Indicator
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(activityIndicator)
         
         signatureView.onSignatureChanged = { [weak self] hasSignature in
             self?.acceptButton.isEnabled = hasSignature
@@ -265,7 +265,7 @@ class SignatureView: UIView {
     }
     
     override func draw(_ rect: CGRect) {
-        UIColor.black.setStroke()
+        UIColor.label.setStroke()
         path.stroke()
     }
     

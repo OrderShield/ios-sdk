@@ -74,7 +74,7 @@ class StartVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Scroll View (delaysContentTouches = false so the Start button responds on first tap)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,7 +93,7 @@ class StartVerificationViewController: UIViewController {
         // Main Title
         titleLabel.text = "Quick identity verification"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 0
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -102,7 +102,7 @@ class StartVerificationViewController: UIViewController {
         // Paragraph 1
         paragraph1Label.text = "To start your trial, we'll complete a fast verification using a selfie."
         paragraph1Label.font = .systemFont(ofSize: 16)
-        paragraph1Label.textColor = .systemGray
+        paragraph1Label.textColor = .secondaryLabel
         paragraph1Label.textAlignment = .left
         paragraph1Label.numberOfLines = 0
         paragraph1Label.translatesAutoresizingMaskIntoConstraints = false
@@ -111,7 +111,7 @@ class StartVerificationViewController: UIViewController {
         // Paragraph 2
         paragraph2Label.text = "This simply confirms it's you and helps keep accounts secure."
         paragraph2Label.font = .systemFont(ofSize: 16)
-        paragraph2Label.textColor = .systemGray
+        paragraph2Label.textColor = .secondaryLabel
         paragraph2Label.textAlignment = .left
         paragraph2Label.numberOfLines = 0
         paragraph2Label.translatesAutoresizingMaskIntoConstraints = false
@@ -135,7 +135,7 @@ class StartVerificationViewController: UIViewController {
         
         feature1Label.text = "Used only for account verification and security"
         feature1Label.font = .systemFont(ofSize: 16)
-        feature1Label.textColor = .black
+        feature1Label.textColor = .label
         feature1Label.numberOfLines = 0
         feature1Label.translatesAutoresizingMaskIntoConstraints = false
         feature1View.addSubview(feature1Label)
@@ -145,14 +145,14 @@ class StartVerificationViewController: UIViewController {
         featuresStackView.addArrangedSubview(feature2View)
         
         feature2ImageView.image = UIImage(systemName: "lock.fill")
-        feature2ImageView.tintColor = .black
+        feature2ImageView.tintColor = .label
         feature2ImageView.contentMode = .scaleAspectFit
         feature2ImageView.translatesAutoresizingMaskIntoConstraints = false
         feature2View.addSubview(feature2ImageView)
         
         feature2Label.text = "Your data is protected and never sold"
         feature2Label.font = .systemFont(ofSize: 16)
-        feature2Label.textColor = .black
+        feature2Label.textColor = .label
         feature2Label.numberOfLines = 0
         feature2Label.translatesAutoresizingMaskIntoConstraints = false
         feature2View.addSubview(feature2Label)
@@ -169,7 +169,7 @@ class StartVerificationViewController: UIViewController {
         
         feature3Label.text = "You can contact support anytime with questions"
         feature3Label.font = .systemFont(ofSize: 16)
-        feature3Label.textColor = .black
+        feature3Label.textColor = .label
         feature3Label.numberOfLines = 0
         feature3Label.translatesAutoresizingMaskIntoConstraints = false
         feature3View.addSubview(feature3Label)
@@ -179,8 +179,8 @@ class StartVerificationViewController: UIViewController {
         buttonSpacerView.setContentHuggingPriority(.defaultLow, for: .vertical)
         contentView.addSubview(buttonSpacerView)
         
-        // Start Button
-        startButton.backgroundColor = .black
+        // Start Button (adaptive: visible in light and dark mode)
+        startButton.backgroundColor = .label
         startButton.layer.cornerRadius = 12
         startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
         startButton.translatesAutoresizingMaskIntoConstraints = false
@@ -197,7 +197,7 @@ class StartVerificationViewController: UIViewController {
         
         // Camera Icon in Button
         cameraImageView.image = UIImage(systemName: "camera.fill")
-        cameraImageView.tintColor = .white
+        cameraImageView.tintColor = .systemBackground
         cameraImageView.contentMode = .scaleAspectFit
         cameraImageView.isUserInteractionEnabled = false
         cameraImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -206,14 +206,14 @@ class StartVerificationViewController: UIViewController {
         // Start Text in Button
         startTextLabel.text = "Start"
         startTextLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        startTextLabel.textColor = .white
+        startTextLabel.textColor = .systemBackground
         startTextLabel.isUserInteractionEnabled = false
         buttonContentStackView.addArrangedSubview(startTextLabel)
         
         // Lighting Tip
         lightingTipLabel.text = "Works best on your device with good lighting"
         lightingTipLabel.font = .systemFont(ofSize: 14)
-        lightingTipLabel.textColor = .systemGray
+        lightingTipLabel.textColor = .secondaryLabel
         lightingTipLabel.textAlignment = .center
         lightingTipLabel.numberOfLines = 0
         lightingTipLabel.translatesAutoresizingMaskIntoConstraints = false

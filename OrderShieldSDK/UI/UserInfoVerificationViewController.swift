@@ -74,7 +74,7 @@ class UserInfoVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Scroll View
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -92,7 +92,7 @@ class UserInfoVerificationViewController: UIViewController {
         // Title
         titleLabel.text = "User Information Verification"
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
@@ -100,7 +100,7 @@ class UserInfoVerificationViewController: UIViewController {
         // Subtitle
         subtitleLabel.text = "Please provide your personal information"
         subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .systemGray
+        subtitleLabel.textColor = .secondaryLabel
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -109,16 +109,16 @@ class UserInfoVerificationViewController: UIViewController {
         // First Name Label (above input, not floating)
         firstNameLabel.text = "First Name*"
         firstNameLabel.font = .systemFont(ofSize: 12)
-        firstNameLabel.textColor = .systemGray
+        firstNameLabel.textColor = .secondaryLabel
         firstNameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(firstNameLabel)
         
         // First Name Container
         firstNameContainerView.translatesAutoresizingMaskIntoConstraints = false
         firstNameContainerView.layer.borderWidth = 1.0
-        firstNameContainerView.layer.borderColor = UIColor.black.cgColor
+        firstNameContainerView.layer.borderColor = UIColor.separator.cgColor
         firstNameContainerView.layer.cornerRadius = 8
-        firstNameContainerView.backgroundColor = .white
+        firstNameContainerView.backgroundColor = .secondarySystemBackground
         contentView.addSubview(firstNameContainerView)
         
         // First Name Text Field
@@ -127,6 +127,7 @@ class UserInfoVerificationViewController: UIViewController {
         firstNameTextField.autocapitalizationType = .words
         firstNameTextField.autocorrectionType = .no
         firstNameTextField.backgroundColor = .clear
+        firstNameTextField.textColor = .label
         firstNameTextField.font = .systemFont(ofSize: 16)
         firstNameTextField.returnKeyType = .next
         firstNameTextField.delegate = self
@@ -137,16 +138,16 @@ class UserInfoVerificationViewController: UIViewController {
         // Last Name Label (above input, not floating)
         lastNameLabel.text = "Last Name*"
         lastNameLabel.font = .systemFont(ofSize: 12)
-        lastNameLabel.textColor = .systemGray
+        lastNameLabel.textColor = .secondaryLabel
         lastNameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(lastNameLabel)
         
         // Last Name Container
         lastNameContainerView.translatesAutoresizingMaskIntoConstraints = false
         lastNameContainerView.layer.borderWidth = 1.0
-        lastNameContainerView.layer.borderColor = UIColor.black.cgColor
+        lastNameContainerView.layer.borderColor = UIColor.separator.cgColor
         lastNameContainerView.layer.cornerRadius = 8
-        lastNameContainerView.backgroundColor = .white
+        lastNameContainerView.backgroundColor = .secondarySystemBackground
         contentView.addSubview(lastNameContainerView)
         
         // Last Name Text Field
@@ -155,6 +156,7 @@ class UserInfoVerificationViewController: UIViewController {
         lastNameTextField.autocapitalizationType = .words
         lastNameTextField.autocorrectionType = .no
         lastNameTextField.backgroundColor = .clear
+        lastNameTextField.textColor = .label
         lastNameTextField.font = .systemFont(ofSize: 16)
         lastNameTextField.returnKeyType = .next
         lastNameTextField.delegate = self
@@ -165,22 +167,23 @@ class UserInfoVerificationViewController: UIViewController {
         // Date of Birth Label (above input, not floating)
         dateOfBirthLabel.text = "Date of Birth*"
         dateOfBirthLabel.font = .systemFont(ofSize: 12)
-        dateOfBirthLabel.textColor = .systemGray
+        dateOfBirthLabel.textColor = .secondaryLabel
         dateOfBirthLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(dateOfBirthLabel)
         
         // Date of Birth Container
         dateOfBirthContainerView.translatesAutoresizingMaskIntoConstraints = false
         dateOfBirthContainerView.layer.borderWidth = 1.0
-        dateOfBirthContainerView.layer.borderColor = UIColor.black.cgColor
+        dateOfBirthContainerView.layer.borderColor = UIColor.separator.cgColor
         dateOfBirthContainerView.layer.cornerRadius = 8
-        dateOfBirthContainerView.backgroundColor = .white
+        dateOfBirthContainerView.backgroundColor = .secondarySystemBackground
         contentView.addSubview(dateOfBirthContainerView)
         
         // Date of Birth Text Field
         dateOfBirthTextField.placeholder = "mm/dd/yyyy"
         dateOfBirthTextField.borderStyle = .none
         dateOfBirthTextField.backgroundColor = .clear
+        dateOfBirthTextField.textColor = .label
         dateOfBirthTextField.font = .systemFont(ofSize: 16)
         dateOfBirthTextField.delegate = self
         dateOfBirthTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -208,7 +211,7 @@ class UserInfoVerificationViewController: UIViewController {
         
         // Calendar Icon
         calendarIcon.image = UIImage(systemName: "calendar")
-        calendarIcon.tintColor = .black
+        calendarIcon.tintColor = .label
         calendarIcon.contentMode = .scaleAspectFit
         calendarIcon.translatesAutoresizingMaskIntoConstraints = false
         dateOfBirthContainerView.addSubview(calendarIcon)
@@ -216,9 +219,9 @@ class UserInfoVerificationViewController: UIViewController {
         // Continue Button (black) - inside scroll view
         continueButton.setTitle("Continue", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.backgroundColor = .black
-        continueButton.setTitleColor(.white, for: .normal)
-        continueButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
+        continueButton.backgroundColor = .label
+        continueButton.setTitleColor(.systemBackground, for: .normal)
+        continueButton.setTitleColor(.systemBackground.withAlphaComponent(0.5), for: .disabled)
         continueButton.layer.cornerRadius = 12
         continueButton.isEnabled = false
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
@@ -237,7 +240,7 @@ class UserInfoVerificationViewController: UIViewController {
         
         // Arrow Icon on Button
         let arrowIcon = UIImageView(image: UIImage(systemName: "arrow.right"))
-        arrowIcon.tintColor = .white
+        arrowIcon.tintColor = .systemBackground
         arrowIcon.contentMode = .scaleAspectFit
         arrowIcon.translatesAutoresizingMaskIntoConstraints = false
         continueButton.addSubview(arrowIcon)
@@ -424,7 +427,7 @@ class UserInfoVerificationViewController: UIViewController {
         
         let isValid = hasFirstName && hasLastName && hasDateOfBirth
         continueButton.isEnabled = isValid
-        continueButton.backgroundColor = isValid ? .black : .black.withAlphaComponent(0.5)
+        continueButton.backgroundColor = isValid ? .label : .label.withAlphaComponent(0.5)
     }
     
     @objc private func datePickerChanged() {

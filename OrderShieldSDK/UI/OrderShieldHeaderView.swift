@@ -33,7 +33,7 @@ class OrderShieldHeaderView: UIView {
         // Logo Title
         logoTitleLabel.text = "OrderShield"
         logoTitleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        logoTitleLabel.textColor = .black
+        logoTitleLabel.textColor = .label
         logoTitleLabel.textAlignment = .left
         logoTitleLabel.numberOfLines = 0
         logoTitleLabel.adjustsFontSizeToFitWidth = true
@@ -44,7 +44,7 @@ class OrderShieldHeaderView: UIView {
         // Logo Subtitle
         logoSubtitleLabel.text = "Verification Protection"
         logoSubtitleLabel.font = .systemFont(ofSize: 18)
-        logoSubtitleLabel.textColor = .systemGray
+        logoSubtitleLabel.textColor = .secondaryLabel
         logoSubtitleLabel.textAlignment = .left
         logoSubtitleLabel.numberOfLines = 0
         logoSubtitleLabel.adjustsFontSizeToFitWidth = true

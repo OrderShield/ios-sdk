@@ -24,7 +24,7 @@ class VerificationCompleteViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Close Button
         closeButton.setTitle("✕", for: .normal)
@@ -56,7 +56,7 @@ class VerificationCompleteViewController: UIViewController {
         // Title
         titleLabel.text = "Verification Complete!"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
@@ -64,7 +64,7 @@ class VerificationCompleteViewController: UIViewController {
         // Message
         messageLabel.text = "Your account has been successfully verified."
         messageLabel.font = .systemFont(ofSize: 16)
-        messageLabel.textColor = .systemGray
+        messageLabel.textColor = .secondaryLabel
         messageLabel.textAlignment = .center
         messageLabel.numberOfLines = 0
         messageLabel.translatesAutoresizingMaskIntoConstraints = false

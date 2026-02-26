@@ -63,7 +63,7 @@ class EmailVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Scroll View
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -81,7 +81,7 @@ class EmailVerificationViewController: UIViewController {
         // Title
         titleLabel.text = "Email Verification"
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
@@ -89,7 +89,7 @@ class EmailVerificationViewController: UIViewController {
         // Subtitle
         subtitleLabel.text = "Verify user email address via link or code"
         subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .systemGray
+        subtitleLabel.textColor = .secondaryLabel
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -98,21 +98,21 @@ class EmailVerificationViewController: UIViewController {
         // Email Label (above input, not floating)
         emailLabel.text = "Email*"
         emailLabel.font = .systemFont(ofSize: 12)
-        emailLabel.textColor = .systemGray
+        emailLabel.textColor = .secondaryLabel
         emailLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(emailLabel)
         
         // Email Container
         emailContainerView.translatesAutoresizingMaskIntoConstraints = false
         emailContainerView.layer.borderWidth = 1.0
-        emailContainerView.layer.borderColor = UIColor.black.cgColor
+        emailContainerView.layer.borderColor = UIColor.separator.cgColor
         emailContainerView.layer.cornerRadius = 8
-        emailContainerView.backgroundColor = .white
+        emailContainerView.backgroundColor = .secondarySystemBackground
         contentView.addSubview(emailContainerView)
         
         // Email Icon
         emailIconView.image = UIImage(systemName: "envelope.fill")
-        emailIconView.tintColor = .black
+        emailIconView.tintColor = .label
         emailIconView.contentMode = .scaleAspectFit
         emailIconView.translatesAutoresizingMaskIntoConstraints = false
         emailContainerView.addSubview(emailIconView)
@@ -124,6 +124,7 @@ class EmailVerificationViewController: UIViewController {
         emailTextField.autocapitalizationType = .none
         emailTextField.autocorrectionType = .no
         emailTextField.backgroundColor = .clear
+        emailTextField.textColor = .label
         emailTextField.font = .systemFont(ofSize: 16)
         emailTextField.returnKeyType = .done
         emailTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -132,7 +133,7 @@ class EmailVerificationViewController: UIViewController {
         // Code Label (above input, not floating, hidden initially)
         codeLabel.text = "Verification Code*"
         codeLabel.font = .systemFont(ofSize: 12)
-        codeLabel.textColor = .systemGray
+        codeLabel.textColor = .secondaryLabel
         codeLabel.isHidden = true
         codeLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(codeLabel)
@@ -140,9 +141,9 @@ class EmailVerificationViewController: UIViewController {
         // Code Container (hidden initially)
         codeContainerView.translatesAutoresizingMaskIntoConstraints = false
         codeContainerView.layer.borderWidth = 1.0
-        codeContainerView.layer.borderColor = UIColor.black.cgColor
+        codeContainerView.layer.borderColor = UIColor.separator.cgColor
         codeContainerView.layer.cornerRadius = 8
-        codeContainerView.backgroundColor = .white
+        codeContainerView.backgroundColor = .secondarySystemBackground
         codeContainerView.isHidden = true
         contentView.addSubview(codeContainerView)
         
@@ -151,6 +152,7 @@ class EmailVerificationViewController: UIViewController {
         codeTextField.borderStyle = .none
         codeTextField.keyboardType = .numberPad
         codeTextField.backgroundColor = .clear
+        codeTextField.textColor = .label
         codeTextField.font = .systemFont(ofSize: 16)
         codeTextField.isSecureTextEntry = true
         codeTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -167,9 +169,9 @@ class EmailVerificationViewController: UIViewController {
         // Continue Button (black) - inside scroll view
         continueButton.setTitle("Continue", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.backgroundColor = .black
-        continueButton.setTitleColor(.white, for: .normal)
-        continueButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
+        continueButton.backgroundColor = .label
+        continueButton.setTitleColor(.systemBackground, for: .normal)
+        continueButton.setTitleColor(.systemBackground.withAlphaComponent(0.5), for: .disabled)
         continueButton.layer.cornerRadius = 12
         continueButton.isEnabled = false
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
@@ -188,7 +190,7 @@ class EmailVerificationViewController: UIViewController {
         
         // Arrow Icon on Button
         let arrowIcon = UIImageView(image: UIImage(systemName: "arrow.right"))
-        arrowIcon.tintColor = .white
+        arrowIcon.tintColor = .systemBackground
         arrowIcon.contentMode = .scaleAspectFit
         arrowIcon.translatesAutoresizingMaskIntoConstraints = false
         continueButton.addSubview(arrowIcon)
@@ -315,11 +317,11 @@ class EmailVerificationViewController: UIViewController {
         if isCodeSent {
             let hasCode = !(codeTextField.text?.isEmpty ?? true)
             continueButton.isEnabled = hasCode
-            continueButton.backgroundColor = hasCode ? .black : .black.withAlphaComponent(0.5)
+            continueButton.backgroundColor = hasCode ? .label : .label.withAlphaComponent(0.5)
         } else {
             let hasEmail = isValidEmail(emailTextField.text ?? "")
             continueButton.isEnabled = hasEmail
-            continueButton.backgroundColor = hasEmail ? .black : .black.withAlphaComponent(0.5)
+            continueButton.backgroundColor = hasEmail ? .label : .label.withAlphaComponent(0.5)
         }
     }
     

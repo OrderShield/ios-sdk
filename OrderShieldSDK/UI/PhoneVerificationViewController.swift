@@ -76,7 +76,7 @@ class PhoneVerificationViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // Scroll View
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -94,7 +94,7 @@ class PhoneVerificationViewController: UIViewController {
         // Title
         titleLabel.text = "SMS Verification"
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
@@ -102,7 +102,7 @@ class PhoneVerificationViewController: UIViewController {
         // Subtitle
         subtitleLabel.text = "Verify user phone number via SMS"
         subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .systemGray
+        subtitleLabel.textColor = .secondaryLabel
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -111,23 +111,23 @@ class PhoneVerificationViewController: UIViewController {
         // Phone Label (above input, not floating)
         phoneLabel.text = "Phone Number*"
         phoneLabel.font = .systemFont(ofSize: 12)
-        phoneLabel.textColor = .systemGray
+        phoneLabel.textColor = .secondaryLabel
         phoneLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(phoneLabel)
         
         // Phone Container
         phoneContainerView.translatesAutoresizingMaskIntoConstraints = false
         phoneContainerView.layer.borderWidth = 1.0
-        phoneContainerView.layer.borderColor = UIColor.black.cgColor
+        phoneContainerView.layer.borderColor = UIColor.separator.cgColor
         phoneContainerView.layer.cornerRadius = 8
-        phoneContainerView.backgroundColor = .white
+        phoneContainerView.backgroundColor = .secondarySystemBackground
         contentView.addSubview(phoneContainerView)
         
         // Country Code Button
         countryCodeButton.backgroundColor = .clear
         countryCodeButton.layer.cornerRadius = 8
         countryCodeButton.titleLabel?.font = .systemFont(ofSize: 16)
-        countryCodeButton.setTitleColor(.black, for: .normal)
+        countryCodeButton.setTitleColor(.label, for: .normal)
         countryCodeButton.contentHorizontalAlignment = .left
         countryCodeButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 30)
         countryCodeButton.addTarget(self, action: #selector(countryCodeButtonTapped), for: .touchUpInside)
@@ -137,7 +137,7 @@ class PhoneVerificationViewController: UIViewController {
         
         // Add chevron icon to country button
         let chevronImageView = UIImageView(image: UIImage(systemName: "chevron.down"))
-        chevronImageView.tintColor = .black
+        chevronImageView.tintColor = .label
         chevronImageView.contentMode = .scaleAspectFit
         chevronImageView.translatesAutoresizingMaskIntoConstraints = false
         countryCodeButton.addSubview(chevronImageView)
@@ -156,6 +156,7 @@ class PhoneVerificationViewController: UIViewController {
         phoneTextField.autocapitalizationType = .none
         phoneTextField.autocorrectionType = .no
         phoneTextField.backgroundColor = .clear
+        phoneTextField.textColor = .label
         phoneTextField.font = .systemFont(ofSize: 16)
         phoneTextField.returnKeyType = .done
         phoneTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -172,7 +173,7 @@ class PhoneVerificationViewController: UIViewController {
         // Code Label (above input, not floating, hidden initially)
         codeLabel.text = "Verification Code*"
         codeLabel.font = .systemFont(ofSize: 12)
-        codeLabel.textColor = .systemGray
+        codeLabel.textColor = .secondaryLabel
         codeLabel.isHidden = true
         codeLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(codeLabel)
@@ -180,9 +181,9 @@ class PhoneVerificationViewController: UIViewController {
         // Code Container (hidden initially)
         codeContainerView.translatesAutoresizingMaskIntoConstraints = false
         codeContainerView.layer.borderWidth = 1.0
-        codeContainerView.layer.borderColor = UIColor.black.cgColor
+        codeContainerView.layer.borderColor = UIColor.separator.cgColor
         codeContainerView.layer.cornerRadius = 8
-        codeContainerView.backgroundColor = .white
+        codeContainerView.backgroundColor = .secondarySystemBackground
         codeContainerView.isHidden = true
         contentView.addSubview(codeContainerView)
         
@@ -191,6 +192,7 @@ class PhoneVerificationViewController: UIViewController {
         codeTextField.borderStyle = .none
         codeTextField.keyboardType = .numberPad
         codeTextField.backgroundColor = .clear
+        codeTextField.textColor = .label
         codeTextField.font = .systemFont(ofSize: 16)
         codeTextField.isSecureTextEntry = true
         codeTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -207,9 +209,9 @@ class PhoneVerificationViewController: UIViewController {
         // Continue Button (black) - inside scroll view
         continueButton.setTitle("Continue", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.backgroundColor = .black
-        continueButton.setTitleColor(.white, for: .normal)
-        continueButton.setTitleColor(.white.withAlphaComponent(0.5), for: .disabled)
+        continueButton.backgroundColor = .label
+        continueButton.setTitleColor(.systemBackground, for: .normal)
+        continueButton.setTitleColor(.systemBackground.withAlphaComponent(0.5), for: .disabled)
         continueButton.layer.cornerRadius = 12
         continueButton.isEnabled = false
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
@@ -228,7 +230,7 @@ class PhoneVerificationViewController: UIViewController {
         
         // Arrow Icon on Button
         let arrowIcon = UIImageView(image: UIImage(systemName: "arrow.right"))
-        arrowIcon.tintColor = .white
+        arrowIcon.tintColor = .systemBackground
         arrowIcon.contentMode = .scaleAspectFit
         arrowIcon.translatesAutoresizingMaskIntoConstraints = false
         continueButton.addSubview(arrowIcon)
@@ -496,11 +498,11 @@ class PhoneVerificationViewController: UIViewController {
         if isCodeSent {
             let hasCode = !(codeTextField.text?.isEmpty ?? true)
             continueButton.isEnabled = hasCode
-            continueButton.backgroundColor = hasCode ? .black : .black.withAlphaComponent(0.5)
+            continueButton.backgroundColor = hasCode ? .label : .label.withAlphaComponent(0.5)
         } else {
             let hasPhone = !(phoneTextField.text?.isEmpty ?? true)
             continueButton.isEnabled = hasPhone
-            continueButton.backgroundColor = hasPhone ? .black : .black.withAlphaComponent(0.5)
+            continueButton.backgroundColor = hasPhone ? .label : .label.withAlphaComponent(0.5)
         }
     }
     
