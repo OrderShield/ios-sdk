@@ -256,22 +256,96 @@ struct VerificationSession: Codable {
     }
 }
 
-// MARK: - Customer Info (completed steps for skip logic)
+// MARK: - Customer Info (completed steps + customer details)
 struct CustomerInfoResponse: Codable {
-    let message: String
+    let message: String?
     let data: CustomerInfoData?
-    let statusCode: Int
-    let status: String
+    let statusCode: Int?
+    let status: String?
 }
 
 struct CustomerInfoData: Codable {
-    let customerId: String
-    let stepsCompleted: [String]
+    /// Legacy field (may or may not be present, depending on API version)
+    let customerId: String?
+    /// All verification steps already completed by this customer (optional in case API omits it)
+    let stepsCompleted: [String]?
+    /// Optional rich customer object returned by the newer API
+    let customer: CustomerInfoCustomer?
     
     enum CodingKeys: String, CodingKey {
         case customerId = "customer_id"
         case stepsCompleted = "steps_completed"
+        case customer
     }
+}
+
+/// Detailed customer info returned from /customer-info. API may send camelCase or snake_case; we try both via custom decode.
+struct CustomerInfoCustomer: Codable {
+    let id: String
+    let email: String?
+    let phone: String?
+    let firstName: String?
+    let lastName: String?
+    let dateOfBirth: String?
+    let timezone: String?
+    let application: CustomerInfoApplication?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, email, phone, timezone, application
+        case firstName = "firstName"
+        case lastName = "lastName"
+        case dateOfBirth = "dateOfBirth"
+    }
+    
+    enum SnakeKeys: String, CodingKey {
+        case firstName = "first_name"
+        case lastName = "last_name"
+        case dateOfBirth = "date_of_birth"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        email = try container.decodeIfPresent(String.self, forKey: .email)
+        phone = try container.decodeIfPresent(String.self, forKey: .phone)
+        timezone = try container.decodeIfPresent(String.self, forKey: .timezone)
+        application = try container.decodeIfPresent(CustomerInfoApplication.self, forKey: .application)
+        
+        // Support both camelCase and snake_case for firstName / lastName / dateOfBirth
+        let snakeContainer = try? decoder.container(keyedBy: SnakeKeys.self)
+        
+        if let value = try container.decodeIfPresent(String.self, forKey: .firstName) {
+            firstName = value
+        } else if let snakeContainer = snakeContainer {
+            firstName = try snakeContainer.decodeIfPresent(String.self, forKey: .firstName)
+        } else {
+            firstName = nil
+        }
+        
+        if let value = try container.decodeIfPresent(String.self, forKey: .lastName) {
+            lastName = value
+        } else if let snakeContainer = snakeContainer {
+            lastName = try snakeContainer.decodeIfPresent(String.self, forKey: .lastName)
+        } else {
+            lastName = nil
+        }
+        
+        if let value = try container.decodeIfPresent(String.self, forKey: .dateOfBirth) {
+            dateOfBirth = value
+        } else if let snakeContainer = snakeContainer {
+            dateOfBirth = try snakeContainer.decodeIfPresent(String.self, forKey: .dateOfBirth)
+        } else {
+            dateOfBirth = nil
+        }
+    }
+}
+
+/// Application associated with the customer (from /customer-info)
+struct CustomerInfoApplication: Codable {
+    let id: String
+    let name: String?
+    let description: String?
+    let type: String?
 }
 
 // MARK: - Selfie Verification

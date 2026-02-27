@@ -23,10 +23,6 @@ class SelfieVerificationViewController: UIViewController {
     
     // Face detection properties
     private var faceDetectionRequest: VNDetectFaceRectanglesRequest?
-    private var isFaceStable = false
-    private var faceStabilityTimer: Timer?
-    private var faceStabilityStartTime: Date?
-    private let faceStabilityDuration: TimeInterval = 1.0 // 1 second stability check
     private var hasStartedCountdown = false
     
     private let titleLabel = UILabel()
@@ -63,10 +59,8 @@ class SelfieVerificationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         hasStartedCountdown = false
-        isFaceStable = false
         titleLabel.text = "Position your face in the circle"
         startCamera()
-        // Don't start countdown immediately - wait for face detection
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -302,8 +296,8 @@ class SelfieVerificationViewController: UIViewController {
     }
     
     private func startCountdown() {
-        // Only start countdown if we're not showing a preview and face is stable
-        guard previewImageView.isHidden, isFaceStable, !hasStartedCountdown else { return }
+        // Start countdown as soon as face is seen (no hold-still). Only if not already showing preview.
+        guard previewImageView.isHidden, !hasStartedCountdown else { return }
         
         hasStartedCountdown = true
         countdownValue = 3
@@ -347,22 +341,17 @@ class SelfieVerificationViewController: UIViewController {
     private func processFaceDetectionResults(_ faceObservations: [VNFaceObservation]) {
         guard let previewLayer = previewLayer,
               let firstFace = faceObservations.first else {
-            // No face detected
+            // No face on screen — only reset if countdown was running
             if hasStartedCountdown {
-                // Face lost during countdown, reset everything
-                resetCountdownAndStability()
-            } else {
-                resetFaceStability()
+                resetCountdown()
             }
             return
         }
         
-        // Convert face bounding box from normalized coordinates to overlay view coordinates
-        // Since overlay view and preview layer have the same frame, we can use overlay bounds
+        // Face is on screen
         let faceBoundingBox = firstFace.boundingBox
         let overlayBounds = countdownOverlayView.bounds
         
-        // Vision framework uses bottom-left origin, convert to top-left
         let faceRect = CGRect(
             x: faceBoundingBox.origin.x * overlayBounds.width,
             y: (1 - faceBoundingBox.origin.y - faceBoundingBox.height) * overlayBounds.height,
@@ -370,97 +359,41 @@ class SelfieVerificationViewController: UIViewController {
             height: faceBoundingBox.height * overlayBounds.height
         )
         
-        // Get guide circle frame in overlay view coordinates
         let guideCircleFrame = guideCircleView.frame
-        let guideCircleCenter = CGPoint(
-            x: guideCircleFrame.midX,
-            y: guideCircleFrame.midY
-        )
+        let guideCircleCenter = CGPoint(x: guideCircleFrame.midX, y: guideCircleFrame.midY)
         let guideCircleRadius = guideCircleFrame.width / 2
-        
-        // Check if face center is within the guide circle
-        let faceCenter = CGPoint(
-            x: faceRect.midX,
-            y: faceRect.midY
-        )
-        
-        let distance = sqrt(
-            pow(faceCenter.x - guideCircleCenter.x, 2) +
-            pow(faceCenter.y - guideCircleCenter.y, 2)
-        )
-        
-        // Check if face overlaps the circle (face center within circle radius)
+        let faceCenter = CGPoint(x: faceRect.midX, y: faceRect.midY)
+        let distance = sqrt(pow(faceCenter.x - guideCircleCenter.x, 2) + pow(faceCenter.y - guideCircleCenter.y, 2))
         let faceOverlapsCircle = distance <= guideCircleRadius
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
             if faceOverlapsCircle {
-                // Face is overlapping the circle
-                if self.hasStartedCountdown {
-                    // Countdown is running, face is still in circle - continue countdown
-                    return
-                }
-                
-                // Countdown not started yet
-                if self.faceStabilityStartTime == nil {
-                    // Start stability timer
-                    self.faceStabilityStartTime = Date()
-                    self.titleLabel.text = "Hold still..."
-                } else {
-                    // Check if face has been stable for required duration
-                    if let startTime = self.faceStabilityStartTime,
-                       Date().timeIntervalSince(startTime) >= self.faceStabilityDuration {
-                        // Face is stable and overlapping circle
-                        if !self.isFaceStable {
-                            self.isFaceStable = true
-                            self.startCountdown()
-                        }
-                    }
+                // Face in circle: if countdown not started, start it now.
+                if !self.hasStartedCountdown {
+                    self.startCountdown()
                 }
             } else {
-                // Face is not overlapping
+                // Face still detected but no longer in circle: if countdown is running, reset it.
                 if self.hasStartedCountdown {
-                    // Face moved out during countdown, reset everything
-                    self.resetCountdownAndStability()
-                } else {
-                    // Face not in circle before countdown, reset stability
-                    self.resetFaceStability()
+                    self.resetCountdown()
                 }
             }
         }
     }
     
-    private func resetFaceStability() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, !self.hasStartedCountdown else { return }
-            self.faceStabilityStartTime = nil
-            self.isFaceStable = false
-            self.titleLabel.text = "Position your face in the circle"
-        }
-    }
-    
-    private func resetCountdownAndStability() {
+    private func resetCountdown() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            
-            // Stop countdown timer
             self.countdownTimer?.invalidate()
             self.countdownTimer = nil
-            
-            // Reset all state
-            self.faceStabilityStartTime = nil
-            self.isFaceStable = false
             self.hasStartedCountdown = false
             self.countdownValue = 3
-            
-            // Hide countdown elements, show guide circle
             self.countdownCircleView.isHidden = true
             self.countdownLabel.isHidden = true
             self.guideCircleView.isHidden = false
             self.countdownOverlayView.isHidden = false
-            
-            // Reset title
             self.titleLabel.text = "Position your face in the circle"
         }
     }
@@ -468,10 +401,6 @@ class SelfieVerificationViewController: UIViewController {
     private func stopCountdown() {
         countdownTimer?.invalidate()
         countdownTimer = nil
-        faceStabilityTimer?.invalidate()
-        faceStabilityTimer = nil
-        faceStabilityStartTime = nil
-        isFaceStable = false
         hasStartedCountdown = false
         countdownOverlayView.isHidden = true
         guideCircleView.isHidden = true
@@ -504,12 +433,9 @@ class SelfieVerificationViewController: UIViewController {
         retakeButton.isHidden = true
         submitButton.isHidden = true
         captureButton.isHidden = true
-        hasStartedCountdown = false
-        isFaceStable = false
-        resetFaceStability()
+        resetCountdown()
         titleLabel.text = "Position your face in the circle"
         startCamera()
-        // Don't start countdown immediately - wait for face detection
     }
     
     // MARK: - Selfie compression (same logic as working demo app)

@@ -18,7 +18,7 @@
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		7M5UytYB2GQnxUzuMPz4F/IKsEY=
+		yLKF0yD7tAcrvOW3CeXS4OStWzQ=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -34,11 +34,11 @@
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		fLtKg1243pL2GDG9L9hmamztv48=
+		b1V9nHTUIZXet7FcDt6fICPj11Y=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		7M5UytYB2GQnxUzuMPz4F/IKsEY=
+		yLKF0yD7tAcrvOW3CeXS4OStWzQ=
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		oaM5aP9w1Bl+PFrOYIZ60aVt/ng=
+		ZukrU+UhcFpekQ8U8XiMReMyJ6Q=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -77,7 +77,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			v9PbVtP7tOY7CtpPjVXFadOa4MEFb316KeZkVdqY0Ew=
+			rGIRpOlc9/ArdbTQMIPLkTh67BCEL5gErkX04aFnkjQ=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
@@ -105,14 +105,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			N8kZFJ8HUiKO+8luQ1asggJuCiSxqYHKTA+Xcdpzwlk=
+			0hAdyuCI3V69sXEsAr5jjK8obDj5Li5MWhU7BiJRMkE=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			v9PbVtP7tOY7CtpPjVXFadOa4MEFb316KeZkVdqY0Ew=
+			rGIRpOlc9/ArdbTQMIPLkTh67BCEL5gErkX04aFnkjQ=
 			</data>
 		</dict>
 		<key>Modules/OrderShieldSDK.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
@@ -140,7 +140,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			g3O0+Vv1gDX+FY5zFJKuxDNchB59FRwuzlbrTOXSirg=
+			eo8Pj05rv1gliR1Hzp+HBf6HoSzViD7Lm7dBWDzVemI=
 			</data>
 		</dict>
 	</dict>

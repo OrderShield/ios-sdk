@@ -214,21 +214,32 @@ class VerificationFlowCoordinator {
             let sessionToken = data.sessionToken
             self.sessionToken = sessionToken
             
-            // Fetch completed steps from customer-info API to skip them (except selfie and terms — always show)
+            // Fetch completed steps and customer details from customer-info API
             var stepsCompleted: [String] = []
+            var customerInfo: CustomerInfoCustomer?
             do {
                 let customerInfoResponse = try await NetworkService.shared.getCustomerInfo(customerId: customerId)
                 stepsCompleted = customerInfoResponse.data?.stepsCompleted ?? []
+                customerInfo = customerInfoResponse.data?.customer
                 print("OrderShieldSDK: Customer completed steps: \(stepsCompleted)")
             } catch {
                 print("OrderShieldSDK: Could not fetch customer-info (will show all steps): \(error.localizedDescription)")
             }
             
-            // Steps to show = required steps minus completed, but always include selfie and terms
+            // Steps to show = required steps minus completed, but always include selfie, terms, and signature
             let stepsToShow = data.stepsRequired.filter { step in
-                if step == "selfie" || step == "terms" { return true }
+                if step == "selfie" || step == "terms" || step == "signature" { return true }
                 return !stepsCompleted.contains(step)
             }
+            
+            // For steps we're skipping (userInfo, email, sms), call APIs in background with customer-info data (skipVerification: true for email/phone). Skip API call if customer data is null for that step.
+            submitSkippedStepsInBackground(
+                customerId: customerId,
+                sessionToken: sessionToken,
+                customer: customerInfo,
+                stepsCompleted: stepsCompleted,
+                stepsRequired: data.stepsRequired
+            )
             
             // Filter and order based on static navigation sequence
             print("OrderShieldSDK: New session - steps from API: \(data.stepsRequired), steps to show: \(stepsToShow)")
@@ -567,6 +578,64 @@ class VerificationFlowCoordinator {
                         self?.objcDelegate?.orderShieldDidSubmitUserInfo?(success: false, firstName: nil, lastName: nil, dateOfBirth: nil, error: error)
                     }
                     self?.showError(error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    /// Calls step APIs in background for steps that are completed (skipped in UI) using customer-info data. Email and phone use skipVerification: true. If customer data is null for a required step, that API call is skipped.
+    private func submitSkippedStepsInBackground(
+        customerId: String,
+        sessionToken: String,
+        customer: CustomerInfoCustomer?,
+        stepsCompleted: [String],
+        stepsRequired: [String]
+    ) {
+        let stepsToSync = ["userInfo", "email", "sms"].filter { stepsCompleted.contains($0) && stepsRequired.contains($0) }
+        guard !stepsToSync.isEmpty else { return }
+        guard let customer = customer else {
+            print("OrderShieldSDK: Skipping background step sync - customer info is null")
+            return
+        }
+        Task {
+            for step in stepsToSync {
+                do {
+                    switch step {
+                    case "userInfo":
+                        let first = customer.firstName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        let last = customer.lastName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        let dobRaw = customer.dateOfBirth?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        guard !first.isEmpty, !last.isEmpty, !dobRaw.isEmpty else {
+                            print("OrderShieldSDK: Skipping background userInfo - missing firstName/lastName/dateOfBirth in customer-info")
+                            continue
+                        }
+                        let dob = String(dobRaw.prefix(10))
+                        let request = UserInfoVerificationRequest(customerId: customerId, sessionToken: sessionToken, firstName: first, lastName: last, dateOfBirth: dob)
+                        _ = try await NetworkService.shared.submitUserInfo(request)
+                        print("OrderShieldSDK: Background submitted userInfo from customer-info")
+                    case "email":
+                        let email = customer.email?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        guard !email.isEmpty else {
+                            print("OrderShieldSDK: Skipping background email - missing email in customer-info")
+                            continue
+                        }
+                        let request = EmailSendCodeRequest(customerId: customerId, sessionToken: sessionToken, email: email, skipVerification: true)
+                        _ = try await NetworkService.shared.sendEmailCode(request)
+                        print("OrderShieldSDK: Background submitted email from customer-info (skipVerification: true)")
+                    case "sms":
+                        let phone = customer.phone?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        guard !phone.isEmpty else {
+                            print("OrderShieldSDK: Skipping background sms - missing phone in customer-info")
+                            continue
+                        }
+                        let request = PhoneSendCodeRequest(customerId: customerId, sessionToken: sessionToken, phoneNumber: phone, skipVerification: true)
+                        _ = try await NetworkService.shared.sendPhoneCode(request)
+                        print("OrderShieldSDK: Background submitted phone from customer-info (skipVerification: true)")
+                    default:
+                        break
+                    }
+                } catch {
+                    print("OrderShieldSDK: Background submit for step '\(step)' failed: \(error.localizedDescription)")
                 }
             }
         }
