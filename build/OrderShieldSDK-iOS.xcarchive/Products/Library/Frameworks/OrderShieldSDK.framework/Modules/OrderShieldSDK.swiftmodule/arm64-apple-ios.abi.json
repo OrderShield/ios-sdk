@@ -6,13 +6,6 @@
     "children": [
       {
         "kind": "Import",
-        "name": "UIKit",
-        "printedName": "UIKit",
-        "declKind": "Import",
-        "moduleName": "OrderShieldSDK"
-      },
-      {
-        "kind": "Import",
         "name": "Foundation",
         "printedName": "Foundation",
         "declKind": "Import",
@@ -5178,27 +5171,6 @@
       },
       {
         "kind": "Import",
-        "name": "UIKit",
-        "printedName": "UIKit",
-        "declKind": "Import",
-        "moduleName": "OrderShieldSDK"
-      },
-      {
-        "kind": "Import",
-        "name": "UIKit",
-        "printedName": "UIKit",
-        "declKind": "Import",
-        "moduleName": "OrderShieldSDK"
-      },
-      {
-        "kind": "Import",
-        "name": "UIKit",
-        "printedName": "UIKit",
-        "declKind": "Import",
-        "moduleName": "OrderShieldSDK"
-      },
-      {
-        "kind": "Import",
         "name": "Foundation",
         "printedName": "Foundation",
         "declKind": "Import",
@@ -6095,6 +6067,30 @@
             "genericSig": "<τ_0_0 where τ_0_0 : OrderShieldSDK.OrderShieldDelegate>",
             "sugared_genericSig": "<Self where Self : OrderShieldSDK.OrderShieldDelegate>",
             "protocolReq": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "orderShieldDidDismissVerification",
+            "printedName": "orderShieldDidDismissVerification()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:14OrderShieldSDK0aB8DelegateP05orderB22DidDismissVerificationyyF",
+            "mangledName": "$s14OrderShieldSDK0aB8DelegateP05orderB22DidDismissVerificationyyF",
+            "moduleName": "OrderShieldSDK",
+            "genericSig": "<τ_0_0 where τ_0_0 : OrderShieldSDK.OrderShieldDelegate>",
+            "sugared_genericSig": "<Self where Self : OrderShieldSDK.OrderShieldDelegate>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
             "reqNewWitnessTableEntry": true,
             "funcSelfKind": "NonMutating"
           },
@@ -7066,6 +7062,29 @@
             "declKind": "Func",
             "usr": "s:14OrderShieldSDK0aB8DelegatePAAE05orderB21DidCancelVerification5errorys5Error_pSg_tF",
             "mangledName": "$s14OrderShieldSDK0aB8DelegatePAAE05orderB21DidCancelVerification5errorys5Error_pSg_tF",
+            "moduleName": "OrderShieldSDK",
+            "genericSig": "<τ_0_0 where τ_0_0 : OrderShieldSDK.OrderShieldDelegate>",
+            "sugared_genericSig": "<Self where Self : OrderShieldSDK.OrderShieldDelegate>",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "orderShieldDidDismissVerification",
+            "printedName": "orderShieldDidDismissVerification()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:14OrderShieldSDK0aB8DelegatePAAE05orderB22DidDismissVerificationyyF",
+            "mangledName": "$s14OrderShieldSDK0aB8DelegatePAAE05orderB22DidDismissVerificationyyF",
             "moduleName": "OrderShieldSDK",
             "genericSig": "<τ_0_0 where τ_0_0 : OrderShieldSDK.OrderShieldDelegate>",
             "sugared_genericSig": "<Self where Self : OrderShieldSDK.OrderShieldDelegate>",
@@ -8122,6 +8141,31 @@
             "sugared_genericSig": "<Self where Self : OrderShieldSDK.OrderShieldDelegateObjC>",
             "protocolReq": true,
             "objc_name": "orderShieldDidCancelVerificationWithError:",
+            "declAttributes": [
+              "Optional",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "orderShieldDidDismissVerification",
+            "printedName": "orderShieldDidDismissVerification()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OrderShieldSDK@objc(pl)OrderShieldDelegateObjC(im)orderShieldDidDismissVerification",
+            "mangledName": "$s14OrderShieldSDK0aB12DelegateObjCP05orderB22DidDismissVerificationyyF",
+            "moduleName": "OrderShieldSDK",
+            "genericSig": "<τ_0_0 where τ_0_0 : OrderShieldSDK.OrderShieldDelegateObjC>",
+            "sugared_genericSig": "<Self where Self : OrderShieldSDK.OrderShieldDelegateObjC>",
+            "protocolReq": true,
             "declAttributes": [
               "Optional",
               "ObjC"
@@ -9189,6 +9233,41 @@
       },
       {
         "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "OrderShieldSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "AVFoundation",
+        "printedName": "AVFoundation",
+        "declKind": "Import",
+        "moduleName": "OrderShieldSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Vision",
+        "printedName": "Vision",
+        "declKind": "Import",
+        "moduleName": "OrderShieldSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "OrderShieldSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "OrderShieldSDK"
+      },
+      {
+        "kind": "Import",
         "name": "Foundation",
         "printedName": "Foundation",
         "declKind": "Import",
@@ -9210,15 +9289,8 @@
       },
       {
         "kind": "Import",
-        "name": "AVFoundation",
-        "printedName": "AVFoundation",
-        "declKind": "Import",
-        "moduleName": "OrderShieldSDK"
-      },
-      {
-        "kind": "Import",
-        "name": "Vision",
-        "printedName": "Vision",
+        "name": "UIKit",
+        "printedName": "UIKit",
         "declKind": "Import",
         "moduleName": "OrderShieldSDK"
       },
@@ -9948,48 +10020,6 @@
       "value": "\"userInfo\""
     },
     {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
-      "kind": "Dictionary",
-      "offset": 436,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
-      "kind": "Array",
-      "offset": 486,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
-      "kind": "BooleanLiteral",
-      "offset": 527,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
-      "kind": "StringLiteral",
-      "offset": 25832,
-      "length": 12,
-      "value": "\"checkboxId\""
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/UserInfoVerificationViewController.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1487,
-      "length": 1,
-      "value": "1"
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/UserInfoVerificationViewController.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1523,
-      "length": 1,
-      "value": "2"
-    },
-    {
       "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Services\/NetworkService.swift",
       "kind": "StringLiteral",
       "offset": 125,
@@ -9999,14 +10029,14 @@
     {
       "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Services\/NetworkService.swift",
       "kind": "StringLiteral",
-      "offset": 13886,
+      "offset": 13821,
       "length": 6,
       "value": "\"jpeg\""
     },
     {
       "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Services\/NetworkService.swift",
       "kind": "StringLiteral",
-      "offset": 81754,
+      "offset": 81689,
       "length": 5,
       "value": "\"png\""
     },
@@ -11446,34 +11476,6 @@
       "value": "false"
     },
     {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
-      "kind": "Array",
-      "offset": 222,
-      "length": 114,
-      "value": "[\"sms\", \"selfie\", \"userInfo\", \"email\", \"terms\", \"signature\"]"
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
-      "kind": "Array",
-      "offset": 481,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
-      "kind": "IntegerLiteral",
-      "offset": 696,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
-      "kind": "Array",
-      "offset": 1079,
-      "length": 2,
-      "value": "[]"
-    },
-    {
       "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/SelfieVerificationViewController.swift",
       "kind": "BooleanLiteral",
       "offset": 606,
@@ -12011,6 +12013,76 @@
       "offset": 19756,
       "length": 4,
       "value": "1024"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
+      "kind": "Array",
+      "offset": 222,
+      "length": 114,
+      "value": "[\"sms\", \"selfie\", \"userInfo\", \"email\", \"terms\", \"signature\"]"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
+      "kind": "Array",
+      "offset": 481,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
+      "kind": "IntegerLiteral",
+      "offset": 696,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/Coordinators\/VerificationFlowCoordinator.swift",
+      "kind": "Array",
+      "offset": 1079,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
+      "kind": "Dictionary",
+      "offset": 436,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
+      "kind": "Array",
+      "offset": 486,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
+      "kind": "BooleanLiteral",
+      "offset": 527,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/TermsAndSignatureVerificationViewController.swift",
+      "kind": "StringLiteral",
+      "offset": 25832,
+      "length": 12,
+      "value": "\"checkboxId\""
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/UserInfoVerificationViewController.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1487,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/iosuser\/Documents\/iOS_project\/ordershield-ios-sdk\/OrderShieldSDK\/UI\/UserInfoVerificationViewController.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1523,
+      "length": 1,
+      "value": "2"
     },
     {
       "filePath": "\/Users\/iosuser\/Library\/Developer\/Xcode\/DerivedData\/OrderShieldSDK-gancgkyejbcmgwadhyouvtqluxvw\/Build\/Intermediates.noindex\/ArchiveIntermediates\/OrderShieldSDK\/IntermediateBuildFilesPath\/OrderShieldSDK.build\/Release-iphoneos\/OrderShieldSDK.build\/DerivedSources\/GeneratedAssetSymbols.swift",

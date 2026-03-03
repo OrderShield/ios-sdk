@@ -425,6 +425,7 @@ SWIFT_PROTOCOL_NAMED("OrderShieldDelegateObjC") SWIFT_AVAILABILITY(ios,introduce
 - (void)orderShieldDidSubmitUserInfoWithSuccess:(BOOL)success firstName:(NSString * _Nullable)firstName lastName:(NSString * _Nullable)lastName dateOfBirth:(NSString * _Nullable)dateOfBirth error:(NSError * _Nullable)error;
 - (void)orderShieldDidCompleteVerificationWithSessionId:(NSString * _Nullable)sessionId;
 - (void)orderShieldDidCancelVerificationWithError:(NSError * _Nullable)error;
+- (void)orderShieldDidDismissVerification;
 - (void)orderShieldWillCallAPIWithEndpoint:(NSString * _Nonnull)endpoint method:(NSString * _Nonnull)method;
 - (void)orderShieldDidCallAPIWithEndpoint:(NSString * _Nonnull)endpoint success:(BOOL)success statusCode:(NSNumber * _Nullable)statusCode error:(NSError * _Nullable)error;
 - (void)orderShieldDidTrackEventWithSuccess:(BOOL)success response:(OSTrackEventResponse * _Nullable)response error:(NSError * _Nullable)error;

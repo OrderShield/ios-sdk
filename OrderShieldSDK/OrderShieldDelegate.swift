@@ -35,7 +35,9 @@ public protocol OrderShieldDelegate: AnyObject {
     func orderShieldDidSubmitUserInfo(success: Bool, firstName: String?, lastName: String?, dateOfBirth: String?, error: Error?)
     func orderShieldDidCompleteVerification(sessionId: String?)
     func orderShieldDidCancelVerification(error: Error?)
-    
+    /// Called when the user exits the verification flow and the verification UI is fully dismissed.
+    func orderShieldDidDismissVerification()
+
     // MARK: - API Call Callbacks
     
     func orderShieldWillCallAPI(endpoint: String, method: String)
@@ -72,6 +74,7 @@ extension OrderShieldDelegate {
     public func orderShieldDidSubmitUserInfo(success: Bool, firstName: String?, lastName: String?, dateOfBirth: String?, error: Error?) {}
     public func orderShieldDidCompleteVerification(sessionId: String?) {}
     public func orderShieldDidCancelVerification(error: Error?) {}
+    public func orderShieldDidDismissVerification() {}
     public func orderShieldWillCallAPI(endpoint: String, method: String) {}
     public func orderShieldDidCallAPI(endpoint: String, success: Bool, statusCode: Int?, error: Error?) {}
     public func orderShieldDidTrackEvent(success: Bool, response: TrackEventResponse?, error: Error?) {}
@@ -105,6 +108,7 @@ public protocol OrderShieldDelegateObjC: AnyObject {
     @objc optional func orderShieldDidSubmitUserInfo(success: Bool, firstName: String?, lastName: String?, dateOfBirth: String?, error: Error?)
     @objc optional func orderShieldDidCompleteVerification(sessionId: String?)
     @objc optional func orderShieldDidCancelVerification(error: Error?)
+    @objc optional func orderShieldDidDismissVerification()
     @objc optional func orderShieldWillCallAPI(endpoint: String, method: String)
     @objc optional func orderShieldDidCallAPI(endpoint: String, success: Bool, statusCode: NSNumber?, error: Error?)
     @objc optional func orderShieldDidTrackEvent(success: Bool, response: OSTrackEventResponse?, error: Error?)

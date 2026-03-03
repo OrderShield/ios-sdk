@@ -5,7 +5,6 @@ class NetworkService {
     
   //stage
 //     private let baseURL = "https://ordershield-api.projectbeta.biz/api/sdk"
-//    private let baseURL = "https://api.ordershield.ai/api/sdk"
     
     //prod
    private let baseURL = "https://api.ordershield.ai/api/sdk"

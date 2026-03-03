@@ -198,6 +198,10 @@ class UserInfoVerificationViewController: UIViewController {
             datePicker.datePickerMode = .date
         }
         datePicker.maximumDate = Date()
+        // Default to 18 years ago when no prefilled DOB (applyPrefilledValues may override)
+        if let defaultDate = Calendar.current.date(byAdding: .year, value: -18, to: Date()) {
+            datePicker.date = defaultDate
+        }
         datePicker.addTarget(self, action: #selector(datePickerChanged), for: .valueChanged)
         
         let toolbar = UIToolbar()

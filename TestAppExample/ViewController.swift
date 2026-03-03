@@ -8,8 +8,8 @@
 import UIKit
 import OrderShieldSDK
 
-class ViewController: UIViewController {
-    
+class ViewController: UIViewController, OrderShieldDelegate {
+
     // MARK: - IBOutlets
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var customerIdTextField: UITextField!
@@ -50,6 +50,7 @@ class ViewController: UIViewController {
         }
         
         OrderShield.shared.configure(apiKey: apiKey)
+        OrderShield.shared.delegate = self
         statusLabel.text = "SDK configured. Tap 'Initialize SDK' to continue."
     }
     
@@ -111,7 +112,12 @@ class ViewController: UIViewController {
             OrderShield.shared.configure(apiKey: apiKey)
         }
     }
-    
+
+    // MARK: - OrderShieldDelegate (test dismiss callback)
+    func orderShieldDidDismissVerification() {
+        print("✅ orderShieldDidDismissVerification called – verification UI fully dismissed")
+    }
+
     // MARK: - Helpers
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)

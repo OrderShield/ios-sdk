@@ -82,6 +82,11 @@ class ViewController: UIViewController, OrderShieldDelegate {
     func orderShieldDidCompleteVerification(sessionId: String?) {
         print("🎉 Verification completed! Session ID: \(sessionId ?? "N/A")")
     }
+
+    /// Called after the verification UI is fully dismissed (completion screen or error alert). Use to refresh UI or resume app flow.
+    func orderShieldDidDismissVerification() {
+        print("✅ Verification flow dismissed – UI is fully gone, safe to update UI or present other screens")
+    }
     
     func orderShieldDidCancelVerification(error: Error?) {
         if let error = error {
@@ -215,6 +220,7 @@ class ViewController: UIViewController, OrderShieldDelegate {
 - `orderShieldDidCompleteStep(step:stepIndex:success:error:)` - Step completed
 - `orderShieldDidCompleteVerification(sessionId:)` - All steps completed
 - `orderShieldDidCancelVerification(error:)` - Verification cancelled/failed
+- `orderShieldDidDismissVerification()` - Verification UI fully dismissed (after completion or error); use to refresh UI or resume app flow
 
 ### API Calls
 - `orderShieldWillCallAPI(endpoint:method:)` - Before API call

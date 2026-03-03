@@ -662,7 +662,10 @@ class VerificationFlowCoordinator {
 
         let completionVC = VerificationCompleteViewController(
             onDismiss: { [weak self] in
-                self?.navigationController?.dismiss(animated: true)
+                self?.navigationController?.dismiss(animated: true) { [weak self] in
+                    self?.delegate?.orderShieldDidDismissVerification()
+                    self?.objcDelegate?.orderShieldDidDismissVerification?()
+                }
             }
         )
         navigationController?.pushViewController(completionVC, animated: true)
@@ -707,7 +710,10 @@ class VerificationFlowCoordinator {
             // corrected data and the next Start will use it (no stale invalid phone/email/userInfo).
             OrderShield.shared.setPredefinedUserInfo(nil)
             self?.predefinedUserInfo = nil
-            self?.navigationController?.dismiss(animated: true)
+            self?.navigationController?.dismiss(animated: true) { [weak self] in
+                self?.delegate?.orderShieldDidDismissVerification()
+                self?.objcDelegate?.orderShieldDidDismissVerification?()
+            }
         })
         navigationController?.present(alert, animated: true)
     }
