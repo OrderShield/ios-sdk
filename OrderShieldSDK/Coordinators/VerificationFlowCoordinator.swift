@@ -5,10 +5,10 @@ import UIKit
 class VerificationFlowCoordinator {
     // Static navigation sequence - steps will be shown in this order
     private static let staticNavigationSequence: [String] = [
+        "email",
         "sms",
         "selfie",
         "userInfo",
-        "email",
         "terms",
         "signature"
     ]
