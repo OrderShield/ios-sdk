@@ -99,6 +99,16 @@ class StorageService {
         userDefaults.removeObject(forKey: sessionIdKey)
         userDefaults.removeObject(forKey: sessionTokenKey)
     }
+
+    /// Clear only customer + session data, but preserve the device identifier.
+    /// Use case: server-side deletion of customer (admin "delete verification flow") makes local `customer_id` stale.
+    func clearCustomerAndSessionPreservingDeviceId() {
+        userDefaults.removeObject(forKey: customerIdKey)
+        userDefaults.removeObject(forKey: sessionTokenKey)
+        userDefaults.removeObject(forKey: sessionIdKey)
+        userDefaults.removeObject(forKey: requiredStepsKey)
+        userDefaults.removeObject(forKey: verificationSettingsKey)
+    }
     
     /// Clear everything including session data (use with caution - breaks resume capability)
     func clearAllIncludingSession() {

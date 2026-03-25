@@ -86,7 +86,7 @@ class VerificationFlowCoordinator {
         }
     }
     
-    private func startVerificationSession() async {
+    private func startVerificationSession(retryCount: Int = 0) async {
         guard let customerId = customerId else {
             await MainActor.run {
                 let error = NSError(domain: "OrderShieldSDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "Customer ID not found"])
@@ -286,6 +286,52 @@ class VerificationFlowCoordinator {
                 setupNavigationController()
             }
         } catch {
+            // If admin deletes customer/verification flow, local `customer_id` becomes stale.
+            // Recover by re-registering device to obtain a fresh `customer_id` and retry once.
+            print("OrderShieldSDK: startVerificationSession caught error type: \(type(of: error)) raw: \(error) localized: \(error.localizedDescription)")
+            let messageLowercased = error.localizedDescription.lowercased()
+            if retryCount == 0 && messageLowercased.contains("customer not found") {
+                print("OrderShieldSDK: Server says customer not found. Resetting local customer/session and retrying start...")
+                
+                // Reset any in-memory state from the previous attempt.
+                self.navigationController = nil
+                self.currentStepIndex = 0
+                self.requiredSteps = []
+                self.sessionToken = nil
+                
+                // Clear stale local identifiers but keep device_id so re-registering creates a new customer.
+                StorageService.shared.clearCustomerAndSessionPreservingDeviceId()
+                
+                do {
+                    let deviceId = DeviceInfo.getDeviceId()
+                    let deviceRequest = DeviceRegistrationRequest(
+                        deviceId: deviceId,
+                        deviceType: "ios",
+                        deviceModel: DeviceInfo.getDeviceModel(),
+                        osVersion: DeviceInfo.getOSVersion(),
+                        appVersion: DeviceInfo.getAppVersion(),
+                        ipAddress: DeviceInfo.getIPAddress(),
+                        userAgent: DeviceInfo.getUserAgent(),
+                        timezone: DeviceInfo.getTimezone()
+                    )
+                    let registrationResponse = try await NetworkService.shared.registerDevice(deviceRequest)
+                    StorageService.shared.saveDeviceId(deviceId)
+                    StorageService.shared.saveCustomerId(registrationResponse.data.customerId)
+                    
+                    // Refresh settings used by UI step screens.
+                    let settingsResponse = try await NetworkService.shared.fetchVerificationSettings()
+                    StorageService.shared.saveRequiredSteps(settingsResponse.data.requiredSteps)
+                    StorageService.shared.saveVerificationSettings(settingsResponse.data)
+                    
+                    // Retry start flow with new customer_id.
+                    await startVerificationSession(retryCount: 1)
+                    return
+                } catch {
+                    print("OrderShieldSDK: Recovery re-register failed: \(error.localizedDescription).")
+                    // Fall through to original error handling below.
+                }
+            }
+            
             await MainActor.run {
                 delegate?.orderShieldDidStartVerification(success: false, sessionToken: nil, error: error)
                 objcDelegate?.orderShieldDidStartVerification?(success: false, sessionToken: nil, error: error)
